@@ -1,43 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Levels\Chunk.cs">
     <Files>
-      <File FileName="Assets\Levels\Chunk.cs" Line="5" Column="1" />
-      <File FileName="Assets\Levels\ChunkColumn.cs" Line="116" Column="1" />
-      <File FileName="Assets\Levels\Chunk.cs" Line="1" Column="1" />
-      <File FileName="Assets\Levels\World.cs" Line="1" Column="1" />
-      <File FileName="Assets\Levels\ModifyTerrain.cs" Line="1" Column="1" />
-      <File FileName="Assets\Levels\Noise.cs" Line="1" Column="1" />
+      <File FileName="Assets\Levels\Chunk.cs" Line="5" Column="19" />
+      <File FileName="Assets\Levels\ChunkColumn.cs" Line="1" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True" selected="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Levels" expanded="True" />
-          </Node>
-        </State>
-      </Pad>
-      <Pad Id="ClassPad">
-        <State expanded="True" selected="True" />
-      </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State>
-          <Value>Click here to add a new watch</Value>
-          <Value>data[x,y,z]</Value>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="127" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="124" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="120" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="116" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="112" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="130" />
-      <Breakpoint file="C:\Users\Phil\Dropbox\Voxel\Assets\Levels\ChunkColumn.cs" line="111" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

@@ -52,7 +52,6 @@
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonCamera.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonController.js" />
      <None Include="Assets\Test2.shader" />
-     <None Include="Assets\Test2 (numero-ppx&apos;s conflicted copy 2014-03-25).shader" />
      <None Include="Assets\Unlit-AlphaTest.shader" />
      <None Include="Assets\Unlit-Alpha.shader" />
      <None Include="Assets\test1.shader" />

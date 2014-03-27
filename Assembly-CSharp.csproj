@@ -46,7 +46,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Levels\Chunk (numero-ppx&apos;s conflicted copy 2014-03-25).cs" />
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\ChunkColumn.cs" />
      <Compile Include="Assets\Levels\ModifyTerrain.cs" />
@@ -54,7 +53,6 @@
      <Compile Include="Assets\Levels\PolygonGenerator.cs" />
      <Compile Include="Assets\Levels\World.cs" />
      <None Include="Assets\Test2.shader" />
-     <None Include="Assets\Test2 (numero-ppx&apos;s conflicted copy 2014-03-25).shader" />
      <None Include="Assets\Unlit-AlphaTest.shader" />
      <None Include="Assets\Unlit-Alpha.shader" />
      <None Include="Assets\test1.shader" />
