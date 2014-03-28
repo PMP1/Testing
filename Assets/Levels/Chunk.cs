@@ -99,33 +99,46 @@ public class Chunk : MonoBehaviour {
 				SpreadDaylight(x, y + 1, z - 1, 13);
 			}
 		}
-
-
 	}
+
 	public void SpreadDaylight(int x, int y, int z, byte level) {
 
-		if (x < 0 && chunkX - 1 > 0 && world.chunks [chunkX - 1, chunkZ]) {
-			world.chunks [chunkX - 1, chunkZ].SpreadDaylight (sectionSize + x, y, z, level);
+		if (x < 0) {
+			SpreadDaylightToChunk(chunkX - 1, chunkZ, sectionSize + x, y, z, level);
+			return; 
 		}
 		
-		if (x >= sectionSize && chunkX + 1 < world.worldX && world.chunks [chunkX + 1, chunkZ]) {
-			world.chunks [chunkX + 1, chunkZ].SpreadDaylight (sectionSize - x, y, z, level);
+		if (x >= sectionSize) {
+			SpreadDaylightToChunk(chunkX + 1, chunkZ, sectionSize - x, y, z, level);
+			return; 
 		}
 
-		if (z < 0 && chunkZ - 1 > 0 && world.chunks [chunkX, chunkZ - 1]) {
+		if (z < 0) {
+			SpreadDaylightToChunk(chunkX, chunkZ - 1, x, y, sectionSize + z, level);
+			return; 
+		}
+		
+		if (z >= sectionSize) {
+			SpreadDaylightToChunk(chunkX, chunkZ + 1, x, y, sectionSize - z, level);
+			return; 
+		}
+
+
+
+		/*if (z < 0 && chunkZ - 1 > 0 && world.chunks [chunkX, chunkZ - 1]) {
 			world.chunks [chunkX, chunkZ - 1].SpreadDaylight (x, y, sectionSize + z, level);
 		}
 		
 		if (z >= sectionSize && chunkZ + 1 < world.worldX && world.chunks [chunkX, chunkZ + 1]) {
 			world.chunks [chunkX, chunkZ + 1].SpreadDaylight (x, y, sectionSize - z, level);
-		}
+		}*/
 		if (y < 0 || y >= worldY)
 			return;
 
-		if (x < 0 || y < 0 || z < 0 || x >= sectionSize || y >= worldY || z >= sectionSize)
-			return; //TODO SPREAD OVER CHUNKS
 
-
+		print("Updating: " + chunkX + ", " + worldY + ", " + chunkZ);
+		//if (x < 0 || y < 0 || z < 0 || x >= sectionSize || y >= worldY || z >= sectionSize)
+		//	return; 
 
 		if (daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
 
@@ -138,6 +151,32 @@ public class Chunk : MonoBehaviour {
 			SpreadDaylight(x, y, z + 1, level);
 			SpreadDaylight(x, y, z - 1, level);
 		}
+	}
+
+	void SpreadDaylightToChunk(int chunkX, int chunkZ, int x, int y, int z, byte level) {
+
+		if (IsChunk (chunkX, chunkZ)) {
+			world.chunks [chunkX, chunkZ].SpreadDaylight (x, y, z, level);
+			world.chunks [chunkX, chunkZ].update = true;
+		}
+	}
+
+	/// <summary>
+	/// Does a chunk exist and is loaded at x, z
+	/// </summary>
+	/// <returns></returns>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="z">The z coordinate.</param>
+	bool IsChunk(int x, int z) {
+
+		if ( x < 0 || z < 0 || x >= world.worldX || z >= world.worldZ)
+		{
+			return false;
+		}
+		if (!world.chunks [x, z]) {
+				return false;
+		}
+		return true;
 	}
 
 
