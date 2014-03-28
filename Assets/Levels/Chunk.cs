@@ -1,280 +1,197 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
-public class Chunk : MonoBehaviour
-{
+public class Chunk : MonoBehaviour {
 
 	public GameObject worldGO;
-	public World world;
-
-	public GameObject chunkColumnGO;
-	public ChunkColumn chunkColumn;
-
-	private List<Vector3> newVertices = new List<Vector3> ();
-	private List<int> newTriangles = new List<int> ();
-	private List<Vector2> newUV = new List<Vector2> ();
-	private List<Vector2> newUV2 = new List<Vector2> ();
-	private float tUnit = 0.25f;
-	private Vector2 tStone = new Vector2 (1, 0);
-	private Vector2 tGrass = new Vector2 (0, 1);
-	private Vector2 tGrassTop = new Vector2 (1, 1);
-	private Mesh mesh;
-	private MeshCollider col;
-	private int faceCount;
-	public int chunkSize = 16;
+	World world;
+	public Section[] sections; 
+	public int sectionSize=16;
+	public GameObject section;
 	public int chunkX;
-	public int chunkY;
+	public int worldY; //world y
 	public int chunkZ;
-		
-	public bool update;
+
+	public bool update = false;
+	public bool updateLight = true;
+
+	//need to save world data here
+	public byte[,,] data;
+	public byte[,,] lightData;
+	public byte[,,] daylightData;
+	public int[,] heightMap; // records the max height of a solid object (used for quick daylight)
 
 	// Use this for initialization
-	void Start ()
-	{ 
+	void Start () {
+		world=worldGO.GetComponent("World") as World;
 
-		//world = worldGO.GetComponent ("World") as World;
-		//chunkColumn = chunkColumnGO.GetComponent ("ChunkColumn") as ChunkColumn;
+		sections=new Section[Mathf.FloorToInt(worldY/sectionSize)];
+		daylightData = new byte[sectionSize, worldY, sectionSize];
 
-		mesh = GetComponent<MeshFilter> ().mesh;
-		col = GetComponent<MeshCollider> ();
-
-		GenerateMesh ();
-
+		GenColumn ();
 
 	}
-
-// Update is called once per frame
-	void Update ()
-	{
-
+	
+	// Update is called once per frame
+	void Update () {
+	
 	}
 
+	void LateUpdate () {
+		if(update || updateLight){
 
+			update=false;
 
-	public void GenerateMesh ()
-	{
-		for (int x=0; x<chunkSize; x++) {
-			for (int y=0; y<chunkSize; y++) {
-				for (int z=0; z<chunkSize; z++) {
-					//This code will run for every block in the chunk
-					if (Block (x, y, z) != 0) {
-						if (Block (x, y + 1, z) <= 0) {
-							//Block above is air
-							CubeTop (x, y, z, Block (x, y, z));
-						}
+			updateLight = false;
+			SetHeightMap();
+			GenerateDayLightData();
 
-						if (Block (x, y - 1, z) <= 0) {
-							//Block below is air
-							CubeBot (x, y, z, Block (x, y, z));
-						}
+			for( int i = 0; i < sections.Length; i ++) {
+				sections[i].update = true;
+			}
+		}
+	}
 
-						if (Block (x + 1, y, z) <= 0 ) {
-							//Block east is air
-							CubeEast (x, y, z, Block (x, y, z));
-						}
+	public void SetHeightMap() {
+		heightMap = new int[16,16];
 
-						if (Block (x - 1, y, z) <= 0) {
-							//Block west is air
-							CubeWest (x, y, z, Block (x, y, z));
-						}
+		for (int i = 0; i < 0; i++) {
+			for (int j = 0; j < 0; j++) {
+				heightMap[i,j] = 0;
+			}
+		}
 
-						if (Block (x, y, z + 1) <= 0) {
-							//Block north is air
-							CubeNorth (x, y, z, Block (x, y, z));
-						}
-
-						if (Block (x, y, z - 1) <= 0) {
-							//Block south is air
-							CubeSouth (x, y, z, Block (x, y, z));
-						}
+		for (int x=0; x<sectionSize; x++) 
+		{
+			for (int z=0; z<sectionSize; z++) 
+			{
+				for (int y=worldY - 1; y >= 0; y--) 
+				{
+					if (Block (x, y, z) != 0)
+					{
+						heightMap[x,z] = y;
+						break;
 					}
 				}
 			}
 		}
-		UpdateMesh ();
 	}
 
-	byte Block (int x, int y, int z)
+	public int GetDaylightHeight(int x, int z) 
 	{
-		//return world.Block (x + chunkX, y + chunkY, z + chunkZ);
-		return chunkColumn.Block (x, y + chunkY, z);
+		return this.heightMap[x, z];
 	}
 
-	byte LightBlock (int x, int y, int z)
+	void GenerateDayLightData()
 	{
-		//return world.Block (x + chunkX, y + chunkY, z + chunkZ);
-		return chunkColumn.LightBlock (x, y + chunkY, z);
-	}
+		daylightData = new byte[sectionSize, worldY, sectionSize];
+		for (int x = 0; x < sectionSize; x++) {
+			for (int z = 0; z < sectionSize; z++) {
 
-	void CubeTop (int x, int y, int z, byte block)
-	{
+				int y = this.heightMap[x, z];
+				daylightData[x, y + 1, z] = 15;
 
-		newVertices.Add (new Vector3 (x, y, z + 1));
-		newVertices.Add (new Vector3 (x + 1, y, z + 1));
-		newVertices.Add (new Vector3 (x + 1, y, z));
-		newVertices.Add (new Vector3 (x, y, z));
-
-		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrassTop;
-		}
-
-		Cube (texturePos, LightBlock(x, y + 1, z));
-
-	}
-
-	void CubeNorth (int x, int y, int z, byte block)
-	{
-
-		newVertices.Add (new Vector3 (x + 1, y - 1, z + 1));
-		newVertices.Add (new Vector3 (x + 1, y, z + 1));
-		newVertices.Add (new Vector3 (x, y, z + 1));
-		newVertices.Add (new Vector3 (x, y - 1, z + 1));
-
-		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
-
-		Cube (texturePos, LightBlock(x, y, z + 1));
-
-	}
-
-	void CubeEast (int x, int y, int z, byte block)
-	{
-		newVertices.Add (new Vector3 (x + 1, y - 1, z));
-		newVertices.Add (new Vector3 (x + 1, y, z));
-		newVertices.Add (new Vector3 (x + 1, y, z + 1));
-		newVertices.Add (new Vector3 (x + 1, y - 1, z + 1));
-
-		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
-
-		Cube (texturePos, LightBlock(x + 1, y, z));
-
-	}
-
-	void CubeSouth (int x, int y, int z, byte block)
-	{
-
-		newVertices.Add (new Vector3 (x, y - 1, z));
-		newVertices.Add (new Vector3 (x, y, z));
-		newVertices.Add (new Vector3 (x + 1, y, z));
-		newVertices.Add (new Vector3 (x + 1, y - 1, z));
-
-		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
-
-		Cube (texturePos, LightBlock(x, y, z - 1));
-
-	}
-
-	void CubeWest (int x, int y, int z, byte block)
-	{
-
-			newVertices.Add (new Vector3 (x, y - 1, z + 1));
-			newVertices.Add (new Vector3 (x, y, z + 1));
-			newVertices.Add (new Vector3 (x, y, z));
-			newVertices.Add (new Vector3 (x, y - 1, z));
-
-			Vector2 texturePos = new Vector2 (0, 0);
-
-			if (Block (x, y, z) == 1) {
-					texturePos = tStone;
-			} else if (Block (x, y, z) == 2) {
-					texturePos = tGrass;
+				SpreadDaylight(x, y + 2, z, 13); //up
+				SpreadDaylight(x, y, z, 13); //down
+				SpreadDaylight(x + 1, y + 1, z, 13);
+				SpreadDaylight(x - 1, y + 1, z, 13);
+				SpreadDaylight(x, y + 1, z + 1, 13);
+				SpreadDaylight(x, y + 1, z - 1, 13);
 			}
-
-		Cube (texturePos,  LightBlock(x - 1, y, z));
-
-	}
-
-	void CubeBot (int x, int y, int z, byte block)
-	{
-
-		newVertices.Add (new Vector3 (x, y - 1, z));
-		newVertices.Add (new Vector3 (x + 1, y - 1, z));
-		newVertices.Add (new Vector3 (x + 1, y - 1, z + 1));
-		newVertices.Add (new Vector3 (x, y - 1, z + 1));
-
-		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
 		}
 
-		Cube (texturePos,  LightBlock(x, y - 1, z));
 
 	}
+	public void SpreadDaylight(int x, int y, int z, byte level) {
 
-	void Cube (Vector2 texturePos, byte lightLevel)
+		if (x < 0 && chunkX - 1 > 0 && world.chunks [chunkX - 1, chunkZ]) {
+			world.chunks [chunkX - 1, chunkZ].SpreadDaylight (sectionSize + x, y, z, level);
+		}
+		
+		if (x >= sectionSize && chunkX + 1 < world.worldX && world.chunks [chunkX + 1, chunkZ]) {
+			world.chunks [chunkX + 1, chunkZ].SpreadDaylight (sectionSize - x, y, z, level);
+		}
+
+		if (z < 0 && chunkZ - 1 > 0 && world.chunks [chunkX, chunkZ - 1]) {
+			world.chunks [chunkX, chunkZ - 1].SpreadDaylight (x, y, sectionSize + z, level);
+		}
+		
+		if (z >= sectionSize && chunkZ + 1 < world.worldX && world.chunks [chunkX, chunkZ + 1]) {
+			world.chunks [chunkX, chunkZ + 1].SpreadDaylight (x, y, sectionSize - z, level);
+		}
+		if (y < 0 || y >= worldY)
+			return;
+
+		if (x < 0 || y < 0 || z < 0 || x >= sectionSize || y >= worldY || z >= sectionSize)
+			return; //TODO SPREAD OVER CHUNKS
+
+
+
+		if (daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
+
+			daylightData [x, y, z] = level;
+			level -= 2;
+			SpreadDaylight(x, y + 1, z, level); //up
+			SpreadDaylight(x, y - 1, z, level); //down
+			SpreadDaylight(x + 1, y, z, level);
+			SpreadDaylight(x - 1, y, z, level);
+			SpreadDaylight(x, y, z + 1, level);
+			SpreadDaylight(x, y, z - 1, level);
+		}
+	}
+
+
+	public byte Block (int x, int y, int z)
 	{
-		newTriangles.Add (faceCount * 4); //1
-		newTriangles.Add (faceCount * 4 + 1); //2
-		newTriangles.Add (faceCount * 4 + 2); //3
-		newTriangles.Add (faceCount * 4); //1
-		newTriangles.Add (faceCount * 4 + 2); //3
-		newTriangles.Add (faceCount * 4 + 3); //4
-
-		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
-		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
-		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
-		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
-
-		//inversed y!
-		Vector2 lightUV = new Vector2(lightLevel / 4, lightLevel % 4	);
-		newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y + tUnit));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y + tUnit));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y));
-
-		faceCount++; // Add this line
+		if( x>=sectionSize || x<0 || y>=64 || y<0 || z>=sectionSize || z<0)
+		{
+			return (byte)0;
+		}
+		return data[x,y,z];
 	}
 
-	void UpdateMesh ()
+	public byte LightBlock (int x, int y, int z)
 	{
-		mesh.Clear ();
-		mesh.vertices = newVertices.ToArray ();
-		mesh.uv = newUV.ToArray ();
-		mesh.uv2 = newUV2.ToArray ();
-		mesh.triangles = newTriangles.ToArray ();
-		mesh.Optimize ();
-		mesh.RecalculateNormals ();
+		if (x >= sectionSize && (chunkX*sectionSize) + 1 < world.worldX && world.chunks[chunkX + 1, chunkZ]) {
+			return world.chunks[chunkX + 1, chunkZ].LightBlock(sectionSize - x,y,z);
+		}
+		if (x < 0 && chunkX - 1 >= 0 && world.chunks[chunkX - 1, chunkZ]) {
+			return world.chunks[chunkX - 1, chunkZ].LightBlock(sectionSize + x,y,z);
+		}
+		if (z >= sectionSize && (chunkZ*sectionSize) + 1 < world.worldZ && world.chunks[chunkX, chunkZ + 1]) {
+			return world.chunks[chunkX, chunkZ + 1].LightBlock(x,y,sectionSize - z);
+		}
+		if (z < 0 && chunkZ -1 >= 0 && world.chunks[chunkX, chunkZ - 1]) {
+			return world.chunks[chunkX, chunkZ - 1].LightBlock(x,y,sectionSize + z);
+		}
 
-		col.sharedMesh = null;
-		col.sharedMesh = mesh;
-
-		newVertices.Clear ();
-		newUV.Clear ();
-		newUV2.Clear ();
-		newTriangles.Clear ();
-		faceCount = 0;
-
+		if( x>=sectionSize || x<0 || y>=64 || y<0 || z>=sectionSize || z<0)
+		{
+			return (byte)0;
+		}
+		return daylightData[x,y,z];
 	}
 
-	void LateUpdate () {
-		if(update){
-			GenerateMesh();
-			update=false;
+	public void GenColumn(){
+		
+
+		for (int y= (worldY/sectionSize) - 1; y >= 0; y--){
+			//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
+			GameObject newChunk= Instantiate(section,new Vector3(chunkX*sectionSize-0.5f,
+			                                                   y*sectionSize+0.5f,
+			                                                     chunkZ*sectionSize-0.5f),new Quaternion(0,0,0,0)) as GameObject;
+
+			sections[y]= newChunk.GetComponent("Section") as Section;
+			sections[y].worldGO=worldGO;
+			sections[y].chunkGO=this.gameObject;
+			sections[y].world=worldGO.GetComponent ("World") as World;
+			sections[y].chunk=this.gameObject.GetComponent ("Chunk") as Chunk;
+			sections[y].sectionSize=sectionSize;
+			sections[y].sectionX=chunkX*sectionSize;
+			sections[y].sectionY=y*sectionSize;
+			sections[y].sectionZ=chunkZ*sectionSize;
+
+			
 		}
 	}
 }

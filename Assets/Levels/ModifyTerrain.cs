@@ -28,30 +28,30 @@ public class ModifyTerrain : MonoBehaviour {
 	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload){
 
 
-		for(int x=0;x<world.chunkColumns.GetLength(0);x++){
-			for(int z=0;z<world.chunkColumns.GetLength(1);z++){
+		for(int x=0;x<world.chunks.GetLength(0);x++){
+			for(int z=0;z<world.chunks.GetLength(1);z++){
 				
-				float dist=Vector2.Distance(new Vector2(x*world.chunkSize,
-				                                        z*world.chunkSize),new Vector2(playerPos.x,playerPos.z));
+				float dist=Vector2.Distance(new Vector2(x*world.sectionSize,
+				                                        z*world.sectionSize),new Vector2(playerPos.x,playerPos.z));
 				
 				if(dist<distToLoad){
-					if(world.chunkColumns[x,z]==null){
+					if(world.chunks[x,z]==null){
 						world.GenColumn(x,z);
-						if (x - 1 > 0 && world.chunkColumns[x - 1, z]) {
-							world.chunkColumns[x - 1, z].update = true;
+						if (x - 1 > 0 && world.chunks[x - 1, z]) {
+							world.chunks[x - 1, z].update = true;
 						}
-						if (z - 1 > 0 && world.chunkColumns[x, z - 1]) {
-							world.chunkColumns[x, z - 1].update = true;
+						if (z - 1 > 0 && world.chunks[x, z - 1]) {
+							world.chunks[x, z - 1].update = true;
 						}
-						if (x + 1 >= world.worldX && world.chunkColumns[x + 1, z]) {
-							world.chunkColumns[x + 1, z].update = true;
+						if (x + 1 >= world.worldX && world.chunks[x + 1, z]) {
+							world.chunks[x + 1, z].update = true;
 						}
-						if (z + 1 >= world.worldZ && world.chunkColumns[x, z + 1]) {
-							world.chunkColumns[x, z + 1].update = true;
+						if (z + 1 >= world.worldZ && world.chunks[x, z + 1]) {
+							world.chunks[x, z + 1].update = true;
 						}
 					}
 				} else if(dist>distToUnload){
-					if(world.chunkColumns[x,z]!=null){
+					if(world.chunks[x,z]!=null){
 						
 						world.UnloadColumn(x,z);
 					}
@@ -152,40 +152,40 @@ public class ModifyTerrain : MonoBehaviour {
 	
 	public void UpdateChunkAt(int x, int y, int z, byte block){
 		//Updates the chunk containing this block
-		int updateX= Mathf.FloorToInt( x/world.chunkSize);
-		int updateY= Mathf.FloorToInt( y/world.chunkSize);
-		int updateZ= Mathf.FloorToInt( z/world.chunkSize);
+		int updateX= Mathf.FloorToInt( x/world.sectionSize);
+		int updateY= Mathf.FloorToInt( y/world.sectionSize);
+		int updateZ= Mathf.FloorToInt( z/world.sectionSize);
 
-		int blockPosX = x % world.chunkSize;
-		int blockPosZ = z % world.chunkSize;
-		world.chunkColumns [updateX, updateZ].data[blockPosX,y,blockPosZ] = block;
+		int blockPosX = x % world.sectionSize;
+		int blockPosZ = z % world.sectionSize;
+		world.chunks [updateX, updateZ].data[blockPosX,y,blockPosZ] = block;
 
 		print("Updating: " + updateX + ", " + updateY + ", " + updateZ);
 
-		world.chunkColumns[updateX, updateZ].update=true;
+		world.chunks[updateX, updateZ].update=true;
 
-		if(x-(world.chunkSize*updateX)==0 && updateX!=0){
-			world.chunkColumns[updateX-1, updateZ].update=true;
+		if(x-(world.sectionSize*updateX)==0 && updateX!=0){
+			world.chunks[updateX-1, updateZ].update=true;
 		}
 		
-		if(x-(world.chunkSize*updateX)==15 && updateX!=world.chunkColumns.GetLength(0)-1){
-			world.chunkColumns[updateX+1, updateZ].update=true;
+		if(x-(world.sectionSize*updateX)==15 && updateX!=world.chunks.GetLength(0)-1){
+			world.chunks[updateX+1, updateZ].update=true;
 		}
 		
-		if(y-(world.chunkSize*updateY)==0 && updateY!=0){
-			world.chunkColumns[updateX, updateZ].update=true;
+		if(y-(world.sectionSize*updateY)==0 && updateY!=0){
+			world.chunks[updateX, updateZ].update=true;
 		}
 		
-		if(y-(world.chunkSize*updateY)==15 && updateY!=(world.worldZ/world.chunkSize)-1){
-			world.chunkColumns[updateX, updateZ].update=true;
+		if(y-(world.sectionSize*updateY)==15 && updateY!=(world.worldZ/world.sectionSize)-1){
+			world.chunks[updateX, updateZ].update=true;
 		}
 		
-		if(z-(world.chunkSize*updateZ)==0 && updateZ!=0){
-			world.chunkColumns[updateX, updateZ-1].update=true;
+		if(z-(world.sectionSize*updateZ)==0 && updateZ!=0){
+			world.chunks[updateX, updateZ-1].update=true;
 		}
 		
-		if(z-(world.chunkSize*updateZ)==15 && updateZ!=world.chunkColumns.GetLength(1)-1){
-			world.chunkColumns[updateX, updateZ+1].update=true;
+		if(z-(world.sectionSize*updateZ)==15 && updateZ!=world.chunks.GetLength(1)-1){
+			world.chunks[updateX, updateZ+1].update=true;
 		}
 	}
 
