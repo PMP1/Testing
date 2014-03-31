@@ -13,7 +13,7 @@ public class Chunk : MonoBehaviour {
 	public int chunkZ;
 
 	public bool update = false;
-	public bool updateLight = true;
+	public bool updateLight1 = false;
 
 	//need to save world data here
 	public byte[,,] data;
@@ -29,7 +29,7 @@ public class Chunk : MonoBehaviour {
 		daylightData = new byte[sectionSize, worldY, sectionSize];
 
 		GenColumn ();
-
+		update = true;
 	}
 	
 	// Update is called once per frame
@@ -38,11 +38,22 @@ public class Chunk : MonoBehaviour {
 	}
 
 	void LateUpdate () {
-		if(update || updateLight){
+		if(this.update || this.updateLight1){
 
 			update=false;
 
-			updateLight = false;
+			string debugMessage = "";
+			if (this.update && this.updateLight1) {
+				debugMessage = "BOTH update called ";
+			} else if (update) {
+				debugMessage = "UPDATE called ";
+			} else {
+				debugMessage = "LIGHT UPDATE called ";
+			}
+
+
+			print(debugMessage + ": " + chunkX + ", " + chunkZ);
+			this.updateLight1 = false;
 			SetHeightMap();
 			GenerateDayLightData();
 
@@ -85,6 +96,7 @@ public class Chunk : MonoBehaviour {
 	void GenerateDayLightData()
 	{
 		daylightData = new byte[sectionSize, worldY, sectionSize];
+		updateLight1 = true;
 		for (int x = 0; x < sectionSize; x++) {
 			for (int z = 0; z < sectionSize; z++) {
 
@@ -136,13 +148,14 @@ public class Chunk : MonoBehaviour {
 			return;
 
 
-		print("Updating: " + chunkX + ", " + worldY + ", " + chunkZ);
+		//print("Updating: " + chunkX + ", " + worldY + ", " + chunkZ);
 		//if (x < 0 || y < 0 || z < 0 || x >= sectionSize || y >= worldY || z >= sectionSize)
 		//	return; 
 
 		if (daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
 
 			daylightData [x, y, z] = level;
+			updateLight1 = true;
 			level -= 2;
 			SpreadDaylight(x, y + 1, z, level); //up
 			SpreadDaylight(x, y - 1, z, level); //down
@@ -157,7 +170,7 @@ public class Chunk : MonoBehaviour {
 
 		if (IsChunk (chunkX, chunkZ)) {
 			world.chunks [chunkX, chunkZ].SpreadDaylight (x, y, z, level);
-			world.chunks [chunkX, chunkZ].update = true;
+			//world.chunks [chunkX, chunkZ].updateLight1 = true;
 		}
 	}
 
