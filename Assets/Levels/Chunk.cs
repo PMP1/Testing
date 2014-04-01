@@ -13,7 +13,7 @@ public class Chunk : MonoBehaviour {
 	public int chunkZ;
 
 	public bool update = false;
-	public bool updateLight1 = false;
+	public bool updateLight = false;
 
 	//need to save world data here
 	public byte[,,] data;
@@ -38,24 +38,32 @@ public class Chunk : MonoBehaviour {
 	}
 
 	void LateUpdate () {
-		if(this.update || this.updateLight1){
 
-			update=false;
+
+		if(update || updateLight){
 
 			string debugMessage = "";
-			if (this.update && this.updateLight1) {
+			if (this.update && this.updateLight) {
 				debugMessage = "BOTH update called ";
 			} else if (update) {
 				debugMessage = "UPDATE called ";
 			} else {
 				debugMessage = "LIGHT UPDATE called ";
 			}
-
-
 			print(debugMessage + ": " + chunkX + ", " + chunkZ);
-			this.updateLight1 = false;
-			SetHeightMap();
+
+
+
+
+			if (this.update) {
+				//terrain has been updated
+				update=false;
+				SetHeightMap();
+			}
+		
+			//terrain and light both should update this
 			GenerateDayLightData();
+			updateLight = false;
 
 			for( int i = 0; i < sections.Length; i ++) {
 				sections[i].update = true;
@@ -88,15 +96,14 @@ public class Chunk : MonoBehaviour {
 		}
 	}
 
-	public int GetDaylightHeight(int x, int z) 
+	/*public int GetDaylightHeight(int x, int z) 
 	{
 		return this.heightMap[x, z];
-	}
+	}*/
 
 	void GenerateDayLightData()
 	{
 		daylightData = new byte[sectionSize, worldY, sectionSize];
-		updateLight1 = true;
 		for (int x = 0; x < sectionSize; x++) {
 			for (int z = 0; z < sectionSize; z++) {
 
@@ -135,27 +142,14 @@ public class Chunk : MonoBehaviour {
 			return; 
 		}
 
-
-
-		/*if (z < 0 && chunkZ - 1 > 0 && world.chunks [chunkX, chunkZ - 1]) {
-			world.chunks [chunkX, chunkZ - 1].SpreadDaylight (x, y, sectionSize + z, level);
-		}
-		
-		if (z >= sectionSize && chunkZ + 1 < world.worldX && world.chunks [chunkX, chunkZ + 1]) {
-			world.chunks [chunkX, chunkZ + 1].SpreadDaylight (x, y, sectionSize - z, level);
-		}*/
 		if (y < 0 || y >= worldY)
 			return;
 
 
-		//print("Updating: " + chunkX + ", " + worldY + ", " + chunkZ);
-		//if (x < 0 || y < 0 || z < 0 || x >= sectionSize || y >= worldY || z >= sectionSize)
-		//	return; 
-
 		if (daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
 
 			daylightData [x, y, z] = level;
-			updateLight1 = true;
+			updateLight = true;
 			level -= 2;
 			SpreadDaylight(x, y + 1, z, level); //up
 			SpreadDaylight(x, y - 1, z, level); //down
@@ -170,7 +164,6 @@ public class Chunk : MonoBehaviour {
 
 		if (IsChunk (chunkX, chunkZ)) {
 			world.chunks [chunkX, chunkZ].SpreadDaylight (x, y, z, level);
-			//world.chunks [chunkX, chunkZ].updateLight1 = true;
 		}
 	}
 
