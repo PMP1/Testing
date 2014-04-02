@@ -3,9 +3,9 @@ using System.Collections;
 
 public class TimeManager : MonoBehaviour {
 	
-	public  float updateInterval = 0.5F;
+	public  float updateInterval = 0.1F;
 	public  float fps = 0;
-	public World world;
+	private World world;
 
 	private float accum   = 0; // FPS accumulated over the interval
 	private int   frames  = 0; // Frames drawn over the interval
@@ -16,7 +16,7 @@ public class TimeManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		//world=worldGO.GetComponent("World") as World;
+		world=gameObject.GetComponent("World") as World;
 		timeleft = updateInterval; 
 
 	}
@@ -56,30 +56,31 @@ public class TimeManager : MonoBehaviour {
 	void DayTimeTick() {
 		int tick = (int)Time.timeSinceLevelLoad % 24;
 		if (tick != previousTick) {
-			for(int x = 0; x < world.worldX; x++){ 
-				for(int z = 0; z < world.worldZ; z++){ 
-					world.chunks[x, z].updateLight = true;
+			for(int x = 0; x < world.chunks.GetLength(0); x++){ 
+				for(int z = 0; z < world.chunks.GetLength(1); z++){ 
+					if (world.chunks[x, z])
+						world.chunks[x, z].updateLight = true;
 				}
 			}
 			previousTick = tick;
 		}
 	}
 
-	byte GetDayLightLevel(int tick) {
+	public byte GetDayLightLevel() {
 
-		if (tick < 6 || tick > 18)  {
-			return (byte)0;
+		if (previousTick <= 6 || previousTick >= 18)  {
+			return (byte)15;
 		}
-		if (tick == 7 || tick == 15) {
+		if (previousTick == 7 || previousTick == 17) {
+			return (byte)13;
+		}
+		if (previousTick == 8 || previousTick == 16) {
+			return (byte)9;
+		}
+		if (previousTick == 9 || previousTick == 15) {
 			return (byte)2;
 		}
-		if (tick == 8 || tick == 14) {
-			return (byte)5;
-		}
-		if (tick == 9 || tick == 13) {
-			return (byte)10;
-		}
-		return 15;
+		return 0;
 
 	}
 }
