@@ -28,6 +28,7 @@ public class Section : MonoBehaviour
 	public int sectionZ;
 		
 	public bool update;
+	public bool lightUpdate;
 
 	// Use this for initialization
 	void Start ()
@@ -38,13 +39,21 @@ public class Section : MonoBehaviour
 		GenerateMesh ();
 	}
 
-// Update is called once per frame
+	// Update is called once per frame
 	void Update ()
 	{
 
 	}
 
-
+	void LateUpdate () {
+		if (update) {
+			GenerateMesh ();
+			update = false;
+		} else if (lightUpdate) {
+			GenerateLight ();
+			lightUpdate = false;
+		}
+	}
 
 	public void GenerateMesh ()
 	{
@@ -263,10 +272,47 @@ public class Section : MonoBehaviour
 
 	}
 
-	void LateUpdate () {
-		if(update){
-			GenerateMesh();
-			update=false;
+	//TODO finish generating light update, need to tests agianst non light update
+	public void GenerateLight ()
+	{
+		for (int x=0; x<sectionSize; x++) {
+			for (int y=0; y<sectionSize; y++) {
+				for (int z=0; z<sectionSize; z++) {
+					if (Block (x, y, z) != 0) {
+						if (Block (x, y + 1, z) <= 0) {
+							//Block above is air
+							CubeTop (x, y, z, Block (x, y, z));
+						}
+						
+						if (Block (x, y - 1, z) <= 0) {
+							//Block below is air
+							CubeBot (x, y, z, Block (x, y, z));
+						}
+						
+						if (Block (x + 1, y, z) <= 0 ) {
+							//Block east is air
+							CubeEast (x, y, z, Block (x, y, z));
+						}
+						
+						if (Block (x - 1, y, z) <= 0) {
+							//Block west is air
+							CubeWest (x, y, z, Block (x, y, z));
+						}
+						
+						if (Block (x, y, z + 1) <= 0) {
+							//Block north is air
+							CubeNorth (x, y, z, Block (x, y, z));
+						}
+						
+						if (Block (x, y, z - 1) <= 0) {
+							//Block south is air
+							CubeSouth (x, y, z, Block (x, y, z));
+						}
+					}
+				}
+			}
 		}
 	}
+
+
 }

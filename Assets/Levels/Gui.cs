@@ -2,10 +2,15 @@
 using System.Collections;
 
 public class Gui : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
 	
+
+	public TimeManager time;
+	public GameObject worldGO;
+	World world;
+	int lastTick = -1;
+
+	void Start () {
+		//world=worldGO.GetComponent("World") as World;
 	}
 	
 	// Update is called once per frame
@@ -19,13 +24,23 @@ public class Gui : MonoBehaviour {
 
 
 
+
+
 		int tick = (int)Time.timeSinceLevelLoad % 24;
 
-
+		/*if (lastTick != tick) {
+			for (int x=0; x<world.worldX; x++){
+				for (int z=0; z<world.worldZ; z++){
+					world.chunks[x, z].updateLight = true;
+				}
+			}
+		}*/
 
 		GUI.Label (new Rect (10, 10, 100, 20), Time.timeSinceLevelLoad.ToString() );
 
 		GUI.Label (new Rect (10, 30, 100, 20), tick.ToString() + ":00" );
+
+		GUI.Label (new Rect (10, 50, 100, 20), time.fps.ToString());
 
 	}
 

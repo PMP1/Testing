@@ -13,6 +13,8 @@ public class World : MonoBehaviour {
 	public Chunk[,] chunks; 
 	public int sectionSize=16;
 
+	public TimeManager time;
+
 
 	// Use this for initialization
 	void Awake() {
