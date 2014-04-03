@@ -3,7 +3,7 @@ using System.Collections;
 
 public class TimeManager : MonoBehaviour {
 	
-	public  float updateInterval = 0.1F;
+	public  float updateInterval = 0.05F;
 	public  float fps = 0;
 	private World world;
 
@@ -11,7 +11,7 @@ public class TimeManager : MonoBehaviour {
 	private int   frames  = 0; // Frames drawn over the interval
 	private float timeleft; // Left time for current interval
 	private int previousTick = -1;
-
+	private byte previousDayLight = 0;
 
 
 	// Use this for initialization
@@ -55,14 +55,20 @@ public class TimeManager : MonoBehaviour {
 	
 	void DayTimeTick() {
 		int tick = (int)Time.timeSinceLevelLoad % 24;
-		if (tick != previousTick) {
-			for(int x = 0; x < world.chunks.GetLength(0); x++){ 
-				for(int z = 0; z < world.chunks.GetLength(1); z++){ 
-					if (world.chunks[x, z])
-						world.chunks[x, z].updateLight = true;
+		if (tick != previousTick ) {
+
+			if (previousDayLight != GetDayLightLevel()) {
+
+				for(int x = 0; x < world.chunks.GetLength(0); x++){ 
+					for(int z = 0; z < world.chunks.GetLength(1); z++){ 
+						if (world.chunks[x, z])
+							world.chunks[x, z].changeDayLight = true;
+					}
 				}
+				previousDayLight = GetDayLightLevel();
 			}
 			previousTick = tick;
+
 		}
 	}
 

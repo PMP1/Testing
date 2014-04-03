@@ -243,14 +243,18 @@ public class Section : MonoBehaviour
 		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
 		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
 
-		//inversed y!
+		CubeLight (lightLevel);
+
+		faceCount++; // Add this line
+	}
+
+	void CubeLight(byte lightLevel) {
 		Vector2 lightUV = new Vector2(lightLevel / 4, lightLevel % 4	);
+		//inversed y!
 		newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y));
 		newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y + tUnit));
 		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y + tUnit));
 		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y));
-
-		faceCount++; // Add this line
 	}
 
 	void UpdateMesh ()
@@ -277,43 +281,51 @@ public class Section : MonoBehaviour
 	//TODO finish generating light update, need to tests agianst non light update
 	public void GenerateLight ()
 	{
+		byte lightLevel;
 		for (int x=0; x<sectionSize; x++) {
 			for (int y=0; y<sectionSize; y++) {
 				for (int z=0; z<sectionSize; z++) {
 					if (Block (x, y, z) != 0) {
 						if (Block (x, y + 1, z) <= 0) {
 							//Block above is air
-							CubeTop (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x, y + 1, z));
 						}
 						
 						if (Block (x, y - 1, z) <= 0) {
 							//Block below is air
-							CubeBot (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x, y - 1, z));
 						}
 						
 						if (Block (x + 1, y, z) <= 0 ) {
 							//Block east is air
-							CubeEast (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x + 1, y, z));
 						}
 						
 						if (Block (x - 1, y, z) <= 0) {
 							//Block west is air
-							CubeWest (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x - 1, y, z));
 						}
 						
 						if (Block (x, y, z + 1) <= 0) {
 							//Block north is air
-							CubeNorth (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x, y, z + 1));
 						}
 						
 						if (Block (x, y, z - 1) <= 0) {
 							//Block south is air
-							CubeSouth (x, y, z, Block (x, y, z));
+							CubeLight (LightBlock(x, y, z - 1));
 						}
 					}
 				}
 			}
 		}
+		UpdateMeshLight ();
+	}
+
+	void UpdateMeshLight ()
+	{
+		mesh.uv2 = newUV2.ToArray ();
+		newUV2.Clear ();
 	}
 
 

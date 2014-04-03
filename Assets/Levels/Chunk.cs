@@ -14,6 +14,7 @@ public class Chunk : MonoBehaviour {
 
 	public bool update = false;
 	public bool updateLight = false;
+	public bool changeDayLight = false;
 
 	//need to save world data here
 	public byte[,,] data;
@@ -40,34 +41,55 @@ public class Chunk : MonoBehaviour {
 	void LateUpdate () {
 
 
-		if(update || updateLight){
+		if(update || updateLight || changeDayLight){
 
 			string debugMessage = "";
-			if (this.update && this.updateLight) {
-				debugMessage = "BOTH update called ";
-			} else if (update) {
-				debugMessage = "UPDATE called ";
-			} else {
-				debugMessage = "LIGHT UPDATE called ";
-			}
-			print(debugMessage + ": " + chunkX + ", " + chunkZ);
-
-
+			if (this.update) {
+				debugMessage = "UPDATE called: " + chunkX + ", " + chunkZ;
+			} 
+			if (this.updateLight) {
+				debugMessage = "UPDATE LIGHT called: " + chunkX + ", " + chunkZ;
+			} 
+			if (this.changeDayLight) {
+				debugMessage = "CHANGE DAYLIGHT called: " + chunkX + ", " + chunkZ;
+			} 
+			print(debugMessage );
 
 
 			if (this.update) {
 				//terrain has been updated
-				update=false;
+
 				SetHeightMap();
+				GenerateDayLightData();
+
+				for( int i = 0; i < sections.Length; i ++) {
+					sections[i].update = true;
+				}
+				update=false;
+				updateLight = false;
+				changeDayLight = false;
+			}
+			if (this.updateLight) {
+
+				GenerateDayLightData();
+				
+				for( int i = 0; i < sections.Length; i ++) {
+					sections[i].lightUpdate = true;
+				}
+				updateLight = false;
+				changeDayLight = false;
+			}
+			if (this.changeDayLight) {
+
+				for( int i = 0; i < sections.Length; i ++) {
+					sections[i].lightUpdate = true;
+				}
+				changeDayLight = false;
 			}
 		
-			//terrain and light both should update this
-			GenerateDayLightData();
-			updateLight = false;
 
-			for( int i = 0; i < sections.Length; i ++) {
-				sections[i].update = true;
-			}
+
+
 		}
 	}
 
