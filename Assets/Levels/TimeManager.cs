@@ -10,8 +10,17 @@ public class TimeManager : MonoBehaviour {
 	private float accum   = 0; // FPS accumulated over the interval
 	private int   frames  = 0; // Frames drawn over the interval
 	private float timeleft; // Left time for current interval
+	
+	
 	private int previousTick = -1;
 	private byte previousDayLight = 0;
+	
+	
+	private float ticksInASecond = 10;
+	private int ticksInAnHour = 100; // 1 hour = 10 seconds
+	private int hoursInADay = 24; // 1 day = 240 seconds = 2400 ticks
+	//months, seasons, moon phases, temperature
+	
 
 
 	// Use this for initialization
@@ -55,21 +64,16 @@ public class TimeManager : MonoBehaviour {
 	
 	void DayTimeTick() {
 
-		int ticksInASecond = 10;
-		int ticksInAnHour = 100; // 1 hour = 10 seconds
-		int hoursInADay = 24; // 1 day = 240 seconds = 2400 ticks
-
-
 		int tick = (int)(Time.timeSinceLevelLoad * ticksInASecond);
 
 		if (tick != previousTick) {
 
-
-			GetDarknessLevel();
+			CheckTickEvents(tick);
 
 			previousTick = tick;
 		}
-
+		
+		
 
 
 		/* tick = (int)Time.timeSinceLevelLoad % 24;
@@ -89,7 +93,30 @@ public class TimeManager : MonoBehaviour {
 
 		}*/
 	}
-
+	
+	
+	private CheckTickEvents(tick) {
+        
+        if (tick % ticksInAnHour) {
+            //Change of hour
+        }
+        
+        if (tick % (ticksInAnHour * hoursInADay) {
+            //change of day
+        }
+        
+        CheckLightLevels();
+        
+    }
+	
+	
+    private CheckLightLevels() {
+        
+        //sunrise == 6am - 7am
+        
+        //sunset == 6pm - 7pm
+    }
+    
 	public byte GetDarknessLevel() {
 
 		return 0;
