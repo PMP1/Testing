@@ -54,7 +54,25 @@ public class TimeManager : MonoBehaviour {
 	}
 	
 	void DayTimeTick() {
-		int tick = (int)Time.timeSinceLevelLoad % 24;
+
+		int ticksInASecond = 10;
+		int ticksInAnHour = 100; // 1 hour = 10 seconds
+		int hoursInADay = 24; // 1 day = 240 seconds = 2400 ticks
+
+
+		int tick = (int)(Time.timeSinceLevelLoad * ticksInASecond);
+
+		if (tick != previousTick) {
+
+
+			GetDarknessLevel();
+
+			previousTick = tick;
+		}
+
+
+
+		/* tick = (int)Time.timeSinceLevelLoad % 24;
 		if (tick != previousTick ) {
 
 			if (previousDayLight != GetDayLightLevel()) {
@@ -69,7 +87,12 @@ public class TimeManager : MonoBehaviour {
 			}
 			previousTick = tick;
 
-		}
+		}*/
+	}
+
+	public byte GetDarknessLevel() {
+
+		return 0;
 	}
 
 	public byte GetDayLightLevel() {
