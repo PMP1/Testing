@@ -19,13 +19,13 @@ public class World : MonoBehaviour {
 	// Use this for initialization
 	void Awake() {
 
-		data = new byte[worldX,worldY,worldZ];
+		/*data = new byte[worldX,worldY,worldZ];
 
 		for (int x=0; x<worldX; x++){
 			for (int z=0; z<worldZ; z++){
-				int stone=PerlinNoise(x,0,z,10,3,1.2f);
-				stone+= PerlinNoise(x,300,z,20,4,0)+10;
-				int dirt=PerlinNoise(x,100,z,50,2,0) +0; //Added +1 to make sure minimum grass height is 1
+				int stone=PerlinNoise(x,0,z,10,4,1.2f);
+				stone+= PerlinNoise(x,300,z,20,5,0)+10;
+				int dirt=PerlinNoise(x,100,z,50,3,0) +0; //Added +1 to make sure minimum grass height is 1
 				
 				for (int y=0; y<worldY; y++){
 					if(y<=stone){
@@ -36,7 +36,7 @@ public class World : MonoBehaviour {
 					
 				}
 			}
-		}
+		}*/
 		
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
@@ -58,17 +58,23 @@ public class World : MonoBehaviour {
 
 		for (int x=0; x<sectionSize; x++){
 			for (int z=0; z<sectionSize; z++){
-				int stone=PerlinNoise(x + newX,0,z + newZ,10,3,1.2f);
-				stone+= PerlinNoise(x + newX,300,z + newZ,20,4,0)+10;
-				int dirt=PerlinNoise(x + newX,100,z + newZ,50,2,0) +0; //Added +1 to make sure minimum grass height is 1
-				
+
+				//flat and nice
+				//int stone=PerlinNoise(x + newX,10,z + newZ,50,10,1);
+
+				int stone=PerlinNoise(x + newX+ 40,10,z + newZ,50,40,0);
+				stone-=PerlinNoise(x + newX,14,z + newZ,10,50,0);
+					/*if (stone > 5)
+					colData[x,y,z]=2;*/
+				/*int stone=PerlinNoise(x + newX,0,z + newZ,80,20,1.2f);
+				stone+= PerlinNoise(x + newX,200,z + newZ,20,30,0.5f)+0;
+				int dirt=PerlinNoise(x + newX,300,z + newZ,50,2,0) +1; //Added +1 to make sure minimum grass height is 1
+				*/
+
 				for (int y=0; y<worldY; y++){
 					if(y<=stone){
-						colData[x,y,z]=1;
-					} else if(y<=dirt+stone){ //Changed this line thanks to a comment
 						colData[x,y,z]=2;
-					}
-					
+					} 
 				}
 			}
 		}

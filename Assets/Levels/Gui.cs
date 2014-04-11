@@ -26,7 +26,7 @@ public class Gui : MonoBehaviour {
 
 
 
-		int tick = (int)Time.timeSinceLevelLoad % 24;
+		//int tick = (int)Time.timeSinceLevelLoad % 24;
 
 		/*if (lastTick != tick) {
 			for (int x=0; x<world.worldX; x++){
@@ -38,7 +38,7 @@ public class Gui : MonoBehaviour {
 
 		GUI.Label (new Rect (10, 10, 100, 20), Time.timeSinceLevelLoad.ToString() );
 
-		GUI.Label (new Rect (10, 30, 100, 20), tick.ToString() + ":00" );
+		GUI.Label (new Rect (10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());
 
 		GUI.Label (new Rect (10, 50, 100, 20), time.fps.ToString());
 

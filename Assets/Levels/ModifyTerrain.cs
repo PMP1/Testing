@@ -22,7 +22,7 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,32,48);
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180);
 	}
 
 	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload){

@@ -106,7 +106,7 @@ public class Section : MonoBehaviour
 	byte LightBlock (int x, int y, int z)
 	{
 		byte l = chunk.LightBlock (x, y + sectionY, z);
-		byte w = world.time.GetDayLightLevel ();
+		byte w = world.time.GetDaylightLevel();
 		return (byte)Mathf.Max (l - w, 0);
 	}
 
