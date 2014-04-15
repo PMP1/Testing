@@ -49,21 +49,67 @@ public class World : MonoBehaviour {
 	
 	}
 
-	public byte[,,] GenData(int xpos, int zpos) {
+	public byte GenBiome(int xpos, int zpos) {
+		int scale = 10;
+		int result = PerlinNoise(xpos,10,zpos,scale,10,0);
 
-		byte[,,] colData = new byte[worldX,worldY,worldZ];
+		//1 = mountin
+		if (result >= 5) {
+			return (byte)1;
+		}
+
+		//0 = plain
+		return (byte)0;
+	}
+
+	public byte[,,] GenData(int xpos, int zpos, byte biome) {
+
+		byte[,,] colData = new byte[sectionSize,worldY,sectionSize];
+		byte[,] heightData = new byte[sectionSize,sectionSize];
 
 		int newX = xpos * sectionSize;
 		int newZ = zpos * sectionSize;
 
-		for (int x=0; x<sectionSize; x++){
+		//set heightmap
+		for (int x=0; x<sectionSize; x++) {
+			for (int z=0; z<sectionSize; z++) {
+				heightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,20,20) + 1);
+			}
+		}
+		
+
+		for (int x=0; x<sectionSize; x++) {
+			for (int z=0; z<sectionSize; z++) {
+
+				for (int y=0; y<worldY; y++) {
+
+					/*if (heightData[x,z] > y) {
+						colData[x,y,z]=2;
+						continue;
+					}*/
+
+					int stone=PerlinNoise(x + newX,y,z + newZ,30,40);
+
+					if (stone < 10)
+					colData[x,y,z]=2;
+				}
+
+
+			}
+		}
+
+
+
+
+
+		/*for (int x=0; x<sectionSize; x++){
 			for (int z=0; z<sectionSize; z++){
 
 				//flat and nice
 				//int stone=PerlinNoise(x + newX,10,z + newZ,50,10,1);
 
 				int stone=PerlinNoise(x + newX+ 40,10,z + newZ,50,40,0);
-				stone-=PerlinNoise(x + newX,14,z + newZ,10,50,0);
+				//stone-=PerlinNoise(x + newX,14,z + newZ,10,50,0);
 					/*if (stone > 5)
 					colData[x,y,z]=2;*/
 				/*int stone=PerlinNoise(x + newX,0,z + newZ,80,20,1.2f);
@@ -71,28 +117,22 @@ public class World : MonoBehaviour {
 				int dirt=PerlinNoise(x + newX,300,z + newZ,50,2,0) +1; //Added +1 to make sure minimum grass height is 1
 				*/
 
-				for (int y=0; y<worldY; y++){
+				/*for (int y=0; y<worldY; y++){
 					if(y<=stone){
 						colData[x,y,z]=2;
 					} 
 				}
 			}
-		}
+		}*/
 		return colData;
 	}
 
-	int PerlinNoise(int x,int y, int z, float scale, float height, float power){
+	int PerlinNoise(int x,int y, int z, float scale, float height){
 		float rValue;
 
-
 		rValue=Noise.Noise.GetNoise (((double)x) / scale, ((double)y)/ scale, ((double)z) / scale);
-
 		rValue*=height;
-		
-		if(power!=0){
-			rValue=Mathf.Pow( rValue, power);
-		}
-		
+
 		return (int) rValue;
 	}
 
@@ -108,7 +148,8 @@ public class World : MonoBehaviour {
 		chunks [x, z].chunkZ=z;
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
-		chunks [x, z].data=GenData(x, z);
+		chunks [x, z].biome = GenBiome (x, z);
+		chunks [x, z].data = GenData(x, z, chunks [x, z].biome);
 	}
 	
 	public void UnloadColumn(int x, int z){

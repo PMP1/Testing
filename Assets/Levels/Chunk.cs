@@ -17,6 +17,7 @@ public class Chunk : MonoBehaviour {
 	public bool changeDayLight = false;
 
 	//need to save world data here
+	public byte biome;
 	public byte[,,] data;
 	public byte[,,] lightData;
 	public byte[,,] daylightData;
