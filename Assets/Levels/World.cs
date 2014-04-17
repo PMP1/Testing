@@ -51,7 +51,7 @@ public class World : MonoBehaviour {
 
 	public byte GenBiome(int xpos, int zpos) {
 		int scale = 10;
-		int result = PerlinNoise(xpos,10,zpos,scale,10,0);
+		int result = PerlinNoise(xpos,10,zpos,scale,10);
 
 		//1 = mountin
 		if (result >= 5) {
@@ -65,6 +65,8 @@ public class World : MonoBehaviour {
 	public byte[,,] GenData(int xpos, int zpos, byte biome) {
 
 		byte[,,] colData = new byte[sectionSize,worldY,sectionSize];
+
+		byte[,] baseHeightData = new byte[sectionSize,sectionSize];
 		byte[,] heightData = new byte[sectionSize,sectionSize];
 
 		int newX = xpos * sectionSize;
@@ -73,32 +75,34 @@ public class World : MonoBehaviour {
 		//set heightmap
 		for (int x=0; x<sectionSize; x++) {
 			for (int z=0; z<sectionSize; z++) {
-				heightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,20,20) + 1);
+				baseHeightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,30,10) + 20);
+				heightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,60,40) + 20);
 			}
 		}
 		
 
 		for (int x=0; x<sectionSize; x++) {
 			for (int z=0; z<sectionSize; z++) {
-
 				for (int y=0; y<worldY; y++) {
-
-					/*if (heightData[x,z] > y) {
-						colData[x,y,z]=2;
+					if (heightData[x,z] > y) {
+						colData[x,y,z]= (byte)(biome + 1);
 						continue;
-					}*/
-
-					int stone=PerlinNoise(x + newX,y,z + newZ,30,40);
-
-					if (stone < 10)
-					colData[x,y,z]=2;
+					}
 				}
-
-
 			}
 		}
 
+		for (int x=0; x<sectionSize; x++) {
+			for (int z=0; z<sectionSize; z++) {
+				for (int y=baseHeightData[x,z]; y<worldY; y++) {
 
+					int stone=PerlinNoise(x + newX,y,z + newZ,50,20) + 20;
+					
+					if (stone > 31)
+						colData[x,y,z]=0;
+				}
+			}
+		}
 
 
 
