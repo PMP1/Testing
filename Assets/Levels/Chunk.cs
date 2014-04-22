@@ -54,7 +54,7 @@ public class Chunk : MonoBehaviour {
 			if (this.changeDayLight) {
 				debugMessage = "CHANGE DAYLIGHT called: " + chunkX + ", " + chunkZ;
 			} 
-			print(debugMessage );
+			//print(debugMessage );
 
 
 			if (this.update) {
@@ -130,38 +130,45 @@ public class Chunk : MonoBehaviour {
 		for (int x = 0; x < sectionSize; x++) {
 			for (int z = 0; z < sectionSize; z++) {
 
-				int y = this.heightMap[x, z];
-				daylightData[x, y + 1, z] = 15;
+				int y = this.heightMap [x, z];
+				daylightData [x, y + 1, z] = 15;
 
-				SpreadDaylight(x, y + 2, z, 13); //up
-				SpreadDaylight(x, y, z, 13); //down
-				SpreadDaylight(x + 1, y + 1, z, 13);
-				SpreadDaylight(x - 1, y + 1, z, 13);
-				SpreadDaylight(x, y + 1, z + 1, 13);
-				SpreadDaylight(x, y + 1, z - 1, 13);
+				SpreadDaylight (x, y + 2, z, 13); //up
+				SpreadDaylight (x, y, z, 13); //down
+				SpreadDaylight (x + 1, y + 1, z, 13);
+				SpreadDaylight (x - 1, y + 1, z, 13);
+				SpreadDaylight (x, y + 1, z + 1, 13);
+				SpreadDaylight (x, y + 1, z - 1, 13);
 			}
 		}
+
+		SpreadDaylightFromXChunk (chunkX + 1, 0, sectionSize - 1);
+		SpreadDaylightFromXChunk (chunkX - 1, sectionSize - 1, 0);
+		SpreadDaylightFromZChunk (chunkZ + 1, 0, sectionSize - 1);
+		SpreadDaylightFromZChunk (chunkZ - 1, sectionSize - 1, 0);
+
+
 	}
 
 	public void SpreadDaylight(int x, int y, int z, byte level) {
 
 		if (x < 0) {
-			SpreadDaylightToChunk(chunkX - 1, chunkZ, sectionSize + x, y, z, level);
+			//SpreadDaylightToChunk(chunkX - 1, chunkZ, sectionSize + x, y, z, level);
 			return; 
 		}
 		
 		if (x >= sectionSize) {
-			SpreadDaylightToChunk(chunkX + 1, chunkZ, sectionSize - x, y, z, level);
+			//SpreadDaylightToChunk(chunkX + 1, chunkZ, sectionSize - x, y, z, level);
 			return; 
 		}
 
 		if (z < 0) {
-			SpreadDaylightToChunk(chunkX, chunkZ - 1, x, y, sectionSize + z, level);
+			//SpreadDaylightToChunk(chunkX, chunkZ - 1, x, y, sectionSize + z, level);
 			return; 
 		}
 		
 		if (z >= sectionSize) {
-			SpreadDaylightToChunk(chunkX, chunkZ + 1, x, y, sectionSize - z, level);
+			//SpreadDaylightToChunk(chunkX, chunkZ + 1, x, y, sectionSize - z, level);
 			return; 
 		}
 
@@ -180,6 +187,44 @@ public class Chunk : MonoBehaviour {
 			SpreadDaylight(x - 1, y, z, level);
 			SpreadDaylight(x, y, z + 1, level);
 			SpreadDaylight(x, y, z - 1, level);
+		}
+	}
+
+	void SpreadDaylightFromXChunk(int chunk_X, int from_x, int to_x) {
+		
+		if (IsChunk (chunk_X, chunkZ)) {
+			Chunk chunk = world.chunks[chunk_X, chunkZ];
+			byte level = 0;
+			for (int y = 0; y < worldY; y++) {
+				for (int z = 0; z < sectionSize; z++) {
+					if (chunk.daylightData != null) {
+						level = chunk.daylightData[from_x,y,z];
+						if (level >= 3) {
+							level -= 2;
+							SpreadDaylight(to_x, y, z, level);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void SpreadDaylightFromZChunk(int chunk_Z, int from_z, int to_z) {
+		
+		if (IsChunk (chunkX, chunk_Z)) {
+			Chunk chunk = world.chunks[chunkX, chunk_Z];
+			byte level = 0;
+			for (int y = 0; y < worldY; y++) {
+				for (int x = 0; x < sectionSize; x++) {
+					if (chunk.daylightData != null) {
+						level = chunk.daylightData[x,y,from_z];
+						if (level >= 3) {
+							level -= 2;
+							SpreadDaylight(x, y, to_z, level);
+						}
+					}
+				}
+			}
 		}
 	}
 

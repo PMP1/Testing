@@ -19,25 +19,6 @@ public class World : MonoBehaviour {
 	// Use this for initialization
 	void Awake() {
 
-		/*data = new byte[worldX,worldY,worldZ];
-
-		for (int x=0; x<worldX; x++){
-			for (int z=0; z<worldZ; z++){
-				int stone=PerlinNoise(x,0,z,10,4,1.2f);
-				stone+= PerlinNoise(x,300,z,20,5,0)+10;
-				int dirt=PerlinNoise(x,100,z,50,3,0) +0; //Added +1 to make sure minimum grass height is 1
-				
-				for (int y=0; y<worldY; y++){
-					if(y<=stone){
-						data[x,y,z]=1;
-					} else if(y<=dirt+stone){ //Changed this line thanks to a comment
-						data[x,y,z]=2;
-					}
-					
-				}
-			}
-		}*/
-		
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
 	}
