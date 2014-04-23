@@ -46,11 +46,18 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Levels\BrownianNoise.cs" />
+     <Compile Include="Assets\Levels\BrownianNoise3D.cs" />
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\Gui.cs" />
+     <Compile Include="Assets\Levels\INoise2D.cs" />
+     <Compile Include="Assets\Levels\INoise3D.cs" />
      <Compile Include="Assets\Levels\ModifyTerrain.cs" />
      <Compile Include="Assets\Levels\Noise.cs" />
+     <Compile Include="Assets\Levels\PMath.cs" />
+     <Compile Include="Assets\Levels\PerlinNoise.cs" />
      <Compile Include="Assets\Levels\PolygonGenerator.cs" />
+     <Compile Include="Assets\Levels\Random.cs" />
      <Compile Include="Assets\Levels\Section.cs" />
      <Compile Include="Assets\Levels\TimeManager.cs" />
      <Compile Include="Assets\Levels\World.cs" />
