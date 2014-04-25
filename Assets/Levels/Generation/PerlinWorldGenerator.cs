@@ -10,15 +10,17 @@
 using System;
 namespace AssemblyCSharp
 {
-	public interface IBiomeGenerator
+	public class PerlinWorldGenerator: AbstractWorldGenerator
 	{
-		float GetHumidityAt(int x, int z);
-
-		float GetTemperatureAt(int x, int z);
-
-		//should we also care about base height?
-
-		int GetBiomeAt(int x, int z);
+	
+		private INoise3D terainNoise;
+		
+		public PerlinWorldGenerator ()
+		{
+			//Register(new PerlinTerrainGenerator());
+		}
+		
+		
 	}
 }
 

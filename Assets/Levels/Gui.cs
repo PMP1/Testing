@@ -8,9 +8,30 @@ public class Gui : MonoBehaviour {
 	public GameObject worldGO;
 	World world;
 	int lastTick = -1;
+	
+	private Texture2D tempTexture;
+	private Texture2D humidTexture;
 
 	void Start () {
-		//world=worldGO.GetComponent("World") as World;
+		world=worldGO.GetComponent("World") as World;
+		
+		print( world.worldGenerator.GetTexturePixel("Temperature",0,0));
+		
+		tempTexture = new Texture2D(500, 500, TextureFormat.ARGB32, false);
+		for(int i = 0; i < 500; i++) {
+			for(int j = 0; j < 500; j++) {
+				tempTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Temperature",i*16,j*16));
+			}
+		}
+		tempTexture.Apply();
+		
+		humidTexture = new Texture2D(500, 500, TextureFormat.ARGB32, false);
+		for(int i = 0; i < 500; i++) {
+			for(int j = 0; j < 500; j++) {
+				humidTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Humidity",i*16,j*16));
+			}
+		}
+		humidTexture.Apply();
 	}
 	
 	// Update is called once per frame
@@ -22,9 +43,11 @@ public class Gui : MonoBehaviour {
 		//full day = 24 seconds
 		//1 second = 1 tick
 
-
-
-
+		GUI.DrawTexture(new Rect(10,10,100,100), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
+		GUI.DrawTexture(new Rect(10,110,100,100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
+		
+		
+		
 
 		//int tick = (int)Time.timeSinceLevelLoad % 24;
 

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class World : MonoBehaviour {
 
@@ -14,13 +15,22 @@ public class World : MonoBehaviour {
 	public int sectionSize=16;
 
 	public TimeManager time;
-
+	
+	public WorldConfig configSettings;
+	public AbstractWorldGenerator worldGenerator;
 
 	// Use this for initialization
 	void Awake() {
+	
+		
 
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
+		                               
+		configSettings = new WorldConfig("PMP");
+		
+		worldGenerator = new PerlinWorldGenerator();
+		worldGenerator.SetSeed(configSettings.Seed);
 	}
 
 

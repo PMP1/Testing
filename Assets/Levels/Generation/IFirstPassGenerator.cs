@@ -21,7 +21,11 @@ namespace AssemblyCSharp
 		/// shoudl all be based of noise calculations to prevent errors
 		/// </summary>
 		/// <param name="chunk">Chunk.</param>
-		void generateChunk(Chunk chunk);
+		void GenerateChunk(Chunk chunk);
+		
+		void SetBiomeGenerator(IBiomeGenerator generator);
+		
+		void SetSeed(string seed);
 	}
 }
 
