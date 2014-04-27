@@ -67,6 +67,29 @@ namespace AssemblyCSharp
 					float hum = biomeGenerator.GetHumidityAt(x, z);
 					return new Color(hum * 0.2f, hum * 0.2f, hum);
 					break;
+				case "Terrain":
+					int biome = biomeGenerator.GetBiomeAt(x, z);
+					switch (biome) {
+
+						case 1:
+							return Color.yellow;
+							break;
+						case 2:
+							return Color.green;
+							break;
+						case 3:
+							return Color.white;
+							break;
+						case 4:
+							return Color.gray;
+							break;
+						default:
+							return new Color(0.2f,0.8f,0.2f);
+							break;
+					}
+					return new Color(hum * 0.2f, hum * 0.2f, hum);
+					break;
+
 			}
 			return Color.black;
 		}

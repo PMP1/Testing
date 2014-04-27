@@ -11,6 +11,7 @@ public class Gui : MonoBehaviour {
 	
 	private Texture2D tempTexture;
 	private Texture2D humidTexture;
+	private Texture2D terrainTexture;
 
 	void Start () {
 		world=worldGO.GetComponent("World") as World;
@@ -32,6 +33,14 @@ public class Gui : MonoBehaviour {
 			}
 		}
 		humidTexture.Apply();
+
+		terrainTexture = new Texture2D(500, 500, TextureFormat.ARGB32, false);
+		for(int i = 0; i < 500; i++) {
+			for(int j = 0; j < 500; j++) {
+				terrainTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Terrain",i*16,j*16));
+			}
+		}
+		terrainTexture.Apply();
 	}
 	
 	// Update is called once per frame
@@ -45,7 +54,7 @@ public class Gui : MonoBehaviour {
 
 		GUI.DrawTexture(new Rect(10,10,100,100), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
 		GUI.DrawTexture(new Rect(10,110,100,100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
-		
+		GUI.DrawTexture(new Rect(10,210,100,100), terrainTexture, ScaleMode.ScaleToFit, true, 1.0f);
 		
 		
 
