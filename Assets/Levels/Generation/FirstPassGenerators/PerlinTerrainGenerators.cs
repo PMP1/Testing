@@ -44,19 +44,19 @@ namespace AssemblyCSharp
 
 		public void GenerateChunk(Chunk chunk) {
 
-			double[,,] densityMap = new double[chunk.sectionSize,chunk.worldYhunk.sectionSize];
+			double[,,] densityMap = new double[chunk.sectionSize,chunk.worldY, chunk.sectionSize];
 
 			for (int x = 0; x <= chunk.sectionSize; x += SAMPLE_RATE_XZ) {
 				for (int z = 0; z <= chunk.sectionSize; z += SAMPLE_RATE_XZ) {
 					for (int y = 0; y <= chunk.worldY; y += SAMPLE_RATE_Y) {
-						densityMap[x,y,z] = CalculateDensity((chunk.chunkX * Chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z);
+						densityMap[x,y,z] = CalculateDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z);
 					}
 				}
 			}
 
 			for (int x = 0; x < chunk.sectionSize; x++) {
 				for (int z = 0; z < chunk.sectionSize; z++) {
-					int type = this._biomeGenerator.GetBiomeAt (chunk.chunkX * chunk.sectionSize) + x, (chunk.chunkZ * chunk.sectionSize) + z);
+					int type = this._biomeGenerator.GetBiomeAt ((chunk.chunkX * chunk.sectionSize) + x, (chunk.chunkZ * chunk.sectionSize) + z);
 					int firstBlockHeight = -1;
 
 					for (int y = chunk.worldY - 1; y >= 0; y--) {
@@ -67,7 +67,7 @@ namespace AssemblyCSharp
 							chunk.data[x,y,z] = 3;
 						}
 
-						double dens = densityMap[x,y,z];
+						float dens = densityMap[x,y,z];
 
 
 					}
@@ -75,11 +75,11 @@ namespace AssemblyCSharp
 			}
 		}
 
-		private double CalculateDensity(int x, int y, int z) {
+		private float CalculateDensity(int x, int y, int z) {
 
-			double height = CalcBaseTerrain(x, z);
-			//double ocean = calcOceanTerrain(x, z);
-			//double river = calcRiverTerrain(x, z);
+			float height = CalcBaseTerrain(x, z);
+			//float ocean = calcOceanTerrain(x, z);
+			//float river = calcRiverTerrain(x, z);
 			
 			float temp = this._biomeGenerator.GetTemperatureAt(x, z);
 			float humidity = this._biomeGenerator.GetHumidityAt(x, z) * temp;
@@ -97,9 +97,9 @@ namespace AssemblyCSharp
 			return -y + (32.0 + height * 32.0);
 		}
 
-		private double CalcBaseTerrain(int x, int z)
+		private float CalcBaseTerrain(int x, int z)
 		{
-			return Mathf.Clamp((terrainNoise.Noise(0.004 * x, 0, 0.004 * z) + 1.0) / 2.0, 0, 1);
+			return Mathf.Clamp((float)((terrainNoise.Noise(0.004 * x, 0, 0.004 * z) + 1.0) / 2.0), 0, 1);
 		}
 
 	}
