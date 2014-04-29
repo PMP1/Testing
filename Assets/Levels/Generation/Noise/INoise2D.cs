@@ -17,7 +17,7 @@ namespace AssemblyCSharp
 		/// </summary>
 		/// <param name="x">The x coordinate.</param>
 		/// <param name="y">The y coordinate.</param>
-		double Noise(double x, double y);
+		float Noise(double x, double y);
 	}
 }
 

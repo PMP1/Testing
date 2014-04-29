@@ -23,7 +23,7 @@ namespace AssemblyCSharp
 			SetOctaves(octaves);
 		}
 
-		public double Noise(double x, double y, double z) {
+		public float Noise(double x, double y, double z) {
 			double result = 0.0;
 			
 			double workingX = x;
@@ -37,7 +37,7 @@ namespace AssemblyCSharp
 				workingZ *= GetLacunarity();
 			}
 			
-			return result;
+			return (float)result;
 		}
 	}
 }

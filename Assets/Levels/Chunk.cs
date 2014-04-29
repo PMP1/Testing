@@ -256,7 +256,7 @@ public class Chunk : MonoBehaviour {
 
 	public byte Block (int x, int y, int z)
 	{
-		if( x>=sectionSize || x<0 || y>=64 || y<0 || z>=sectionSize || z<0)
+		if( x>=sectionSize || x<0 || y>=world.worldY || y<0 || z>=sectionSize || z<0)
 		{
 			return (byte)0;
 		}
@@ -278,7 +278,7 @@ public class Chunk : MonoBehaviour {
 			return world.chunks[chunkX, chunkZ - 1].LightBlock(x,y,sectionSize + z);
 		}
 
-		if( x>=sectionSize || x<0 || y>=64 || y<0 || z>=sectionSize || z<0)
+		if( x>=sectionSize || x<0 || y>=worldY || y<0 || z>=sectionSize || z<0)
 		{
 			return (byte)0;
 		}

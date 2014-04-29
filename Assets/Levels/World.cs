@@ -144,7 +144,9 @@ public class World : MonoBehaviour {
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
 		chunks [x, z].biome = GenBiome (x, z);
-		chunks [x, z].data = GenData(x, z, chunks [x, z].biome);
+		//chunks [x, z].data = GenData(x, z, chunks [x, z].biome);
+		chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
+		worldGenerator.CreateChunk(chunks [x, z]);
 	}
 	
 	public void UnloadColumn(int x, int z){

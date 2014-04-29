@@ -17,7 +17,7 @@ namespace AssemblyCSharp
 		
 		public PerlinWorldGenerator ()
 		{
-			//Register(new PerlinTerrainGenerator());
+			Register(new PerlinTerrainGenerator());
 		}
 
 		

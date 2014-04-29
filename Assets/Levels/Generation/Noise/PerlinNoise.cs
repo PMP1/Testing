@@ -42,7 +42,7 @@ namespace AssemblyCSharp
 			}
 		}
 
-		public double Noise(double posX, double posY, double posZ) {
+		public float Noise(double posX, double posY, double posZ) {
 			int xInt = (int) PMath.FastFloor(posX) & 255;
 			int yInt = (int) PMath.FastFloor(posY) & 255;
 			int zInt = (int) PMath.FastFloor(posZ) & 255;
@@ -61,7 +61,7 @@ namespace AssemblyCSharp
 			int ba = noisePermutations[b] + zInt;
 			int bb = noisePermutations[(b + 1)] + zInt;
 			
-			return Lerp(w, Lerp(v, Lerp(u, Grad(noisePermutations[aa], x, y, z),
+			return (float) Lerp(w, Lerp(v, Lerp(u, Grad(noisePermutations[aa], x, y, z),
 			                            Grad(noisePermutations[ba], x - 1, y, z)),
 			                    Lerp(u, Grad(noisePermutations[ab], x, y - 1, z),
 			     Grad(noisePermutations[bb], x - 1, y - 1, z))),

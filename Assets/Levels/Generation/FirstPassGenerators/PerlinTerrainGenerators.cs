@@ -21,6 +21,7 @@ namespace AssemblyCSharp
 		private int SAMPLE_RATE_Y = 1;
 
 		private INoise3D terrainNoise;
+		private INoise3D caveNoise;
 
 		public PerlinTerrainGenerator ()
 		{
@@ -33,6 +34,7 @@ namespace AssemblyCSharp
 			if (this._seed != null) {
 
 				terrainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode()));
+				caveNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 3));
 			}
 		}
 
@@ -44,15 +46,21 @@ namespace AssemblyCSharp
 
 		public void GenerateChunk(Chunk chunk) {
 
-			double[,,] densityMap = new double[chunk.sectionSize,chunk.worldY, chunk.sectionSize];
+			float[,,] densityMap = new float[chunk.sectionSize,chunk.worldY, chunk.sectionSize];
 
-			for (int x = 0; x <= chunk.sectionSize; x += SAMPLE_RATE_XZ) {
-				for (int z = 0; z <= chunk.sectionSize; z += SAMPLE_RATE_XZ) {
-					for (int y = 0; y <= chunk.worldY; y += SAMPLE_RATE_Y) {
+			for (int x = 0; x < chunk.sectionSize; x += SAMPLE_RATE_XZ) {
+				for (int z = 0; z < chunk.sectionSize; z += SAMPLE_RATE_XZ) {
+					for (int y = 0; y < chunk.worldY; y += SAMPLE_RATE_Y) {
 						densityMap[x,y,z] = CalculateDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z);
 					}
 				}
 			}
+
+
+
+
+
+
 
 			for (int x = 0; x < chunk.sectionSize; x++) {
 				for (int z = 0; z < chunk.sectionSize; z++) {
@@ -65,11 +73,40 @@ namespace AssemblyCSharp
 						if (y <= 32) {
 							//ocean
 							chunk.data[x,y,z] = 3;
+							continue;
 						}
 
 						float dens = densityMap[x,y,z];
 
-
+						if ((dens >= 0 && dens < 32)) {
+							
+							// Some block was set...
+							if (firstBlockHeight == -1) {
+								firstBlockHeight = y;
+							}
+							
+							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {
+								//c.setBlock(x, y, z, stone);
+								chunk.data[x,y,z] = 1;
+							} else {
+								chunk.data[x,y,z] = 0;
+							}
+							
+							continue;
+						} else {
+							// Some block was set...
+							if (firstBlockHeight == -1) {
+								firstBlockHeight = y;
+							}
+							
+							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.6) {
+								chunk.data[x,y,z] = 1;
+							} else {
+								chunk.data[x,y,z] = 0;
+							}
+							
+							continue;
+						}
 					}
 				}
 			}
@@ -90,16 +127,22 @@ namespace AssemblyCSharp
 			//double densityMountains = calcMountainDensity(x, y, z) * mIntens;
 			//double densityHills = calcHillDensity(x, y, z) * (1.0 - mIntens);
 			
-			//int plateauArea = (int) (ChunkConstants.SIZE_Y * 0.10);
-			//double flatten = TeraMath.clamp(((ChunkConstants.SIZE_Y - 16) - y) / plateauArea);
+			int plateauArea = (int) (256 * 0.10);
+			float flatten = Mathf.Clamp01(((256 - 32) - y) / plateauArea);
 			
 			//return -y + (((32.0 + height * 32.0) * TeraMath.clamp(river + 0.25) * TeraMath.clamp(ocean + 0.25)) + densityMountains * 1024.0 + densityHills * 128.0) * flatten;
-			return -y + (32.0 + height * 32.0);
+			return -y + ((32.0f + height * 32.0f) * 0.2f * 1024.0f) * flatten;
 		}
 
 		private float CalcBaseTerrain(int x, int z)
 		{
-			return Mathf.Clamp((float)((terrainNoise.Noise(0.004 * x, 0, 0.004 * z) + 1.0) / 2.0), 0, 1);
+			return Mathf.Clamp((terrainNoise.Noise(0.004f * x, 0, 0.004f * z) + 1.0f) / 2.0f, 0, 1);
+		}
+
+		private float calcCaveDensity(double x, double y, double z) {
+
+			float test = caveNoise.Noise(x * 0.02, y * 0.02, z * 0.02);
+			return test;
 		}
 
 	}

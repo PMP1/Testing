@@ -24,7 +24,7 @@ namespace AssemblyCSharp
 		}
 		
 		public float GetHumidityAt(int x, int z) {
-			float result = (float)humidityNoise.Noise(x * 0.0005, 0, 0.0005 * z);
+			float result = humidityNoise.Noise(x * 0.0005f, 0f, 0.0005f * z);
 			return (float) Mathf.Clamp((result + 1.0f) / 2.0f, 0, 1);
 		}
 		
