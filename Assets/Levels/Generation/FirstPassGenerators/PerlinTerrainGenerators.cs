@@ -82,7 +82,7 @@ namespace AssemblyCSharp
 
 						float dens = densityMap[x,y,z];
 
-						if ((dens < 32)) {
+						if ((dens >= 0 && dens < 32)) {
 							
 							// Some block was set...
 							if (firstBlockHeight == -1) {
@@ -91,20 +91,20 @@ namespace AssemblyCSharp
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {//-0.7) {
 								//c.setBlock(x, y, z, stone);
-								chunk.data[x,y,z] = 0;
+								chunk.data[x,y,z] = (byte) type;
 							} else {
 								chunk.data[x,y,z] = 0;
 							}
 							
 							continue;
-						} else {
+						} else if (dens >= 32) {
 							// Some block was set...
 							if (firstBlockHeight == -1) {
 								firstBlockHeight = y;
 							}
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.6) {
-								chunk.data[x,y,z] = 1;
+								chunk.data[x,y,z] = (byte) type;
 							} else {
 								chunk.data[x,y,z] = 0;
 							}
@@ -132,7 +132,7 @@ namespace AssemblyCSharp
 			float densityHills = calcHillDensity(x, y, z) * (1.0f - mIntens);
 			
 			int plateauArea = (int) (256 * 0.10);
-			float flatten = Mathf.Clamp01(((256 - 128) - y) / plateauArea);
+			float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
 			
 			//return -y + (((32.0 + height * 32.0) * TeraMath.clamp(river + 0.25) * TeraMath.clamp(ocean + 0.25)) + densityMountains * 1024.0 + densityHills * 128.0) * flatten;
 			if (x == 0 && z == 0) {

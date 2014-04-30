@@ -19,6 +19,11 @@ public class Section : MonoBehaviour
 	private Vector2 tStone = new Vector2 (1, 0);
 	private Vector2 tGrass = new Vector2 (0, 1);
 	private Vector2 tGrassTop = new Vector2 (1, 1);
+	private Vector2 t1 = new Vector2 (2, 0);
+	private Vector2 t2 = new Vector2 (2, 1);
+	private Vector2 t3 = new Vector2 (2, 2);
+	private Vector2 t4 = new Vector2 (2, 3);
+	
 	private Mesh mesh;
 	private MeshCollider col;
 	private int faceCount;
@@ -109,6 +114,22 @@ public class Section : MonoBehaviour
 		byte w = world.time.GetDaylightLevel();
 		return (byte)Mathf.Max (l - w, 0);
 	}
+	
+	private Vector2 GetTexture(int type) {
+		switch (type) {
+		
+			case 1: 
+				return t1;
+			case 2: 
+				return t2;
+			case 3: 
+				return t3;
+			case 4: 
+				return t4;
+			default:
+				return tStone;		
+		}
+	}
 
 	void CubeTop (int x, int y, int z, byte block)
 	{
@@ -119,12 +140,8 @@ public class Section : MonoBehaviour
 		newVertices.Add (new Vector3 (x, y, z));
 
 		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrassTop;
-		}
+		texturePos = GetTexture(Block (x, y, z));
+		
 
 		Cube (texturePos, LightBlock(x, y + 1, z));
 
@@ -139,12 +156,7 @@ public class Section : MonoBehaviour
 		newVertices.Add (new Vector3 (x, y - 1, z + 1));
 
 		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
+		texturePos = GetTexture(Block (x, y, z));
 
 		Cube (texturePos, LightBlock(x, y, z + 1));
 
@@ -158,12 +170,7 @@ public class Section : MonoBehaviour
 		newVertices.Add (new Vector3 (x + 1, y - 1, z + 1));
 
 		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
+		texturePos = GetTexture(Block (x, y, z));
 
 		Cube (texturePos, LightBlock(x + 1, y, z));
 
@@ -178,12 +185,7 @@ public class Section : MonoBehaviour
 		newVertices.Add (new Vector3 (x + 1, y - 1, z));
 
 		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
+		texturePos = GetTexture(Block (x, y, z));
 
 		Cube (texturePos, LightBlock(x, y, z - 1));
 
@@ -192,18 +194,13 @@ public class Section : MonoBehaviour
 	void CubeWest (int x, int y, int z, byte block)
 	{
 
-			newVertices.Add (new Vector3 (x, y - 1, z + 1));
-			newVertices.Add (new Vector3 (x, y, z + 1));
-			newVertices.Add (new Vector3 (x, y, z));
-			newVertices.Add (new Vector3 (x, y - 1, z));
+		newVertices.Add (new Vector3 (x, y - 1, z + 1));
+		newVertices.Add (new Vector3 (x, y, z + 1));
+		newVertices.Add (new Vector3 (x, y, z));
+		newVertices.Add (new Vector3 (x, y - 1, z));
 
-			Vector2 texturePos = new Vector2 (0, 0);
-
-			if (Block (x, y, z) == 1) {
-					texturePos = tStone;
-			} else if (Block (x, y, z) == 2) {
-					texturePos = tGrass;
-			}
+		Vector2 texturePos = new Vector2 (0, 0);
+		texturePos = GetTexture(Block (x, y, z));
 
 		Cube (texturePos,  LightBlock(x - 1, y, z));
 
@@ -218,12 +215,7 @@ public class Section : MonoBehaviour
 		newVertices.Add (new Vector3 (x, y - 1, z + 1));
 
 		Vector2 texturePos = new Vector2 (0, 0);
-
-		if (Block (x, y, z) == 1) {
-				texturePos = tStone;
-		} else if (Block (x, y, z) == 2) {
-				texturePos = tGrass;
-		}
+		texturePos = GetTexture(Block (x, y, z));
 
 		Cube (texturePos,  LightBlock(x, y - 1, z));
 
