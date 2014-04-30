@@ -22,6 +22,8 @@ namespace AssemblyCSharp
 
 		private INoise3D terrainNoise;
 		private INoise3D caveNoise;
+		private INoise3D hillNoise;
+		private INoise3D mouintainNoise;
 
 		public PerlinTerrainGenerator ()
 		{
@@ -35,6 +37,8 @@ namespace AssemblyCSharp
 
 				terrainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode()));
 				caveNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 3));
+				hillNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 4));
+				mouintainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 5));
 			}
 		}
 
@@ -78,7 +82,7 @@ namespace AssemblyCSharp
 
 						float dens = densityMap[x,y,z];
 
-						if ((dens >= 0 && dens < 32)) {
+						if ((dens < 32)) {
 							
 							// Some block was set...
 							if (firstBlockHeight == -1) {
@@ -121,17 +125,20 @@ namespace AssemblyCSharp
 			float temp = this._biomeGenerator.GetTemperatureAt(x, z);
 			float humidity = this._biomeGenerator.GetHumidityAt(x, z) * temp;
 			
-			//Vector2f distanceToMountainBiome = new Vector2f(temp - 0.25f, humidity - 0.35f);
+			Vector2 distanceToMountainBiome = new Vector2(temp - 0.25f, humidity - 0.35f);
 			
-			//double mIntens = TeraMath.clamp(1.0 - distanceToMountainBiome.length() * 3.0);
-			//double densityMountains = calcMountainDensity(x, y, z) * mIntens;
-			//double densityHills = calcHillDensity(x, y, z) * (1.0 - mIntens);
+			float mIntens = Mathf.Clamp01(1.0f - distanceToMountainBiome.magnitude * 3.0f);
+			float densityMountains = calcMountainDensity(x, y, z) * mIntens;
+			float densityHills = calcHillDensity(x, y, z) * (1.0f - mIntens);
 			
 			int plateauArea = (int) (256 * 0.10);
 			float flatten = Mathf.Clamp01(((256 - 128) - y) / plateauArea);
 			
 			//return -y + (((32.0 + height * 32.0) * TeraMath.clamp(river + 0.25) * TeraMath.clamp(ocean + 0.25)) + densityMountains * 1024.0 + densityHills * 128.0) * flatten;
-			return -y + ((32.0f + height * 32.0f) * 0.2f ) * flatten;
+			if (x == 0 && z == 0) {
+				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten);
+			}
+			return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
 		}
 
 		private float CalcBaseTerrain(int x, int z)
@@ -143,6 +150,24 @@ namespace AssemblyCSharp
 
 			float test = caveNoise.Noise(x * 0.02, y * 0.02, z * 0.02);
 			return test;
+		}
+
+		private float calcMountainDensity(double x, double y, double z) {
+			double x1 = x * 0.002;
+			double y1 = y * 0.001;
+			double z1 = z * 0.002;
+			
+			float result = mouintainNoise.Noise(x1, y1, z1);
+			return result > 0.0 ? result : 0;
+		}
+		
+		private float calcHillDensity(double x, double y, double z) {
+			double x1 = x * 0.008;
+			double y1 = y * 0.006;
+			double z1 = z * 0.008;
+			
+			float result = hillNoise.Noise(x1, y1, z1) - 0.1f;
+			return result > 0.0 ? result : 0;
 		}
 
 	}
