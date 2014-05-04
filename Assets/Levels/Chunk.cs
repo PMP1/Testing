@@ -258,7 +258,9 @@ public class Chunk : MonoBehaviour {
 	{
 		if( x>=sectionSize || x<0 || y>=world.worldY || y<0 || z>=sectionSize || z<0)
 		{
-			return (byte)0;
+			if (this.chunkX == 0 && y == 0)
+				return (byte) 1; //just show us where ground 0 is
+			return (byte)1; //set to 0 to show world boundries
 		}
 		return data[x,y,z];
 	}

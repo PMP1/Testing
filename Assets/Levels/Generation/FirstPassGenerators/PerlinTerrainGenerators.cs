@@ -17,8 +17,8 @@ namespace AssemblyCSharp
 		private string _seed;
 		private IBiomeGenerator _biomeGenerator;
 
-		private int SAMPLE_RATE_XZ = 1;
-		private int SAMPLE_RATE_Y = 1;
+		private int SAMPLE_RATE_XZ = 4;
+		private int SAMPLE_RATE_Y = 4;
 
 		private INoise3D terrainNoise;
 		private INoise3D caveNoise;
@@ -35,36 +35,30 @@ namespace AssemblyCSharp
 
 			if (this._seed != null) {
 
-				terrainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode()));
+				terrainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode()), 5);
 				caveNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 3));
-				hillNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 4));
-				mouintainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 5));
+				hillNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 4), 8);
+				mouintainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 5), 8);
 			}
 		}
 
-
-		
 		public void SetBiomeGenerator(IBiomeGenerator generator) {
 			this._biomeGenerator = generator;
 		}
 
 		public void GenerateChunk(Chunk chunk) {
 
-			float[,,] densityMap = new float[chunk.sectionSize,chunk.worldY, chunk.sectionSize];
+			float[,,] densityMap = new float[chunk.sectionSize+1,chunk.worldY+1, chunk.sectionSize+1];
 
-			for (int x = 0; x < chunk.sectionSize; x += SAMPLE_RATE_XZ) {
-				for (int z = 0; z < chunk.sectionSize; z += SAMPLE_RATE_XZ) {
-					for (int y = 0; y < chunk.worldY; y += SAMPLE_RATE_Y) {
+			for (int x = 0; x <= chunk.sectionSize; x += SAMPLE_RATE_XZ) {
+				for (int z = 0; z <= chunk.sectionSize; z += SAMPLE_RATE_XZ) {
+					for (int y = 0; y <= chunk.worldY; y += SAMPLE_RATE_Y) {
 						densityMap[x,y,z] = CalculateDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z);
 					}
 				}
 			}
 
-
-
-
-
-
+			triLerpDensityMap(densityMap, chunk);
 
 			for (int x = 0; x < chunk.sectionSize; x++) {
 				for (int z = 0; z < chunk.sectionSize; z++) {
@@ -89,8 +83,7 @@ namespace AssemblyCSharp
 								firstBlockHeight = y;
 							}
 							
-							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {//-0.7) {
-								//c.setBlock(x, y, z, stone);
+							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {
 								chunk.data[x,y,z] = (byte) type;
 							} else {
 								chunk.data[x,y,z] = 0;
@@ -136,7 +129,7 @@ namespace AssemblyCSharp
 			
 			//return -y + (((32.0 + height * 32.0) * TeraMath.clamp(river + 0.25) * TeraMath.clamp(ocean + 0.25)) + densityMountains * 1024.0 + densityHills * 128.0) * flatten;
 			if (x == 0 && z == 0) {
-				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten);
+				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 512.0f + densityHills * 64.0f) * flatten);
 			}
 			return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
 		}
@@ -168,6 +161,30 @@ namespace AssemblyCSharp
 			
 			float result = hillNoise.Noise(x1, y1, z1) - 0.1f;
 			return result > 0.0 ? result : 0;
+		}
+		
+		private void triLerpDensityMap(float[,,] densityMap, Chunk chunk) {
+			for (int x = 0; x < chunk.sectionSize; x++) {
+				for (int y = 0; y < chunk.worldY; y++) {
+					for (int z = 0; z < chunk.sectionSize; z++) {
+						if (!(x % SAMPLE_RATE_XZ == 0 && y % SAMPLE_RATE_Y == 0 && z % SAMPLE_RATE_XZ == 0)) {
+							int offsetX = (x / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
+							int offsetY = (y / SAMPLE_RATE_Y) * SAMPLE_RATE_Y;
+							int offsetZ = (z / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
+							densityMap[x, y, z] = (float)PMath.TriLerp(x, y, z,
+								densityMap[offsetX, offsetY, offsetZ],
+								densityMap[offsetX, SAMPLE_RATE_Y + offsetY, offsetZ],
+								densityMap[offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
+								offsetX, SAMPLE_RATE_XZ + offsetX, offsetY, SAMPLE_RATE_Y + offsetY, offsetZ, offsetZ + SAMPLE_RATE_XZ);
+						}
+					}
+				}
+			}
 		}
 
 	}

@@ -15,10 +15,14 @@ namespace AssemblyCSharp
 		float GetHumidityAt(int x, int z);
 
 		float GetTemperatureAt(int x, int z);
+		
+		float GetHeightAt(int x, int z);
 
 		//should we also care about base height?
 
 		int GetBiomeAt(int x, int z);
+		
+		int GetHeightBiomeAt(int x, int z);
 	}
 }
 

@@ -65,7 +65,7 @@ namespace AssemblyCSharp
 		/// <param name="y2">The second y value.</param>
 		/// <param name="z1">The first z value.</param>
 		/// <param name="z2">The second z value.</param>
-		public static double triLerp(double x, double y, double z, double v000, double v001, double v010, double v011, double v100, double v101, double v110, double v111,
+		public static double TriLerp(double x, double y, double z, double v000, double v001, double v010, double v011, double v100, double v101, double v110, double v111,
 		                            double x1, double x2, double y1, double y2, double z1, double z2) {
 			//do x's
 			double x00 = lerp(x, x1, x2, v000, v100);

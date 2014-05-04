@@ -16,27 +16,47 @@ namespace AssemblyCSharp
 	{
 		private INoise3D temperatureNoise;
 		private INoise3D humidityNoise;
+		private INoise3D heightNoise;
 		
 		public BiomeGenerator (String seed)
 		{
 			temperatureNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 1));
 			humidityNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 2));
+			heightNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 3));
 		}
 		
 		public float GetHumidityAt(int x, int z) {
-			float result = humidityNoise.Noise(x * 0.0005f, 0f, 0.0005f * z);
+			float result = humidityNoise.Noise(x * 0.005f, 0f, 0.005f * z);
 			return (float) Mathf.Clamp((result + 1.0f) / 2.0f, 0, 1);
 		}
 		
 		public float GetTemperatureAt(int x, int z) {
-			float result = (float)temperatureNoise.Noise(x * 0.0005, 0, 0.0005 * z);
+			float result = (float)temperatureNoise.Noise(x * 0.005, 0, 0.005 * z);
 			return (float) Mathf.Clamp((result + 1.0f) / 2.0f, 0, 1);
 		}
 		
+		public float GetHeightAt(int x, int z) {
+			float result = heightNoise.Noise(x * 0.0005, 0, 0.0005 * z);
+			return Mathf.Clamp01(result * 8f);
+		}
+		
+		public int GetHeightBiomeAt(int x, int z) {
+			float height = GetHeightAt(x, z);
+			
+			if (height < 0.4) {
+				return 1; //water
+			} else if (height >= 0.4 && height <= 0.5) {
+				return 2;//beach
+			} else if (height > 0.7) {
+				return 3; //mountins
+			}
+			
+			return 4;//plains
+		}
 		
 		public int GetBiomeAt(int x, int z) {
-			double temp = GetTemperatureAt(x, z);
-			double humidity = GetHumidityAt(x, z) * temp;
+			float temp = GetTemperatureAt(x, z);
+			float humidity = GetHumidityAt(x, z) * temp;
 			
 			if (temp >= 0.5 && humidity < 0.3) {
 				return 1;//desert
