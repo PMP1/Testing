@@ -119,11 +119,6 @@ public class Chunk : MonoBehaviour {
 		}
 	}
 
-	/*public int GetDaylightHeight(int x, int z) 
-	{
-		return this.heightMap[x, z];
-	}*/
-
 	void GenerateDayLightData()
 	{
 		daylightData = new byte[sectionSize, worldY, sectionSize];
@@ -152,29 +147,7 @@ public class Chunk : MonoBehaviour {
 
 	public void SpreadDaylight(int x, int y, int z, byte level) {
 
-		if (x < 0) {
-			//SpreadDaylightToChunk(chunkX - 1, chunkZ, sectionSize + x, y, z, level);
-			return; 
-		}
-		
-		if (x >= sectionSize) {
-			//SpreadDaylightToChunk(chunkX + 1, chunkZ, sectionSize - x, y, z, level);
-			return; 
-		}
-
-		if (z < 0) {
-			//SpreadDaylightToChunk(chunkX, chunkZ - 1, x, y, sectionSize + z, level);
-			return; 
-		}
-		
-		if (z >= sectionSize) {
-			//SpreadDaylightToChunk(chunkX, chunkZ + 1, x, y, sectionSize - z, level);
-			return; 
-		}
-
-		if (y < 0 || y >= worldY)
-			return;
-
+		if (!IsInChunk(x, y, z)) return;
 
 		if (daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
 
@@ -241,7 +214,7 @@ public class Chunk : MonoBehaviour {
 	/// <returns></returns>
 	/// <param name="x">The x coordinate.</param>
 	/// <param name="z">The z coordinate.</param>
-	bool IsChunk(int x, int z) {
+	private bool IsChunk(int x, int z) {
 
 		if ( x < 0 || z < 0 || x >= world.worldX || z >= world.worldZ)
 		{
@@ -253,17 +226,70 @@ public class Chunk : MonoBehaviour {
 		return true;
 	}
 
-
-	public byte Block (int x, int y, int z)
+	/// <summary>
+	/// Does x, y, z fall within the chunk bounds
+	/// </summary>
+	/// <returns></returns>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="y">The y coordinate.</param>
+	/// <param name="z">The z coordinate.</param>
+	private bool IsInChunk (int x, int y, int z)
 	{
 		if( x>=sectionSize || x<0 || y>=world.worldY || y<0 || z>=sectionSize || z<0)
 		{
-			if (this.chunkX == 0 && y == 0)
-				return (byte) 1; //just show us where ground 0 is
-			return (byte)1; //set to 0 to show world boundries
+			return false;
+		}
+		return true;
+	}
+
+	/// <summary>
+	/// Gets the neighbouring chunk based on the local x, y, y.
+	/// </summary>
+	/// <returns>The neighbouring chunk.</returns>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="y">The y coordinate.</param>
+	/// <param name="z">The z coordinate.</param>
+	private Chunk GetNeighbouringChunk(int x, int y, int z) {
+
+		if (y >= world.worldY || y < 0) return null;
+
+		int offsetX = 0;
+		int offsetZ = 0;
+
+		if (x < 0) offsetX = -1;
+		if (x >= sectionSize) offsetX = 1;
+		if (z < 0) offsetZ = -1;
+		if (z >= sectionSize) offsetZ = 1;
+
+		if (IsChunk(this.chunkX + offsetX, this.chunkZ + offsetZ))
+			return world.chunks[this.chunkX + offsetX, this.chunkZ + offsetZ];
+
+		return null; 
+	}
+
+	/// <summary>
+	/// Gets the offset x, y, z for a neighhbour
+	/// </summary>
+	/// <returns>The offset local.</returns>
+	/// <param name="i">The index.</param>
+	private int GetNeighbourLocal(int i) {
+		if (i < 0) return sectionSize + i;
+		if (i >= sectionSize) return sectionSize - i;
+		return i;
+	}
+
+	public byte Block (int x, int y, int z)
+	{
+		if ( !IsInChunk(x, y, z)) {
+
+			Chunk neighbour = GetNeighbouringChunk(x, y, z);
+			if (neighbour == null) return 1;
+			return neighbour.data[GetNeighbourLocal(x), y, GetNeighbourLocal(z)];
 		}
 		return data[x,y,z];
 	}
+
+
 
 	public byte LightBlock (int x, int y, int z)
 	{
