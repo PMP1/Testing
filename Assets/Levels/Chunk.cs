@@ -23,6 +23,10 @@ public class Chunk : MonoBehaviour {
 	public byte[,,] daylightData;
 	public int[,] heightMap; // records the max height of a solid object (used for quick daylight)
 
+	//some debug info
+	public byte updateType = 0; 
+	public System.TimeSpan updateTime = System.TimeSpan.MinValue;
+
 	// Use this for initialization
 	void Start () {
 		world=worldGO.GetComponent("World") as World;
@@ -40,18 +44,22 @@ public class Chunk : MonoBehaviour {
 	}
 
 	void LateUpdate () {
-
+		
+		System.DateTime start = System.DateTime.Now;
 
 		if(update || updateLight || changeDayLight){
 
 			string debugMessage = "";
 			if (this.update) {
+				updateType = 1;
 				debugMessage = "UPDATE called: " + chunkX + ", " + chunkZ;
 			} 
 			if (this.updateLight) {
+				updateType = 2;
 				debugMessage = "UPDATE LIGHT called: " + chunkX + ", " + chunkZ;
 			} 
 			if (this.changeDayLight) {
+				updateType = 3;
 				debugMessage = "CHANGE DAYLIGHT called: " + chunkX + ", " + chunkZ;
 			} 
 			//print(debugMessage );
@@ -91,7 +99,12 @@ public class Chunk : MonoBehaviour {
 
 
 
+		} else {
+			updateType = 0;
 		}
+		
+		System.DateTime end = System.DateTime.Now;
+		updateTime = end.Subtract(start);
 	}
 
 	public void SetHeightMap() {

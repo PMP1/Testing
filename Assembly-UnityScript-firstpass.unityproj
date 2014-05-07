@@ -54,6 +54,7 @@
      <None Include="Assets\Test2.shader" />
      <None Include="Assets\Unlit-AlphaTest.shader" />
      <None Include="Assets\Unlit-Alpha.shader" />
+     <None Include="Assets\ColourShader.shader" />
      <None Include="Assets\test1.shader" />
      <None Include="Assets\Unlit1.shader" />
      <None Include="Assets\Unlit-Normal.shader" />

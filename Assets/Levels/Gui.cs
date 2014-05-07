@@ -67,7 +67,28 @@ public class Gui : MonoBehaviour {
 		GUI.DrawTexture(new Rect(10,310,100,100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
 		
 		
-
+		System.TimeSpan test = new System.TimeSpan();
+		int totalChunks = 0;
+		int totalUpdate1 = 0;
+		int totalUpdate2 = 0;
+		int totalUpdate3 = 0;
+		
+		for (int x=0; x<world.worldX/world.sectionSize; x++){
+			for (int z=0; z<world.worldZ/world.sectionSize; z++){
+				if (world.chunks[x, z]) {
+					test.Add(world.chunks[x, z].updateTime);
+					totalChunks ++;
+					if (world.chunks[x, z].updateType == 1) totalUpdate1 ++;
+					if (world.chunks[x, z].updateType == 2) totalUpdate2 ++;
+					if (world.chunks[x, z].updateType == 3) totalUpdate3 ++;
+				}
+			}
+		}
+		
+		GUI.Label (new Rect (300, 10, 100, 20), test.ToString() );
+		GUI.Label (new Rect (300, 20, 100, 20), totalUpdate1.ToString() );
+		GUI.Label (new Rect (300, 30, 100, 20), totalUpdate2.ToString() );
+		GUI.Label (new Rect (300, 40, 100, 20), totalUpdate3.ToString() );
 		//int tick = (int)Time.timeSinceLevelLoad % 24;
 
 		/*if (lastTick != tick) {
