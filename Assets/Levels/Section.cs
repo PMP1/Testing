@@ -75,10 +75,9 @@ public class Section : MonoBehaviour
 			
 				for (int z=0; z<sectionSize; z++) {
 					if (Block (x, y, z) != 0) {
-						//if (Block (x, 80 + 1, z) <= 0) {
+						if (Block (x, y + 1, z) <= 0) {
 							meshXZ[x, z] = true;
-							
-						//}
+						}
 					}
 				}
 			}
@@ -296,13 +295,13 @@ public class Section : MonoBehaviour
 		col.sharedMesh = mesh;
 
 		//MeshCollider myMC = GetComponent<MeshCollider>();
-		/*Mesh newMesh = new Mesh();
+		Mesh newMesh = new Mesh();
 		//newMesh  = new Mesh();
 		newMesh.vertices  = newColliderVertices.ToArray();
 		newMesh.triangles = newColliderTriangles.ToArray();
 		newMesh.RecalculateBounds();
 		col.sharedMesh = newMesh;
-		colliderFaceCount = 0;*/
+		colliderFaceCount = 0;
 
 
 
@@ -375,53 +374,52 @@ public class Section : MonoBehaviour
 		// this just sets up an example 2D plane for testing purposes
 		int size = 16; // 7 x 7 plane 
 		
-		// mask is just a 2D array of bools, where true means that square needs a face drawn
-		/*bool[,] mask = new bool[16, 16];
-		for (int y = 0; y < 16; y ++)
-		{
-			for (int x = 0; x < 16; x ++)
-			{
-				mask[y, x] = true;
-			}
-		}
-
-		mask[0, 0] = false;
-		mask[0, 1] = false;
-		mask[0, 2] = false;
-		mask[0, 3] = false;
-		mask[2, 4] = false;
-		mask[2, 5] = false;
-		mask[3, 1] = false;
-		mask[4, 1] = false;
-		mask[5, 1] = false;
-		mask[6, 1] = false;*/
 		
-		int i = 0;
-		int j = 0;
+		/* =new bool[,] {
+			{true, false, false,false, true, false,true, false, false,false, false, false,false, false, false, false},
+			{true, false, false,false, true, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, true, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
+			{true, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false}
+		};*/
+
+		int i = 0; //start z
+		int j = 0; //end z
 		int h = 0;
 		bool building;
 		bool done = false;
 		
-		for (int y = 0; y < 16; y ++) 
+		for (int x = 0; x < size; x ++) 
 		{
 			building = false;
-			for (int x = 0; x < 16; x ++) 
+			for (int z = 0; z < size; z ++) 
 			{
-				if (mask[y, x] && !building) // start recording a new rectangle
+				if (mask[x, z] == true && !building) // start recording a new rectangle
 				{
 					building = true;
-					i = x;
+					i = z; //start Z pos
 				}
 				// if you reach a block that needs no face, or you reach the end of the row, you're done
-				if ((!mask[y, x] && building) || (x == size-1 && building))
+				if ((mask[x, z] == false && building) || (z == size-1 && building))
 				{
-					if (!mask[y, x] && building) // -1 because you've already passed the last block
+					if (mask[x, z]==false && building) // -1 because you've already passed the last block
 					{
-						j = x - 1;
+						j = z - 1;
 					}
 					else
 					{
-						j = x;
+						j = z;
 					}
 					building = false;
 					done = false;
@@ -429,11 +427,13 @@ public class Section : MonoBehaviour
 					
 					// look upwards to see if the row above this one needs faces in the exact same spots (width wise)
 					// this loop is a little wonky but it works
-					for (int y2 = y+1; y2 < 16; y2 ++) 
+					
+					
+					for (int x2 = x+1; x2 < size; x2 ++) 
 					{
-						for (int x2 = i; x2 < j; x2 ++) 
+						for (int z2 = i; z2 <= j; z2 ++) 
 						{
-							if (!mask[y2, x2])
+							if (mask[x2, z2] == false)
 							{
 								// cannot expand. get out of the loop.
 								done = true;
@@ -448,11 +448,16 @@ public class Section : MonoBehaviour
 					//# all done with this rectangle
 					//# lower left coordinate of the RECTANGLE = i, y
 					//# upper right coordinate of the RECTANGLE = j+1, y+h
-					//print y, i, j, h	
-					newColliderVertices.Add (new Vector3 (i, yy, y+h));
-					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, y+h));
-					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, y));
-					newColliderVertices.Add (new Vector3 (i, yy, y));
+					//print x, i, j, h	
+					/*newColliderVertices.Add (new Vector3 (i, yy, x+h));
+					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, x+h));
+					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, x));
+					newColliderVertices.Add (new Vector3 (i, yy, x));*/
+					
+					newColliderVertices.Add (new Vector3 (x+h, yy, i));
+					newColliderVertices.Add (new Vector3 (x+h , yy, j+1));
+					newColliderVertices.Add (new Vector3 (x, yy, j+1));
+					newColliderVertices.Add (new Vector3 (x, yy, i));
 					
 					newColliderTriangles.Add (colliderFaceCount * 4); //1
 					newColliderTriangles.Add (colliderFaceCount * 4 + 1); //2
@@ -462,11 +467,11 @@ public class Section : MonoBehaviour
 					newColliderTriangles.Add (colliderFaceCount * 4 + 3); //4
 					colliderFaceCount ++;				
 					// update the mask to show that the spots covered by your rectangle no longer need faces
-					for (int y3 = y; y3 < h+y; y3 ++) 
+					for (int x3 = x; x3 < h+x; x3 ++) 
 					{
-						for (int x3 = i; x3 < j+1; x3 ++) 
+						for (int z3 = i; z3 < j+1; z3 ++) 
 						{
-							mask[y3, x3] = false;
+							mask[x3, z3] = false;
 						}
 					}
 				}
