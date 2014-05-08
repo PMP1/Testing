@@ -68,20 +68,62 @@ public class Section : MonoBehaviour
 
 	public void GenerateMesh ()
 	{
-		bool [,] meshXZ = new bool[sectionSize,sectionSize];
-		
+		bool [,] meshTop = new bool[sectionSize,sectionSize];
+		bool [,] meshBottom = new bool[sectionSize,sectionSize];
+		bool [,] meshEast = new bool[sectionSize,sectionSize];
+		bool [,] meshWest = new bool[sectionSize,sectionSize];
+		bool [,] meshNorth = new bool[sectionSize,sectionSize];
+		bool [,] meshSouth = new bool[sectionSize,sectionSize];
+
 		for (int y=0; y<sectionSize; y++) {
 			for (int x=0; x<sectionSize; x++) {
-			
 				for (int z=0; z<sectionSize; z++) {
 					if (Block (x, y, z) != 0) {
 						if (Block (x, y + 1, z) <= 0) {
-							meshXZ[x, z] = true;
+							meshTop[x, z] = true;
+						}
+						if (Block (x, y - 1, z) <= 0) {
+							meshBottom[x, z] = true;
 						}
 					}
 				}
 			}
-			CullCollisionMatrix(meshXZ, y);
+			CullCollisionMatrix(meshTop, y, 0);
+			CullCollisionMatrix(meshBottom, y, 1);
+		}
+
+		for (int x=0; x<sectionSize; x++) {
+			for (int y=0; y<sectionSize; y++) {
+				for (int z=0; z<sectionSize; z++) {
+					if (Block (x, y, z) != 0) {
+						if (Block (x + 1, y, z) <= 0) {
+							meshEast[y, z] = true;
+						}
+						if (Block (x - 1, y, z) <= 0) {
+							meshBottom[y, z] = true;
+						}
+					}
+				}
+			}
+			CullCollisionMatrix(meshEast, x, 3);
+			CullCollisionMatrix(meshBottom, x, 5);
+		}
+
+		for (int z=0; z<sectionSize; z++) {
+			for (int x=0; x<sectionSize; x++) {
+				for (int y=0; y<sectionSize; y++) {
+					if (Block (x, y, z) != 0) {
+						if (Block (x, y, z + 1) <= 0) {
+							meshNorth[x, y] = true;
+						}
+						if (Block (x, y, z - 1) <= 0) {
+							meshSouth[y, x] = true;
+						}
+					}
+				}
+			}
+			CullCollisionMatrix(meshNorth, z, 2);
+			//CullCollisionMatrix(meshSouth, z, 4);
 		}
 		
 		
@@ -368,9 +410,9 @@ public class Section : MonoBehaviour
 		newColor.Clear ();
 	}
 	
+	// top 0 bottom 1 N 2 E 3 S 4 W 5
 	
-	
-	bool[,] CullCollisionMatrix(bool[,] mask, int yy) {
+	bool[,] CullCollisionMatrix(bool[,] mask, int dim, int type) {
 		// this just sets up an example 2D plane for testing purposes
 		int size = 16; // 7 x 7 plane 
 		
@@ -446,19 +488,48 @@ public class Section : MonoBehaviour
 						h += 1;
 					}
 					//# all done with this rectangle
-					//# lower left coordinate of the RECTANGLE = i, y
-					//# upper right coordinate of the RECTANGLE = j+1, y+h
+					//# lower left coordinate of the RECTANGLE = x, i
+					//# upper right coordinate of the RECTANGLE = x+h, j+1
 					//print x, i, j, h	
-					/*newColliderVertices.Add (new Vector3 (i, yy, x+h));
-					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, x+h));
-					newColliderVertices.Add (new Vector3 (j+1 + 1, yy, x));
-					newColliderVertices.Add (new Vector3 (i, yy, x));*/
-					
-					newColliderVertices.Add (new Vector3 (x+h, yy, i));
-					newColliderVertices.Add (new Vector3 (x+h , yy, j+1));
-					newColliderVertices.Add (new Vector3 (x, yy, j+1));
-					newColliderVertices.Add (new Vector3 (x, yy, i));
-					
+
+					switch(type) {
+
+					case 0:
+						newColliderVertices.Add (new Vector3 (x, dim, j+1));
+						newColliderVertices.Add (new Vector3 (x+h , dim, j+1));
+						newColliderVertices.Add (new Vector3 (x+h, dim, i));
+						newColliderVertices.Add (new Vector3 (x, dim, i));
+						break;
+					case 1:
+						newColliderVertices.Add (new Vector3 (x, dim - 1, i));
+						newColliderVertices.Add (new Vector3 (x+h , dim - 1, i));
+						newColliderVertices.Add (new Vector3 (x+h, dim - 1, j+1));
+						newColliderVertices.Add (new Vector3 (x, dim - 1, j+1));
+						break;
+					case 2:
+						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
+						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim + 1));
+						break;
+					case 3:
+						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, i));
+						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, i));
+						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, j+1));
+						break;
+					case 4:
+
+						break;
+					case 5:
+						
+						newColliderVertices.Add (new Vector3 (dim, x - 1, i));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, i));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim, x - 1, j+1));
+						break;
+
+					}
 					newColliderTriangles.Add (colliderFaceCount * 4); //1
 					newColliderTriangles.Add (colliderFaceCount * 4 + 1); //2
 					newColliderTriangles.Add (colliderFaceCount * 4 + 2); //3
