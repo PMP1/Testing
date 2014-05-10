@@ -123,7 +123,7 @@ public class Section : MonoBehaviour
 				}
 			}
 			CullCollisionMatrix(meshNorth, z, 2);
-			//CullCollisionMatrix(meshSouth, z, 4);
+			CullCollisionMatrix(meshSouth, z, 4);
 		}
 		
 		
@@ -334,7 +334,7 @@ public class Section : MonoBehaviour
 		mesh.RecalculateNormals ();
 
 		col.sharedMesh = null;
-		col.sharedMesh = mesh;
+		//col.sharedMesh = mesh;
 
 		//MeshCollider myMC = GetComponent<MeshCollider>();
 		Mesh newMesh = new Mesh();
@@ -507,10 +507,13 @@ public class Section : MonoBehaviour
 						newColliderVertices.Add (new Vector3 (x, dim - 1, j+1));
 						break;
 					case 2://North
-						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
-						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
-						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
+
 						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim + 1));
+						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
+
+
 						break;
 					case 3: //East
 						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, i));
@@ -518,15 +521,18 @@ public class Section : MonoBehaviour
 						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, j+1));
 						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, j+1));
 						break;
-					case 4:
-
+					case 4: //South
+						newColliderVertices.Add (new Vector3 (i, x - 1,  dim));
+						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim));
+						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim));
+						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim));
 						break;
-					case 5:
-						
-						newColliderVertices.Add (new Vector3 (dim, x - 1, i));
-						newColliderVertices.Add (new Vector3 (dim, x+h - 1, i));
-						newColliderVertices.Add (new Vector3 (dim, x+h - 1, j+1));
+					case 5: //West
 						newColliderVertices.Add (new Vector3 (dim, x - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, i));
+						newColliderVertices.Add (new Vector3 (dim, x - 1, i));
+
 						break;
 
 					}
