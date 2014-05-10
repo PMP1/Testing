@@ -18,7 +18,7 @@ public class TimeManager : MonoBehaviour {
 	
 	private int startTick = 0;
 	private float ticksInASecond = 10;
-	private int ticksInAnHour = 20; // 1 hour = 10 seconds
+	private int ticksInAnHour = 120; // 1 hour = 10 seconds
 	private int hoursInADay = 24; // 1 day = 240 seconds = 2400 ticks
 	//months, seasons, moon phases, temperature
 	

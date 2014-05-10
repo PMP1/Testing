@@ -494,25 +494,25 @@ public class Section : MonoBehaviour
 
 					switch(type) {
 
-					case 0:
+					case 0://Top
 						newColliderVertices.Add (new Vector3 (x, dim, j+1));
 						newColliderVertices.Add (new Vector3 (x+h , dim, j+1));
 						newColliderVertices.Add (new Vector3 (x+h, dim, i));
 						newColliderVertices.Add (new Vector3 (x, dim, i));
 						break;
-					case 1:
+					case 1://Bottom
 						newColliderVertices.Add (new Vector3 (x, dim - 1, i));
 						newColliderVertices.Add (new Vector3 (x+h , dim - 1, i));
 						newColliderVertices.Add (new Vector3 (x+h, dim - 1, j+1));
 						newColliderVertices.Add (new Vector3 (x, dim - 1, j+1));
 						break;
-					case 2:
+					case 2://North
 						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
 						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
 						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
 						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim + 1));
 						break;
-					case 3:
+					case 3: //East
 						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, i));
 						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, i));
 						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, j+1));
