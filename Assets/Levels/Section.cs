@@ -114,7 +114,7 @@ public class Section : MonoBehaviour
 				for (int y=0; y<sectionSize; y++) {
 					if (Block (x, y, z) != 0) {
 						if (Block (x, y, z + 1) <= 0) {
-							meshNorth[x, y] = true;
+							meshNorth[y, x] = true;
 						}
 						if (Block (x, y, z - 1) <= 0) {
 							meshSouth[y, x] = true;
