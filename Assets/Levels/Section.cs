@@ -417,26 +417,6 @@ public class Section : MonoBehaviour
 	bool[,] CullCollisionMatrix(bool[,] mask, int dim, int type) {
 		// this just sets up an example 2D plane for testing purposes
 		int size = 16; // 7 x 7 plane 
-		
-		
-		/* =new bool[,] {
-			{true, false, false,false, true, false,true, false, false,false, false, false,false, false, false, false},
-			{true, false, false,false, true, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, true, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{false, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false},
-			{true, false, false,false, false, false,false, false, false,false, false, false,false, false, false, false}
-		};*/
 
 		int i = 0; //start z
 		int j = 0; //end z
