@@ -344,7 +344,8 @@ public class Section : MonoBehaviour
 		newMesh.RecalculateBounds();
 		col.sharedMesh = newMesh;
 		colliderFaceCount = 0;
-
+		newColliderVertices.Clear ();
+		newColliderTriangles.Clear ();
 
 
 		newVertices.Clear ();
@@ -352,6 +353,7 @@ public class Section : MonoBehaviour
 		//newUV2.Clear ();
 		newColor.Clear();
 		newTriangles.Clear ();
+
 		faceCount = 0;
 		
 		
