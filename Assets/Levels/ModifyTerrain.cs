@@ -8,8 +8,29 @@ public class ModifyTerrain : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		//This is where the innitial load is done!
+		System.DateTime start = System.DateTime.Now;
+
 		world=gameObject.GetComponent("World") as World;
 		cameraGO=GameObject.FindGameObjectWithTag("MainCamera");
+
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,256); //needs to load at 256
+
+		//Need to call an inittial set of chunk updates here so that the lighting is rendered
+		for(int x = 0; x < world.chunks.GetLength(0); x++){ 
+			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
+				if (world.chunks[x, z])
+					world.chunks[x, z].DoUpdate();
+			}
+		}
+
+
+		//this will then give us a true start up time
+		//
+		//update chunks internal light
+		//then update light from other chunks? good idea phil!!
+		world.startupTime = System.DateTime.Now.Subtract (start);
 	}
 	
 	// Update is called once per frame
@@ -36,7 +57,7 @@ public class ModifyTerrain : MonoBehaviour {
 				
 				if(dist<distToLoad){
 					if(world.chunks[x,z]==null){
-						world.GenColumn(x,z);
+						world.GenColumn(x,z, dist);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {
 							world.chunks[x - 1, z].update = true;
 						}
@@ -50,6 +71,9 @@ public class ModifyTerrain : MonoBehaviour {
 							world.chunks[x, z + 1].update = true;
 						}
 					}
+					//if (dist <= 32 ) {
+					//	world.chunks[x, z].useCollisionMatrix = true;
+					//}
 				} else if(dist>distToUnload){
 					if(world.chunks[x,z]!=null){
 						

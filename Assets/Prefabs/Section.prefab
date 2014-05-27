@@ -92,6 +92,7 @@ MonoBehaviour:
   sectionZ: 0
   update: 0
   lightUpdate: 0
+  updateDayLight: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

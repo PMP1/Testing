@@ -4,7 +4,7 @@ using System.Collections;
 public class Chunk : MonoBehaviour {
 
 	public GameObject worldGO;
-	World world;
+	public World world;
 	public Section[] sections; 
 	public int sectionSize=16;
 	public GameObject section;
@@ -13,8 +13,11 @@ public class Chunk : MonoBehaviour {
 	public int chunkZ;
 
 	public bool update = false;
+	public bool updateHeightMap = false;
 	public bool updateLight = false;
 	public bool changeDayLight = false;
+
+	public bool useCollisionMatrix = false;
 
 	//need to save world data here
 	public byte biome;
@@ -26,14 +29,15 @@ public class Chunk : MonoBehaviour {
 	//some debug info
 	public byte updateType = 0; 
 	public System.TimeSpan updateTime = System.TimeSpan.MinValue;
-
+	
 	// Use this for initialization
 	void Start () {
-		world=worldGO.GetComponent("World") as World;
 
+	}
+
+	public void Init() {
 		sections=new Section[Mathf.FloorToInt(worldY/sectionSize)];
 		daylightData = new byte[sectionSize, worldY, sectionSize];
-
 		GenColumn ();
 		update = true;
 	}
@@ -44,6 +48,11 @@ public class Chunk : MonoBehaviour {
 	}
 
 	void LateUpdate () {
+
+		DoUpdate ();
+	}
+
+	public void DoUpdate () {
 		
 		System.DateTime start = System.DateTime.Now;
 
@@ -64,11 +73,15 @@ public class Chunk : MonoBehaviour {
 			} 
 			//print(debugMessage );
 
+			if (updateHeightMap) {
+				SetHeightMap();
+				updateHeightMap = false;
+			}
 
 			if (this.update) {
 				//terrain has been updated
 
-				SetHeightMap();
+				//SetHeightMap();
 				GenerateDayLightData();
 
 				for( int i = 0; i < sections.Length; i ++) {
@@ -91,14 +104,10 @@ public class Chunk : MonoBehaviour {
 			if (this.changeDayLight) {
 
 				for( int i = 0; i < sections.Length; i ++) {
-					sections[i].lightUpdate = true;
+					sections[i].updateDayLight = true;
 				}
 				changeDayLight = false;
 			}
-		
-
-
-
 		} else {
 			updateType = 0;
 		}
@@ -132,9 +141,23 @@ public class Chunk : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Fills the sky to heightmap with light and then spreads out from where the light hits
+	/// </summary>
 	void GenerateDayLightData()
 	{
 		daylightData = new byte[sectionSize, worldY, sectionSize];
+
+		//floodfill initial daylight
+		for (int x = 0; x < sectionSize; x++) {
+			for (int z = 0; z < sectionSize; z++) {
+				for (int y = worldY - 1; y > this.heightMap [x, z] + 1; y--) {
+					daylightData [x, y, z] = 15;
+				}
+			}
+		}
+
+		//spread daylightwhen we hit a floor
 		for (int x = 0; x < sectionSize; x++) {
 			for (int z = 0; z < sectionSize; z++) {
 
@@ -150,13 +173,13 @@ public class Chunk : MonoBehaviour {
 			}
 		}
 
+		//Get the daylight from neighbouring chunks
 		SpreadDaylightFromXChunk (chunkX + 1, 0, sectionSize - 1);
 		SpreadDaylightFromXChunk (chunkX - 1, sectionSize - 1, 0);
 		SpreadDaylightFromZChunk (chunkZ + 1, 0, sectionSize - 1);
 		SpreadDaylightFromZChunk (chunkZ - 1, sectionSize - 1, 0);
-
-
 	}
+
 
 	public void SpreadDaylight(int x, int y, int z, byte level) {
 
@@ -214,6 +237,7 @@ public class Chunk : MonoBehaviour {
 		}
 	}
 
+	//TODO remove this funtion???
 	void SpreadDaylightToChunk(int chunkX, int chunkZ, int x, int y, int z, byte level) {
 
 		if (IsChunk (chunkX, chunkZ)) {
@@ -329,7 +353,7 @@ public class Chunk : MonoBehaviour {
 	public void GenColumn(){
 		
 
-		for (int y= (worldY/sectionSize) - 1; y >= 0; y--){
+		for (int y = (worldY/sectionSize) - 1; y >= 0; y--){
 			//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
 			GameObject newChunk= Instantiate(section,new Vector3(chunkX*sectionSize-0.5f,
 			                                                   y*sectionSize+0.5f,
@@ -344,6 +368,7 @@ public class Chunk : MonoBehaviour {
 			sections[y].sectionX=chunkX*sectionSize;
 			sections[y].sectionY=y*sectionSize;
 			sections[y].sectionZ=chunkZ*sectionSize;
+			sections[y].useCollisionMatrix = useCollisionMatrix;
 
 			
 		}

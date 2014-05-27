@@ -21,10 +21,10 @@ public class Section : MonoBehaviour
 	//private List<Vector2> newUV2 = new List<Vector2> ();
 	private List<Color> newColor = new List<Color> ();
 	private float tUnit = 0.25f;
-	private Vector2 tStone = new Vector2 (1, 0);
-	private Vector2 tGrass = new Vector2 (0, 1);
-	private Vector2 tGrassTop = new Vector2 (1, 1);
-	private Vector2 t1 = new Vector2 (2, 0);
+	private Vector2 tStone = new Vector2 (0, 1);
+	private Vector2 tGrass = new Vector2 (0, 2);
+	private Vector2 tDirt = new Vector2 (0, 3);
+	private Vector2 tSand = new Vector2 (1, 2);
 	private Vector2 t2 = new Vector2 (2, 1);
 	private Vector2 t3 = new Vector2 (2, 2);
 	private Vector2 t4 = new Vector2 (2, 3);
@@ -40,14 +40,17 @@ public class Section : MonoBehaviour
 		
 	public bool update;
 	public bool lightUpdate;
+	public bool updateDayLight;
+
+	public bool useCollisionMatrix;
+	private bool hasCollisionMatrix = false;
+
 
 	// Use this for initialization
 	void Start ()
 	{ 
 		mesh = GetComponent<MeshFilter> ().mesh;
 		col = GetComponent<MeshCollider> ();
-
-		GenerateMesh ();
 	}
 
 	// Update is called once per frame
@@ -57,24 +60,32 @@ public class Section : MonoBehaviour
 	}
 
 	void LateUpdate () {
+
 		if (update) {
 			GenerateMesh ();
 			update = false;
 		} else if (lightUpdate) {
 			GenerateLight ();
 			lightUpdate = false;
+		} else if (updateDayLight) {
+			GenerateDayLight();
+			updateDayLight = false;
 		}
 	}
 
-	public void GenerateMesh ()
+	/// <summary>
+	/// Generates the collision mesh.
+	/// </summary>
+	private void GenerateCollisionMesh ()
 	{
+
 		bool [,] meshTop = new bool[sectionSize,sectionSize];
 		bool [,] meshBottom = new bool[sectionSize,sectionSize];
 		bool [,] meshEast = new bool[sectionSize,sectionSize];
 		bool [,] meshWest = new bool[sectionSize,sectionSize];
 		bool [,] meshNorth = new bool[sectionSize,sectionSize];
 		bool [,] meshSouth = new bool[sectionSize,sectionSize];
-
+		
 		for (int y=0; y<sectionSize; y++) {
 			for (int x=0; x<sectionSize; x++) {
 				for (int z=0; z<sectionSize; z++) {
@@ -91,7 +102,7 @@ public class Section : MonoBehaviour
 			CullCollisionMatrix(meshTop, y, 0);
 			CullCollisionMatrix(meshBottom, y, 1);
 		}
-
+		
 		for (int x=0; x<sectionSize; x++) {
 			for (int y=0; y<sectionSize; y++) {
 				for (int z=0; z<sectionSize; z++) {
@@ -108,7 +119,7 @@ public class Section : MonoBehaviour
 			CullCollisionMatrix(meshEast, x, 3);
 			CullCollisionMatrix(meshBottom, x, 5);
 		}
-
+		
 		for (int z=0; z<sectionSize; z++) {
 			for (int x=0; x<sectionSize; x++) {
 				for (int y=0; y<sectionSize; y++) {
@@ -125,10 +136,14 @@ public class Section : MonoBehaviour
 			CullCollisionMatrix(meshNorth, z, 2);
 			CullCollisionMatrix(meshSouth, z, 4);
 		}
-		
-		
-		
-	
+		hasCollisionMatrix = true;
+	}
+
+	public void GenerateMesh ()
+	{
+		if (useCollisionMatrix) {
+			GenerateCollisionMesh ();
+		}
 	
 		for (int x=0; x<sectionSize; x++) {
 			for (int y=0; y<sectionSize; y++) {
@@ -179,29 +194,28 @@ public class Section : MonoBehaviour
 	byte LightBlock (int x, int y, int z)
 	{
 		byte l = chunk.LightBlock (x, y + sectionY, z);
-		byte w = world.time.GetDaylightLevel();
-		return (byte)Mathf.Max (l - w, 0);
+		//byte w = world.time.GetDaylightLevel();
+		return (byte)Mathf.Max (l, 0);
 	}
 	
 	private Vector2 GetTexture(int type) {
 		switch (type) {
 		
 			case 1: 
-				return t1;
+				return tSand;
 			case 2: 
-				return t2;
+				return tGrass;
 			case 3: 
 				return t3;
 			case 4: 
-				return t4;
+				return tStone;
 			default:
-				return tStone;		
+				return tDirt;		
 		}
 	}
 
 	void CubeTop (int x, int y, int z, byte block)
 	{
-
 		newVertices.Add (new Vector3 (x, y, z + 1));
 		newVertices.Add (new Vector3 (x + 1, y, z + 1));
 		newVertices.Add (new Vector3 (x + 1, y, z));
@@ -210,14 +224,26 @@ public class Section : MonoBehaviour
 		Vector2 texturePos = new Vector2 (0, 0);
 		texturePos = GetTexture(Block (x, y, z));
 		
+		byte n  = LightBlock (x,   y + 1, z+1);
+		byte ne = LightBlock (x+1, y + 1, z+1);
+		byte e  = LightBlock (x+1, y + 1, z);
+		byte se = LightBlock (x+1, y + 1, z-1);
+		byte s  = LightBlock (x,   y + 1, z-1);
+		byte sw = LightBlock (x-1, y + 1, z-1);
+		byte w  = LightBlock (x-1, y + 1, z);
+		byte nw = LightBlock (x-1, y + 1, z+1);
+		byte c  = LightBlock (x,   y + 1, z);
 
-		Cube (texturePos, LightBlock(x, y + 1, z));
+		byte ne1 = (byte)((float)(c + n + ne + e) / 4f);
+		byte se1 = (byte)((float)(c + s + se + e) / 4f);
+		byte sw1 = (byte)((float)(c + s + sw + w) / 4f);
+		byte nw1 = (byte)((float)(c + n + nw + w) / 4f);
 
+		Cube (texturePos, ne1, se1, sw1, nw1);
 	}
 
 	void CubeNorth (int x, int y, int z, byte block)
 	{
-
 		newVertices.Add (new Vector3 (x + 1, y - 1, z + 1));
 		newVertices.Add (new Vector3 (x + 1, y, z + 1));
 		newVertices.Add (new Vector3 (x, y, z + 1));
@@ -226,8 +252,25 @@ public class Section : MonoBehaviour
 		Vector2 texturePos = new Vector2 (0, 0);
 		texturePos = GetTexture(Block (x, y, z));
 
-		Cube (texturePos, LightBlock(x, y, z + 1));
+		//  |tw|t |te|
+		//  |w |c |e |
+		//  |bw|b |be|
+		byte t  = LightBlock (x,   y+1, z+1); //top
+		byte te = LightBlock (x+1, y+1, z+1); //top - east
+		byte e  = LightBlock (x+1, y,   z+1);
+		byte be = LightBlock (x+1, y-1, z+1);
+		byte b  = LightBlock (x,   y-1, z+1);
+		byte bw = LightBlock (x-1, y-1, z+1);
+		byte w  = LightBlock (x-1, y,   z+1);
+		byte tw = LightBlock (x-1, y+1, z+1);
+		byte c  = LightBlock (x,   y,   z+1);
+		
+		byte te1 = (byte)((float)(c + t + te + e) / 4f);
+		byte be1 = (byte)((float)(c + b + be + e) / 4f);
+		byte bw1 = (byte)((float)(c + b + bw + w) / 4f);
+		byte tw1 = (byte)((float)(c + t + tw + w) / 4f);
 
+		Cube (texturePos, te1, tw1 , bw1, be1);
 	}
 
 	void CubeEast (int x, int y, int z, byte block)
@@ -240,13 +283,30 @@ public class Section : MonoBehaviour
 		Vector2 texturePos = new Vector2 (0, 0);
 		texturePos = GetTexture(Block (x, y, z));
 
-		Cube (texturePos, LightBlock(x + 1, y, z));
-
+		//Cube (texturePos, LightBlock(x + 1, y, z));
+		//  |ts|t |tn|
+		//  |s |c |n |
+		//  |bs|b |bn|
+		byte t  = LightBlock (x+1,   y+1, z); //top
+		byte tn = LightBlock (x+1, y+1, z+1); //top - east
+		byte n  = LightBlock (x+1, y,   z+1);
+		byte bn = LightBlock (x+1, y-1, z+1);
+		byte b  = LightBlock (x+1,   y-1, z);
+		byte bs = LightBlock (x+1, y-1, z-1);
+		byte s  = LightBlock (x+1, y,   z-1);
+		byte ts = LightBlock (x+1, y+1, z-1);
+		byte c  = LightBlock (x+1,   y,   z);
+		
+		byte tn1 = (byte)((float)(c + t + tn + n) / 4f);
+		byte bn1 = (byte)((float)(c + b + bn + n) / 4f);
+		byte bs1 = (byte)((float)(c + b + bs + s) / 4f);
+		byte ts1 = (byte)((float)(c + t + ts + s) / 4f);
+		
+		Cube (texturePos, ts1, tn1 , bn1, bs1);
 	}
 
 	void CubeSouth (int x, int y, int z, byte block)
 	{
-
 		newVertices.Add (new Vector3 (x, y - 1, z));
 		newVertices.Add (new Vector3 (x, y, z));
 		newVertices.Add (new Vector3 (x + 1, y, z));
@@ -255,13 +315,29 @@ public class Section : MonoBehaviour
 		Vector2 texturePos = new Vector2 (0, 0);
 		texturePos = GetTexture(Block (x, y, z));
 
-		Cube (texturePos, LightBlock(x, y, z - 1));
-
+		//  |tw|t |te|
+		//  |w |c |e |
+		//  |bw|b |be|
+		byte t  = LightBlock (x,   y+1, z-1); //top
+		byte te = LightBlock (x+1, y+1, z-1); //top - east
+		byte e  = LightBlock (x+1, y,   z-1);
+		byte be = LightBlock (x+1, y-1, z-1);
+		byte b  = LightBlock (x,   y-1, z-1);
+		byte bw = LightBlock (x-1, y-1, z-1);
+		byte w  = LightBlock (x-1, y,   z-1);
+		byte tw = LightBlock (x-1, y+1, z-1);
+		byte c  = LightBlock (x,   y,   z-1);
+		
+		byte te1 = (byte)((float)(c + t + te + e) / 4f);
+		byte be1 = (byte)((float)(c + b + be + e) / 4f);
+		byte bw1 = (byte)((float)(c + b + bw + w) / 4f);
+		byte tw1 = (byte)((float)(c + t + tw + w) / 4f);
+		
+		Cube (texturePos, tw1, te1 , be1, bw1);
 	}
 
 	void CubeWest (int x, int y, int z, byte block)
 	{
-
 		newVertices.Add (new Vector3 (x, y - 1, z + 1));
 		newVertices.Add (new Vector3 (x, y, z + 1));
 		newVertices.Add (new Vector3 (x, y, z));
@@ -270,8 +346,26 @@ public class Section : MonoBehaviour
 		Vector2 texturePos = new Vector2 (0, 0);
 		texturePos = GetTexture(Block (x, y, z));
 
-		Cube (texturePos,  LightBlock(x - 1, y, z));
-
+		//Cube (texturePos, LightBlock(x + 1, y, z));
+		//  |ts|t |tn|
+		//  |s |c |n |
+		//  |bs|b |bn|
+		byte t  = LightBlock (x-1, y+1, z); //top
+		byte tn = LightBlock (x-1, y+1, z+1); //top - north
+		byte n  = LightBlock (x-1, y,   z+1);
+		byte bn = LightBlock (x-1, y-1, z+1);
+		byte b  = LightBlock (x-1, y-1, z);
+		byte bs = LightBlock (x-1, y-1, z-1);
+		byte s  = LightBlock (x-1, y,   z-1);
+		byte ts = LightBlock (x-1, y+1, z-1);
+		byte c  = LightBlock (x-1, y,   z);
+		
+		byte tn1 = (byte)((float)(c + t + tn + n) / 4f);
+		byte bn1 = (byte)((float)(c + b + bn + n) / 4f);
+		byte bs1 = (byte)((float)(c + b + bs + s) / 4f);
+		byte ts1 = (byte)((float)(c + t + ts + s) / 4f);
+		
+		Cube (texturePos, tn1, ts1, bs1, bn1);	
 	}
 
 	void CubeBot (int x, int y, int z, byte block)
@@ -297,15 +391,42 @@ public class Section : MonoBehaviour
 		newTriangles.Add (faceCount * 4); //1
 		newTriangles.Add (faceCount * 4 + 2); //3
 		newTriangles.Add (faceCount * 4 + 3); //4
-
+		
 		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
 		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
 		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
 		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
-
+		
 		CubeLight (lightLevel);
-
+		
 		faceCount++; // Add this line
+	}
+
+	void Cube (Vector2 texturePos, byte ne, byte se, byte sw, byte nw)
+	{
+		newTriangles.Add (faceCount * 4); //1
+		newTriangles.Add (faceCount * 4 + 1); //2
+		newTriangles.Add (faceCount * 4 + 2); //3
+		newTriangles.Add (faceCount * 4); //1
+		newTriangles.Add (faceCount * 4 + 2); //3
+		newTriangles.Add (faceCount * 4 + 3); //4
+		
+		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
+		newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
+		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
+		newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
+		
+		CubeLight (ne, se, sw, nw);
+		
+		faceCount++; // Add this line
+	}
+
+	void CubeLight(byte ne, byte se, byte sw, byte nw) {
+
+		newColor.Add(new Color(0f,0f,0f,nw/16f));
+		newColor.Add(new Color(0f,0f,0f,ne/16f));
+		newColor.Add(new Color(0f,0f,0f,se/16f));
+		newColor.Add(new Color(0f,0f,0f,sw/16f));
 	}
 
 	void CubeLight(byte lightLevel) {
@@ -316,10 +437,16 @@ public class Section : MonoBehaviour
 		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y + tUnit));
 		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y));
 		*/
+		/*newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
 		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
 		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
-		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
-		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
+		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));*/
+
+		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
+		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
+		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
+		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
+
 	}
 
 	void UpdateMesh ()
@@ -333,12 +460,11 @@ public class Section : MonoBehaviour
 		mesh.Optimize ();
 		mesh.RecalculateNormals ();
 
-		col.sharedMesh = null;
-		//col.sharedMesh = mesh;
 
-		//MeshCollider myMC = GetComponent<MeshCollider>();
+		//Update the collider
+		col.sharedMesh = null;
+
 		Mesh newMesh = new Mesh();
-		//newMesh  = new Mesh();
 		newMesh.vertices  = newColliderVertices.ToArray();
 		newMesh.triangles = newColliderTriangles.ToArray();
 		newMesh.RecalculateBounds();
@@ -347,10 +473,10 @@ public class Section : MonoBehaviour
 		newColliderVertices.Clear ();
 		newColliderTriangles.Clear ();
 
+		renderer.material.SetFloat ("_Sun", 0f);
 
 		newVertices.Clear ();
 		newUV.Clear ();
-		//newUV2.Clear ();
 		newColor.Clear();
 		newTriangles.Clear ();
 
@@ -403,13 +529,22 @@ public class Section : MonoBehaviour
 		UpdateMeshLight ();
 	}
 
-	void UpdateMeshLight ()
+	/// <summary>
+	/// Updates the vertex light colours, rgb is tourch light alpha is sunlight
+	/// </summary>
+	private void UpdateMeshLight ()
 	{
-		//mesh.uv2 = newUV2.ToArray ();
-		//newUV2.Clear ();
-		
 		mesh.colors = newColor.ToArray ();
 		newColor.Clear ();
+	}
+
+	/// <summary>
+	/// Updates the global sun value on this mesh.
+	/// </summary>
+	private void GenerateDayLight()
+	{
+		byte w = world.time.GetDaylightLevel();
+		renderer.material.SetFloat ("_Sun", (float)w /16f);
 	}
 	
 	// top 0 bottom 1 N 2 E 3 S 4 W 5

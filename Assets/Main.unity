@@ -191,6 +191,7 @@ MonoBehaviour:
   chunk: {fileID: 100000, guid: d890fdf17fb4b41419fd2ac607f4738a, type: 2}
   sectionSize: 16
   time: {fileID: 500331167}
+  terrain: {fileID: 500331166}
 --- !u!4 &500331165
 Transform:
   m_ObjectHideFlags: 0

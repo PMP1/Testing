@@ -4,17 +4,19 @@ Properties {
     _MainTex ("Base (RGB) Gloss (A)", 2D) = "white" {}
     //_Illum ("Illumin (A)", 2D) = "white" {}
     //_EmissionLM ("Emission (Lightmapper)", Float) = 0
+    _Sun ("Sun", Range(0,1)) = 1
 }
  
 SubShader {
     Tags { "RenderType" = "Opaque" }
-    LOD 200
+    //LOD 200
 	 
 	CGPROGRAM
 	#pragma surface surf Lambert noambient
 	 
 	sampler2D _MainTex;
-	//fixed4 _Color;
+	fixed4 _Color;
+	float _Sun;
 	 
 	struct Input {
 	    float2 uv_MainTex;
@@ -30,8 +32,9 @@ SubShader {
 	    o.Albedo = tex2D (_MainTex, IN.uv_MainTex).rgb;
 	    
 	    float3 light = IN.color.rgb;
-	    float sun = IN.color.a;
-	    float3 ambient = UNITY_LIGHTMODEL_AMBIENT * sun * 2;
+	    float sun = IN.color.a * _Sun * 1;
+	    float3 ambient = 1f * sun;
+	    //float3 ambient = _Color.a * sun;
 	    ambient = max(ambient, 0.002);
 	    ambient = max(ambient, light);
 	    o.Emission = o.Albedo * ambient;

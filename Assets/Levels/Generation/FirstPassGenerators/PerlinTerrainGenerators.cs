@@ -37,7 +37,7 @@ namespace AssemblyCSharp
 
 				terrainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode()), 5);
 				caveNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 3));
-				hillNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 4), 8);
+				hillNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 4), 5);
 				mouintainNoise = new BrownianNoise3D(new PerlinNoise(this._seed.GetHashCode() + 5), 8);
 			}
 		}
@@ -81,6 +81,7 @@ namespace AssemblyCSharp
 							// Some block was set...
 							if (firstBlockHeight == -1) {
 								firstBlockHeight = y;
+								chunk.heightMap[x,z] = y;
 							}
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {
@@ -94,6 +95,7 @@ namespace AssemblyCSharp
 							// Some block was set...
 							if (firstBlockHeight == -1) {
 								firstBlockHeight = y;
+								chunk.heightMap[x,z] = y;
 							}
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.6) {
@@ -127,7 +129,6 @@ namespace AssemblyCSharp
 			int plateauArea = (int) (256 * 0.10);
 			float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
 			
-			//return -y + (((32.0 + height * 32.0) * TeraMath.clamp(river + 0.25) * TeraMath.clamp(ocean + 0.25)) + densityMountains * 1024.0 + densityHills * 128.0) * flatten;
 			if (x == 0 && z == 0) {
 				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 512.0f + densityHills * 64.0f) * flatten);
 			}
@@ -186,7 +187,6 @@ namespace AssemblyCSharp
 				}
 			}
 		}
-
 	}
 }
 

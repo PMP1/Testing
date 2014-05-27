@@ -16,9 +16,9 @@ public class TimeManager : MonoBehaviour {
 	private int previousTick = -1;
 	private byte previousDayLight = 0;
 	
-	private int startTick = 0;
+	private int startTick = 200;
 	private float ticksInASecond = 10;
-	private int ticksInAnHour = 120; // 1 hour = 10 seconds
+	private int ticksInAnHour = 50; // 1 hour = 10 seconds
 	private int hoursInADay = 24; // 1 day = 240 seconds = 2400 ticks
 	//months, seasons, moon phases, temperature
 	
@@ -102,12 +102,12 @@ public class TimeManager : MonoBehaviour {
 		//daybreak
 		if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
 			float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)(15 - (perc * 15));
+			currentLight = (byte)((perc * 15));
 		}
 		//sunset
 		if (dayTick > 18 * ticksInAnHour && dayTick <= 19 * ticksInAnHour) {
 			float perc = ((float)dayTick - (18 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)(perc * 15);
+			currentLight = (byte)(15 - (perc * 15));
 		}
 
 		if (previousDayLight != currentLight) {

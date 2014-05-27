@@ -14,15 +14,24 @@ public class World : MonoBehaviour {
 	public Chunk[,] chunks; 
 	public int sectionSize=16;
 
+	//scripts
 	public TimeManager time;
-	
+	public ModifyTerrain terrain;
+
+
 	public WorldConfig configSettings;
 	public AbstractWorldGenerator worldGenerator;
 
+
+	public System.TimeSpan startupTime;
+	public System.TimeSpan runningTime;
+	private System.DateTime start;
 	// Use this for initialization
 	void Awake() {
 	
 		
+		//Sytem starting
+		start = System.DateTime.Now;
 
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
@@ -31,13 +40,21 @@ public class World : MonoBehaviour {
 		
 		worldGenerator = new PerlinWorldGenerator();
 		worldGenerator.SetSeed(configSettings.Seed);
+
+		//terrain.LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180);
+
+
+		//innitial startup complete
+
 	}
 
 
 	
 	// Update is called once per frame
 	void Update () {
-	
+		//if (startupTime == System.TimeSpan.MinValue || startupTime == null) {
+			runningTime = System.DateTime.Now.Subtract (start);
+		//}
 	}
 
 	public byte GenBiome(int xpos, int zpos) {
@@ -131,7 +148,9 @@ public class World : MonoBehaviour {
 		return (int) rValue;
 	}
 
-	public void GenColumn(int x, int z){
+	public void GenColumn(int x, int z, float dist){
+
+		print ("Gen COL:" + Time.time.ToString());
 
 		//generate a chunk column
 		GameObject newChunkColumn= Instantiate(chunk,new Vector3(x*sectionSize-0.5f,
@@ -144,9 +163,13 @@ public class World : MonoBehaviour {
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
 		chunks [x, z].biome = GenBiome (x, z);
-		//chunks [x, z].data = GenData(x, z, chunks [x, z].biome);
+		chunks [x, z].world = gameObject.GetComponent ("World") as World;
 		chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
+		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
+		chunks [x, z].useCollisionMatrix = dist < 32 ? true : false;
 		worldGenerator.CreateChunk(chunks [x, z]);
+		chunks [x, z].Init ();
+
 	}
 	
 	public void UnloadColumn(int x, int z){

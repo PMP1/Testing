@@ -85,19 +85,23 @@ public class Gui : MonoBehaviour {
 			}
 		}
 		
-		GUI.Label (new Rect (300, 10, 100, 20), test.ToString() );
-		GUI.Label (new Rect (300, 20, 100, 20), totalUpdate1.ToString() );
-		GUI.Label (new Rect (300, 30, 100, 20), totalUpdate2.ToString() );
-		GUI.Label (new Rect (300, 40, 100, 20), totalUpdate3.ToString() );
-		//int tick = (int)Time.timeSinceLevelLoad % 24;
+		GUI.Label (new Rect (300, 10, 100, 20), world.startupTime.ToString() );
+		GUI.Label (new Rect (300, 20, 100, 20), world.runningTime.ToString() );
+		GUI.Label (new Rect (300, 30, 100, 20), Time.time.ToString() );
+		GUI.Label (new Rect (300, 40, 100, 20), Time.timeSinceLevelLoad.ToString() );
+		GUI.Label (new Rect (300, 50, 100, 20), Time.realtimeSinceStartup.ToString() );
 
-		/*if (lastTick != tick) {
-			for (int x=0; x<world.worldX; x++){
-				for (int z=0; z<world.worldZ; z++){
-					world.chunks[x, z].updateLight = true;
-				}
-			}
-		}*/
+		int loadTime = (int) Time.realtimeSinceStartup - (int)Time.timeSinceLevelLoad;
+		int loadTest = (int)(((float)loadTime / 77f) * 100);
+
+		GUI.Label (new Rect (300, 60, 200, 20), 
+				string.Concat(
+		           	"Load time: ", loadTime.ToString(),
+				   	" (",
+		           	loadTest.ToString(),
+					"%)"
+				));
+
 
 		GUI.Label (new Rect (10, 10, 100, 20), Time.timeSinceLevelLoad.ToString() );
 
