@@ -73,12 +73,62 @@ public class Section : MonoBehaviour
 		}
 	}
 
+
+
+	public void GenerateMesh ()
+	{
+		if (useCollisionMatrix) {
+			GenerateCollisionMesh ();
+		}
+
+		GenerateTextureMesh ();
+	
+		for (int x=0; x<sectionSize; x++) {
+			for (int y=0; y<sectionSize; y++) {
+				for (int z=0; z<sectionSize; z++) {
+					//This code will run for every block in the section
+					if (Block (x, y, z) != 0) {
+						/*if (Block (x, y + 1, z) <= 0) {
+							//Block above is air
+							CubeTop (x, y, z, Block (x, y, z));
+						}*/
+
+						if (Block (x, y - 1, z) <= 0) {
+							//Block below is air
+							CubeBot (x, y, z, Block (x, y, z));
+						}
+
+						if (Block (x + 1, y, z) <= 0 ) {
+							//Block east is air
+							CubeEast (x, y, z, Block (x, y, z));
+						}
+
+						if (Block (x - 1, y, z) <= 0) {
+							//Block west is air
+							CubeWest (x, y, z, Block (x, y, z));
+						}
+
+						if (Block (x, y, z + 1) <= 0) {
+							//Block north is air
+							CubeNorth (x, y, z, Block (x, y, z));
+						}
+
+						if (Block (x, y, z - 1) <= 0) {
+							//Block south is air
+							CubeSouth (x, y, z, Block (x, y, z));
+						}
+					}
+				}
+			}
+		}
+		UpdateMesh ();
+	}
+
 	/// <summary>
 	/// Generates the collision mesh.
 	/// </summary>
 	private void GenerateCollisionMesh ()
 	{
-
 		bool [,] meshTop = new bool[sectionSize,sectionSize];
 		bool [,] meshBottom = new bool[sectionSize,sectionSize];
 		bool [,] meshEast = new bool[sectionSize,sectionSize];
@@ -139,51 +189,48 @@ public class Section : MonoBehaviour
 		hasCollisionMatrix = true;
 	}
 
-	public void GenerateMesh ()
-	{
-		if (useCollisionMatrix) {
-			GenerateCollisionMesh ();
-		}
-	
-		for (int x=0; x<sectionSize; x++) {
-			for (int y=0; y<sectionSize; y++) {
+	void GenerateTextureMesh() {
+
+		//texture must match
+		//light level must match
+		//light colour shoudl match i guess (TODO)
+
+		byte[,] meshTop = new byte[sectionSize, sectionSize];
+		int[,,] meshTopLight = new int[sectionSize, sectionSize, sectionSize];
+
+
+		//object[] meshTop = new object[sectionSize];
+
+		//16*16*16*16
+		//16 + (17 + 16) + (33 + 16) + (50 + 16)
+		byte block = 0;
+		for (int y=0; y<sectionSize; y++) {
+			meshTop = new byte[sectionSize, sectionSize];
+
+			for (int x=0; x<sectionSize; x++) {
 				for (int z=0; z<sectionSize; z++) {
-					//This code will run for every block in the section
-					if (Block (x, y, z) != 0) {
+					block = Block (x, y, z);
+					if (block != 0) {
 						if (Block (x, y + 1, z) <= 0) {
-							//Block above is air
-							CubeTop (x, y, z, Block (x, y, z));
+							meshTop[x, z] = block;
+							//meshTopLight[x, z, y] = CubeTop2();
 						}
-
-						if (Block (x, y - 1, z) <= 0) {
-							//Block below is air
-							CubeBot (x, y, z, Block (x, y, z));
-						}
-
-						if (Block (x + 1, y, z) <= 0 ) {
-							//Block east is air
-							CubeEast (x, y, z, Block (x, y, z));
-						}
-
-						if (Block (x - 1, y, z) <= 0) {
-							//Block west is air
-							CubeWest (x, y, z, Block (x, y, z));
-						}
-
-						if (Block (x, y, z + 1) <= 0) {
-							//Block north is air
-							CubeNorth (x, y, z, Block (x, y, z));
-						}
-
-						if (Block (x, y, z - 1) <= 0) {
-							//Block south is air
-							CubeSouth (x, y, z, Block (x, y, z));
-						}
+						//if (Block (x, y - 1, z) <= 0) {
+						//	meshBottom[x, z] = true;
+						//}
 					}
 				}
 			}
+
+
+			/*string line = "";
+			for (int i = 0; i < 16; i++) {
+				line += 
+			}
+			print(byte.) ;*/
+			CullMeshMatrix(meshTop,null, y, 0);
+			//CullCollisionMatrix(meshBottom, y, 1);
 		}
-		UpdateMesh ();
 	}
 
 	byte Block (int x, int y, int z)
@@ -194,7 +241,6 @@ public class Section : MonoBehaviour
 	byte LightBlock (int x, int y, int z)
 	{
 		byte l = chunk.LightBlock (x, y + sectionY, z);
-		//byte w = world.time.GetDaylightLevel();
 		return (byte)Mathf.Max (l, 0);
 	}
 	
@@ -240,6 +286,26 @@ public class Section : MonoBehaviour
 		byte nw1 = (byte)((float)(c + n + nw + w) / 4f);
 
 		Cube (texturePos, ne1, se1, sw1, nw1);
+	}
+
+	int CubeTop2 (int x, int y, int z)
+	{
+		byte n  = LightBlock (x,   y + 1, z+1);
+		byte ne = LightBlock (x+1, y + 1, z+1);
+		byte e  = LightBlock (x+1, y + 1, z);
+		byte se = LightBlock (x+1, y + 1, z-1);
+		byte s  = LightBlock (x,   y + 1, z-1);
+		byte sw = LightBlock (x-1, y + 1, z-1);
+		byte w  = LightBlock (x-1, y + 1, z);
+		byte nw = LightBlock (x-1, y + 1, z+1);
+		byte c  = LightBlock (x,   y + 1, z);
+		
+		byte ne1 = (byte)((float)(c + n + ne + e) / 4f);
+		byte se1 = (byte)((float)(c + s + se + e) / 4f);
+		byte sw1 = (byte)((float)(c + s + sw + w) / 4f);
+		byte nw1 = (byte)((float)(c + n + nw + w) / 4f);
+
+		return ne1 + (17 + se1) + (33 + sw1) + (50 + nw1);
 	}
 
 	void CubeNorth (int x, int y, int z, byte block)
@@ -430,23 +496,11 @@ public class Section : MonoBehaviour
 	}
 
 	void CubeLight(byte lightLevel) {
-		//Vector2 lightUV = new Vector2(lightLevel / 4, lightLevel % 4	);
-		//inversed y!
-		/*newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x + tUnit, tUnit * lightUV.y + tUnit));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y + tUnit));
-		newUV2.Add (new Vector2 (tUnit * lightUV.x, tUnit * lightUV.y));
-		*/
-		/*newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
-		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
-		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));
-		newColor.Add(new Color(lightLevel/16f,lightLevel/16f,lightLevel/16f,0.5f));*/
 
 		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
 		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
 		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
 		newColor.Add(new Color(0f,0f,0f,lightLevel/16f));
-
 	}
 
 	void UpdateMesh ()
@@ -552,7 +606,7 @@ public class Section : MonoBehaviour
 	bool[,] CullCollisionMatrix(bool[,] mask, int dim, int type) {
 		// this just sets up an example 2D plane for testing purposes
 		int size = 16; // 7 x 7 plane 
-
+		
 		int i = 0; //start z
 		int j = 0; //end z
 		int h = 0;
@@ -586,8 +640,6 @@ public class Section : MonoBehaviour
 					
 					// look upwards to see if the row above this one needs faces in the exact same spots (width wise)
 					// this loop is a little wonky but it works
-					
-					
 					for (int x2 = x+1; x2 < size; x2 ++) 
 					{
 						for (int z2 = i; z2 <= j; z2 ++) 
@@ -608,9 +660,9 @@ public class Section : MonoBehaviour
 					//# lower left coordinate of the RECTANGLE = x, i
 					//# upper right coordinate of the RECTANGLE = x+h, j+1
 					//print x, i, j, h	
-
+					
 					switch(type) {
-
+						
 					case 0://Top
 						newColliderVertices.Add (new Vector3 (x, dim, j+1));
 						newColliderVertices.Add (new Vector3 (x+h , dim, j+1));
@@ -624,13 +676,10 @@ public class Section : MonoBehaviour
 						newColliderVertices.Add (new Vector3 (x, dim - 1, j+1));
 						break;
 					case 2://North
-
 						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim + 1));
 						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
 						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
 						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
-
-
 						break;
 					case 3: //East
 						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, i));
@@ -649,9 +698,9 @@ public class Section : MonoBehaviour
 						newColliderVertices.Add (new Vector3 (dim, x+h - 1, j+1));
 						newColliderVertices.Add (new Vector3 (dim, x+h - 1, i));
 						newColliderVertices.Add (new Vector3 (dim, x - 1, i));
-
+						
 						break;
-
+						
 					}
 					newColliderTriangles.Add (colliderFaceCount * 4); //1
 					newColliderTriangles.Add (colliderFaceCount * 4 + 1); //2
@@ -674,5 +723,152 @@ public class Section : MonoBehaviour
 		return mask;
 	}
 
+	// top 0 bottom 1 N 2 E 3 S 4 W 5
+	private void CullMeshMatrix(byte[,] mask, int[,]light, int dim, int type) {
+		// this just sets up an example 2D plane for testing purposes
+		int size = 16; // 7 x 7 plane 
+		
+		int i = 0; //start z
+		int j = 0; //end z
+		int h = 0;
+		bool building;
+		bool done = false;
+		byte current = 0;
+		
+		for (int x = 0; x < size; x ++) 
+		{
+			building = false;
+			for (int z = 0; z < size; z ++) 
+			{
+				if (mask[x, z] >= 1 && !building) // start recording a new rectangle
+				{
+					building = true;
+					i = z; //start Z pos
+					current = mask[x, z]; // the current block id we are using
+				}
+				// if you reach a block that needs no face, or you reach the end of the row, you're done
+				if ((mask[x, z] != current && building) || (z == size-1 && building))
+				{
+					//if the next blockisempty then -1
+					if (mask[x, z] == 0 && building)
+					{
+						j = z - 1;
+					}
+					else
+					{
+						j = z;
+					}
+					building = false;
+					done = false;
+					h = 1; // height
+					
+					// look upwards to see if the row above this one needs faces in the exact same spots (width wise)
+					// this loop is a little wonky but it works
+					for (int x2 = x+1; x2 < size; x2 ++) 
+					{
+						for (int z2 = i; z2 <= j; z2 ++) 
+						{
+							if (mask[x2, z2] != current)
+							{
+								// cannot expand. get out of the loop.
+								done = true;
+								break;
+							}
+						}
+						if (done)
+							break;
+						// we got to the end of the range so we're good! increase height and let's try the next row
+						h += 1;
+					}
+					//# all done with this rectangle
+					//# lower left coordinate of the RECTANGLE = x, i
+					//# upper right coordinate of the RECTANGLE = x+h, j+1
+					//print x, i, j, h	
+					
+					switch(type) {
+						
+					case 0://Top
+						newVertices.Add (new Vector3 (x, dim, j+1));
+						newVertices.Add (new Vector3 (x+h , dim, j+1));
+						newVertices.Add (new Vector3 (x+h, dim, i));
+						newVertices.Add (new Vector3 (x, dim, i));
+						break;
+					/*case 1://Bottom
+						newColliderVertices.Add (new Vector3 (x, dim - 1, i));
+						newColliderVertices.Add (new Vector3 (x+h , dim - 1, i));
+						newColliderVertices.Add (new Vector3 (x+h, dim - 1, j+1));
+						newColliderVertices.Add (new Vector3 (x, dim - 1, j+1));
+						break;
+					case 2://North
+						
+						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim + 1));
+						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim + 1));
+						newColliderVertices.Add (new Vector3 (i, x - 1,  dim + 1));
+						
+						
+						break;
+					case 3: //East
+						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, i));
+						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, i));
+						newColliderVertices.Add (new Vector3 (dim + 1, x+h - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim + 1, x - 1, j+1));
+						break;
+					case 4: //South
+						newColliderVertices.Add (new Vector3 (i, x - 1,  dim));
+						newColliderVertices.Add (new Vector3 (i,  x+h - 1, dim));
+						newColliderVertices.Add (new Vector3 (j+1, x+h - 1, dim));
+						newColliderVertices.Add (new Vector3 (j+1, x - 1,  dim));
+						break;
+					case 5: //West
+						newColliderVertices.Add (new Vector3 (dim, x - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, j+1));
+						newColliderVertices.Add (new Vector3 (dim, x+h - 1, i));
+						newColliderVertices.Add (new Vector3 (dim, x - 1, i));
+						
+						break;
+					*/	
+					}
+					newTriangles.Add (faceCount * 4); //1
+					newTriangles.Add (faceCount * 4 + 1); //2
+					newTriangles.Add (faceCount * 4 + 2); //3
+					newTriangles.Add (faceCount * 4); //1
+					newTriangles.Add (faceCount * 4 + 2); //3
+					newTriangles.Add (faceCount * 4 + 3); //4
+
+					Vector2 texturePos = new Vector2 (0, 0);
+					//texturePos = GetTexture(Block (x, dim, z));
+					
+					//Cube (texturePos,  LightBlock(x, y - 1, z));
+
+					newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
+					newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
+					newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
+					newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
+					
+					CubeLight ((byte)15);
+					
+					faceCount++; // Add this line
+
+					/*newColliderTriangles.Add (colliderFaceCount * 4); //1
+					newColliderTriangles.Add (colliderFaceCount * 4 + 1); //2
+					newColliderTriangles.Add (colliderFaceCount * 4 + 2); //3
+					newColliderTriangles.Add (colliderFaceCount * 4); //1
+					newColliderTriangles.Add (colliderFaceCount * 4 + 2); //3
+					newColliderTriangles.Add (colliderFaceCount * 4 + 3); //4
+					colliderFaceCount ++;	*/			
+					// update the mask to show that the spots covered by your rectangle no longer need faces
+					for (int x3 = x; x3 < h+x; x3 ++) 
+					{
+						for (int z3 = i; z3 < j+1; z3 ++) 
+						{
+							mask[x3, z3] = 0;
+						}
+					}
+				}
+			}
+		}
+		//return mask;
+	}
 
 }
