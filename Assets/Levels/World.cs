@@ -40,119 +40,22 @@ public class World : MonoBehaviour {
 		
 		worldGenerator = new PerlinWorldGenerator();
 		worldGenerator.SetSeed(configSettings.Seed);
-
-		//terrain.LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180);
-
-
-		//innitial startup complete
-
 	}
 
 
-	
 	// Update is called once per frame
 	void Update () {
-		//if (startupTime == System.TimeSpan.MinValue || startupTime == null) {
-			runningTime = System.DateTime.Now.Subtract (start);
-		//}
+		runningTime = System.DateTime.Now.Subtract (start);
 	}
 
-	public byte GenBiome(int xpos, int zpos) {
-		int scale = 10;
-		int result = PerlinNoise(xpos,10,zpos,scale,10);
-
-		//1 = mountin
-		if (result >= 5) {
-			return (byte)1;
-		}
-
-		//0 = plain
-		return (byte)0;
-	}
-
-	public byte[,,] GenData(int xpos, int zpos, byte biome) {
-
-		byte[,,] colData = new byte[sectionSize,worldY,sectionSize];
-
-		byte[,] baseHeightData = new byte[sectionSize,sectionSize];
-		byte[,] heightData = new byte[sectionSize,sectionSize];
-
-		int newX = xpos * sectionSize;
-		int newZ = zpos * sectionSize;
-
-		//set heightmap
-		for (int x=0; x<sectionSize; x++) {
-			for (int z=0; z<sectionSize; z++) {
-				baseHeightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,30,10) + 20);
-				heightData[x,z]=(byte)(PerlinNoise(x + newX,0,z + newZ,60,40) + 20);
-			}
-		}
-		
-
-		for (int x=0; x<sectionSize; x++) {
-			for (int z=0; z<sectionSize; z++) {
-				for (int y=0; y<worldY; y++) {
-					if (heightData[x,z] > y) {
-						colData[x,y,z]= (byte)(biome + 1);
-						continue;
-					}
-				}
-			}
-		}
-
-		for (int x=0; x<sectionSize; x++) {
-			for (int z=0; z<sectionSize; z++) {
-				for (int y=baseHeightData[x,z]; y<worldY; y++) {
-
-					int stone=PerlinNoise(x + newX,y,z + newZ,50,20) + 20;
-					
-					if (stone > 31)
-						colData[x,y,z]=0;
-				}
-			}
-		}
-
-
-
-		/*for (int x=0; x<sectionSize; x++){
-			for (int z=0; z<sectionSize; z++){
-
-				//flat and nice
-				//int stone=PerlinNoise(x + newX,10,z + newZ,50,10,1);
-
-				int stone=PerlinNoise(x + newX+ 40,10,z + newZ,50,40,0);
-				//stone-=PerlinNoise(x + newX,14,z + newZ,10,50,0);
-					/*if (stone > 5)
-					colData[x,y,z]=2;*/
-				/*int stone=PerlinNoise(x + newX,0,z + newZ,80,20,1.2f);
-				stone+= PerlinNoise(x + newX,200,z + newZ,20,30,0.5f)+0;
-				int dirt=PerlinNoise(x + newX,300,z + newZ,50,2,0) +1; //Added +1 to make sure minimum grass height is 1
-				*/
-
-				/*for (int y=0; y<worldY; y++){
-					if(y<=stone){
-						colData[x,y,z]=2;
-					} 
-				}
-			}
-		}*/
-		return colData;
-	}
-
-	int PerlinNoise(int x,int y, int z, float scale, float height){
-		float rValue;
-
-		rValue=Noise.Noise.GetNoise (((double)x) / scale, ((double)y)/ scale, ((double)z) / scale);
-		rValue*=height;
-
-		return (int) rValue;
-	}
-
+	/// <summary>
+	/// Gnerates the Chunk for a given x, z
+	/// </summary>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="z">The z coordinate.</param>
+	/// <param name="dist">Dist.</param>
 	public void GenColumn(int x, int z, float dist){
 
-		print ("Gen COL:" + Time.time.ToString());
-
-		//generate a chunk column
 		GameObject newChunkColumn= Instantiate(chunk,new Vector3(x*sectionSize-0.5f,
 		                                                               0*sectionSize+0.5f,
 		                                                               z*sectionSize-0.5f),new Quaternion(0,0,0,0)) as GameObject;
@@ -162,11 +65,10 @@ public class World : MonoBehaviour {
 		chunks [x, z].chunkZ=z;
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
-		chunks [x, z].biome = GenBiome (x, z);
 		chunks [x, z].world = gameObject.GetComponent ("World") as World;
 		chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
 		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
-		chunks [x, z].useCollisionMatrix = dist < 32 ? true : false;
+		chunks [x, z].useCollisionMatrix = dist < 132 ? true : false;
 		worldGenerator.CreateChunk(chunks [x, z]);
 		chunks [x, z].Init ();
 
@@ -175,10 +77,5 @@ public class World : MonoBehaviour {
 	public void UnloadColumn(int x, int z){
 
 		Object.Destroy(chunks [x, z].gameObject);
-	}
-
-	public int SetDaylight() {
-		//midday 12 am
-		return 1;
 	}
 }
