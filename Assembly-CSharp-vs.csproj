@@ -46,6 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Levels\Block.cs" />
+     <Compile Include="Assets\Levels\BlockManager.cs" />
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\Generation\AbstractWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\BiomeGenerator.cs" />
