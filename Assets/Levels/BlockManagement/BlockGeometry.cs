@@ -8,14 +8,27 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
-using UnityEngine;
-
 namespace AssemblyCSharp
 {
-	public class Block
-	{
-		public byte BlockId { get; set; }
-		public Vector2 Texture {get; set; }
+	public enum BlockShape {
+		Cube = 0,
+		Slab = 1,
+		CubeSlope = 3,
+		SlabSlope = 4,
+		CubeHalfSlope = 5,
+		CubeOneSlope = 6,
+		SlapOneSlope = 7,
+		CubeOneHalfSlope = 8,
+		CubeThreeSlope = 9,
+		SlabThreeSlope = 10,
+		CubeThreeHalfSlop = 11
+	}
+
+	public enum BlockRotation {
+		North, //default
+		East,
+		South,
+		West
 	}
 }
 

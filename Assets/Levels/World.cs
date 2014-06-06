@@ -22,6 +22,8 @@ public class World : MonoBehaviour {
 	public WorldConfig configSettings;
 	public AbstractWorldGenerator worldGenerator;
 
+	public BlockManager BlockManager { get; set; }
+	public SectionColliderGenerator SectionCollider { get; set; }
 
 	public System.TimeSpan startupTime;
 	public System.TimeSpan runningTime;
@@ -33,6 +35,10 @@ public class World : MonoBehaviour {
 		//Sytem starting
 		start = System.DateTime.Now;
 
+		this.BlockManager = new BlockManager ();
+		this.SectionCollider = new SectionColliderGenerator ();
+
+
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
 		                               
@@ -40,6 +46,8 @@ public class World : MonoBehaviour {
 		
 		worldGenerator = new PerlinWorldGenerator();
 		worldGenerator.SetSeed(configSettings.Seed);
+
+
 	}
 
 

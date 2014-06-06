@@ -67,6 +67,8 @@ namespace AssemblyCSharp
 			} else if (humidity >= 0.2 && humidity <= 0.6 && temp < 0.5) {
 				return 4; //mountin shoudl really be based on height...
 			}
+
+
 			
 			return 5;
 		}

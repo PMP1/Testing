@@ -71,7 +71,7 @@ namespace AssemblyCSharp
 						if (y <= 32) {
 							//ocean
 							chunk.data[x,y,z] = 3;
-							//continue;
+							continue;
 						}
 
 						float dens = densityMap[x,y,z];

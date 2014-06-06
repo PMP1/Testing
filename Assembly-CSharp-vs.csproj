@@ -46,8 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Levels\Block.cs" />
-     <Compile Include="Assets\Levels\BlockManager.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\Block.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\BlockGeometry.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\BlockManager.cs" />
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\Generation\AbstractWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\BiomeGenerator.cs" />
@@ -64,6 +65,7 @@
      <Compile Include="Assets\Levels\ModifyTerrain.cs" />
      <Compile Include="Assets\Levels\Noise.cs" />
      <Compile Include="Assets\Levels\Section.cs" />
+     <Compile Include="Assets\Levels\SectionColliderGenerator.cs" />
      <Compile Include="Assets\Levels\TimeManager.cs" />
      <Compile Include="Assets\Levels\Utilities\PMath.cs" />
      <Compile Include="Assets\Levels\Utilities\Random.cs" />

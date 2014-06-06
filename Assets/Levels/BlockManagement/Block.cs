@@ -8,26 +8,22 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using UnityEngine;
+
 namespace AssemblyCSharp
 {
-	public class BlockManager
+	public class Block
 	{
+		public byte BlockId { get; set; }
+		public Vector2 Texture {get; set; }
+		public string Name { get; set; }
 
-		private Block _grass = new Block {
-			BlockId = 1,
-			Texture = Vector2(0,0)
-		};
-
-		public BlockManager ()
+		public Block(byte id, string name, int texX, int texY)
 		{
+			BlockId = id;
+			Texture = new Vector2 (texX, texY);
+			Name = name;
 		}
-
-		public Block GetBlock(byte id) 
-		{
-
-		}
-
-
 	}
 }
 
