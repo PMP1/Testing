@@ -87,7 +87,6 @@ public class Section : MonoBehaviour
 			SectionColliderGenerator generator = new SectionColliderGenerator();
 			//GenerateCollisionMesh ();
 			generator.GenerateCollisionMatrix(this);
-
 		}
 
 		for (int x=0; x<sectionSize; x++) {
@@ -393,7 +392,8 @@ public class Section : MonoBehaviour
 		newColliderVertices.Clear ();
 		newColliderTriangles.Clear ();
 
-		renderer.material.SetFloat ("_Sun", 0f);
+		GenerateDayLight ();
+		//renderer.material.SetFloat ("_Sun", 0f);
 
 		newVertices.Clear ();
 		newUV.Clear ();
@@ -466,6 +466,4 @@ public class Section : MonoBehaviour
 		byte w = world.time.GetDaylightLevel();
 		renderer.material.SetFloat ("_Sun", (float)w /16f);
 	}
-	
-
 }
