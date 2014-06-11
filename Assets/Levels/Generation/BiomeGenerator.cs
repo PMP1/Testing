@@ -54,23 +54,23 @@ namespace AssemblyCSharp
 			return 4;//plains
 		}
 		
-		public int GetBiomeAt(int x, int z) {
+		public BiomeType GetBiomeAt(int x, int z) {
 			float temp = GetTemperatureAt(x, z);
 			float humidity = GetHumidityAt(x, z) * temp;
 			
 			if (temp >= 0.5 && humidity < 0.3) {
-				return 1;//desert
+				return BiomeType.Desert;
 			} else if (humidity >= 0.3 && humidity <= 0.6 && temp >= 0.5) {
-				return 2;//plains
+				return BiomeType.GrassLand;
 			} else if (temp <= 0.3 && humidity > 0.5) {
-				return 3;//snow
+				return BiomeType.Tundra;
 			} else if (humidity >= 0.2 && humidity <= 0.6 && temp < 0.5) {
-				return 4; //mountin shoudl really be based on height...
+				return BiomeType.Mountain; //mountin shoudl really be based on height...
 			}
 
 
 			
-			return 5;
+			return BiomeType.SeasonalForest;
 		}
 	}
 }

@@ -52,6 +52,7 @@
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\Generation\AbstractWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\BiomeGenerator.cs" />
+     <Compile Include="Assets\Levels\Generation\BiomeType.cs" />
      <Compile Include="Assets\Levels\Generation\FirstPassGenerators\IFirstPassGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\FirstPassGenerators\PerlinTerrainGenerators.cs" />
      <Compile Include="Assets\Levels\Generation\IBiomeGenerator.cs" />

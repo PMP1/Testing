@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class Chunk : MonoBehaviour {
 
@@ -26,6 +27,8 @@ public class Chunk : MonoBehaviour {
 	public byte[,,] daylightData;
 	public int[,] heightMap; // records the max height of a solid object (used for quick daylight)
 
+
+
 	//some debug info
 	public byte updateType = 0; 
 	public System.TimeSpan updateTime = System.TimeSpan.MinValue;
@@ -50,6 +53,11 @@ public class Chunk : MonoBehaviour {
 	void LateUpdate () {
 
 		DoUpdate ();
+	}
+
+	public void SetBlock(int x, int y, int z, BlockType type) 
+	{
+		data [x, y, z] = (byte)type;
 	}
 
 	public void DoUpdate () {
@@ -369,6 +377,7 @@ public class Chunk : MonoBehaviour {
 			sections[y].sectionY=y*sectionSize;
 			sections[y].sectionZ=chunkZ*sectionSize;
 			sections[y].useCollisionMatrix = useCollisionMatrix;
+
 
 			
 		}

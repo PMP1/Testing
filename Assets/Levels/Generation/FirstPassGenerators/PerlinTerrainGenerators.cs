@@ -62,7 +62,7 @@ namespace AssemblyCSharp
 
 			for (int x = 0; x < chunk.sectionSize; x++) {
 				for (int z = 0; z < chunk.sectionSize; z++) {
-					int type = this._biomeGenerator.GetBiomeAt ((chunk.chunkX * chunk.sectionSize) + x, (chunk.chunkZ * chunk.sectionSize) + z);
+					BiomeType type = this._biomeGenerator.GetBiomeAt ((chunk.chunkX * chunk.sectionSize) + x, (chunk.chunkZ * chunk.sectionSize) + z);
 					int firstBlockHeight = -1;
 
 					for (int y = chunk.worldY - 1; y >= 0; y--) {
@@ -85,7 +85,7 @@ namespace AssemblyCSharp
 							}
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {
-								chunk.data[x,y,z] = (byte) type;
+								SetBlock(x, y, z, firstBlockHeight, type, chunk);
 							} else {
 								chunk.data[x,y,z] = 0;
 							}
@@ -99,7 +99,7 @@ namespace AssemblyCSharp
 							}
 							
 							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.6) {
-								chunk.data[x,y,z] = (byte) type;
+								SetBlock(x, y, z, firstBlockHeight, type, chunk);
 							} else {
 								chunk.data[x,y,z] = 0;
 							}
@@ -186,6 +186,39 @@ namespace AssemblyCSharp
 					}
 				}
 			}
+		}
+
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Chunk chunk) {
+
+			int depth = y - firstBlock;
+
+			switch (biome) {
+
+				case BiomeType.GrassLand:
+				case BiomeType.Mountain:
+				case BiomeType.SeasonalForest:
+				case BiomeType.Woodland:
+					if (depth <= 3 && y >28 && y <=32) {
+						chunk.SetBlock(x, y, z, BlockType.Sand);
+					} else if (depth == 0 && y > 32 && y < 170) {
+						chunk.SetBlock(x, y, z, BlockType.Grass);
+					} else if (depth == 0 && y >= 240) {
+						chunk.SetBlock(x, y, z, BlockType.Snow);
+					} else {
+						chunk.SetBlock(x, y, z, BlockType.Stone);
+					} 
+					break;
+				case BiomeType.Desert:
+					chunk.SetBlock(x, y, z, BlockType.Sand);
+					break;
+				case BiomeType.Tundra:
+					chunk.SetBlock(x, y, z, BlockType.Snow);
+					break;
+				default: 
+					chunk.SetBlock(x, y, z, BlockType.Snow);
+					break;
+			}
+
 		}
 	}
 }

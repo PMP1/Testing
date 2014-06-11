@@ -57,37 +57,38 @@ namespace AssemblyCSharp
 		
 		//TODO add texture generation for debug
 		public Color GetTexturePixel(string layerName, int x, int z) {
-		
+			float hum =0;
+			float temp = 0;
 			switch (layerName) {
 				case "Temperature":
-					float temp = biomeGenerator.GetTemperatureAt(x, z);
+					temp = biomeGenerator.GetTemperatureAt(x, z);
 					return new Color(temp, temp * 0.2f, temp * 0.2f);
 					break;
 				case "Humidity":
-					float hum = biomeGenerator.GetHumidityAt(x, z);
+					hum = biomeGenerator.GetHumidityAt(x, z);
 					return new Color(hum * 0.2f, hum * 0.2f, hum);
 					break;
 			case "Terrain":
-				int biome = biomeGenerator.GetBiomeAt(x, z);
+				BiomeType biome = biomeGenerator.GetBiomeAt(x, z);
 				switch (biome) {
 					
-				case 1:
+				case BiomeType.Desert:
 					return Color.yellow;
 					break;
-				case 2:
+				case BiomeType.GrassLand:
 					return Color.green;
 					break;
-				case 3:
+				case BiomeType.Tiaga:
 					return Color.white;
 					break;
-				case 4:
+				case BiomeType.Mountain:
 					return Color.gray;
 					break;
 				default:
 					return new Color(0.2f,0.8f,0.2f);
 					break;
 				}
-				return new Color(hum * 0.2f, hum * 0.2f, hum);
+				//return new Color(hum * 0.2f, hum * 0.2f, hum);
 				break;
 			case "Height":
 				int height = biomeGenerator.GetHeightBiomeAt(x, z);
@@ -109,7 +110,7 @@ namespace AssemblyCSharp
 					return new Color(0.2f,0.8f,0.2f);
 					break;
 				}
-				return new Color(biome * 0.2f, biome * 0.2f, biome);
+				return new Color(height * 0.2f, height * 0.2f, height);
 				break;
 
 			}

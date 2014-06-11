@@ -14,15 +14,21 @@ namespace AssemblyCSharp
 {
 	public class Block
 	{
-		public byte BlockId { get; set; }
+		public BlockType BlockType { get; set; }
 		public Vector2 Texture {get; set; }
-		public string Name { get; set; }
+		public Vector2 TextureTop {get; set; }
 
-		public Block(byte id, string name, int texX, int texY)
+		public Block(BlockType type, int texX, int texY)
 		{
-			BlockId = id;
+			BlockType = type;
 			Texture = new Vector2 (texX, texY);
-			Name = name;
+		}
+
+		public Block(BlockType type, int texX, int texY, int texXTop, int texYTop)
+		{
+			BlockType = type;
+			Texture = new Vector2 (texX, texY);
+			Texture = new Vector2 (texXTop, texYTop);
 		}
 	}
 }

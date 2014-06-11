@@ -14,20 +14,33 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
+
+	public enum BlockType 
+	{
+		Unknown = 0,
+		Dirt = 1,
+		Grass = 2,
+		Stone = 3,
+		Sand = 4,
+		Snow = 5,
+		Water = 6
+	}
+
 	public class BlockManager
 	{
 		private Block[] blockList = new Block[] {
 				
-			new Block (1, 	"dirt",	0, 0),
-			new Block (2, 	"grass",0, 1),
-			new Block (3, 	"stone",0, 2),
-			new Block (4, 	"sand", 0, 3),
-			new Block (5, 	"snow", 1, 0),
-			new Block (6, 	"snow", 1, 1),
-			new Block (7, 	"snow", 1, 2),
-			new Block (8, 	"snow", 1, 3),
-			new Block (9,	"snow", 2, 0),
-			new Block (10, 	"snow", 2, 1)
+			new Block (BlockType.Unknown, 3, 3),
+			new Block (BlockType.Dirt,	0, 3),
+			new Block (BlockType.Grass,0, 2),
+			new Block (BlockType.Stone,0, 1),
+			new Block (BlockType.Sand, 1, 3),
+			new Block (BlockType.Snow, 3, 3),
+			new Block (BlockType.Water, 0, 0),
+			new Block (BlockType.Snow, 1, 2),
+			new Block (BlockType.Snow, 1, 3),
+			new Block (BlockType.Snow, 2, 0),
+			new Block (BlockType.Snow, 2, 1)
 		};
 
 		public Block GetBlock(byte id) 
