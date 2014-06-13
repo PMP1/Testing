@@ -74,10 +74,10 @@ public class World : MonoBehaviour {
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
 		chunks [x, z].world = gameObject.GetComponent ("World") as World;
-		chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
+		//chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
 		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
 		chunks [x, z].useCollisionMatrix = dist < 132 ? true : false;
-		worldGenerator.CreateChunk(chunks [x, z]);
+		//worldGenerator.CreateChunk(chunks [x, z]);
 		chunks [x, z].Init ();
 
 	}

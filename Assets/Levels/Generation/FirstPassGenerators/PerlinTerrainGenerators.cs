@@ -46,7 +46,78 @@ namespace AssemblyCSharp
 			this._biomeGenerator = generator;
 		}
 
-		public void GenerateChunk(Chunk chunk) {
+
+		public void GenerateSection(Section section) 
+		{
+			int sectionSize = section.sectionSize;
+			int posX = section.sectionX;
+			int posY = section.sectionY;
+			int posZ = section.sectionZ;
+
+			float[,,] densityMap = new float[sectionSize+1,sectionSize+1, sectionSize+1];
+			
+			for (int x = 0; x <= sectionSize; x += SAMPLE_RATE_XZ) {
+				for (int z = 0; z <= sectionSize; z += SAMPLE_RATE_XZ) {
+					for (int y = 0; y <= sectionSize; y += SAMPLE_RATE_Y) {
+						densityMap[x,y,z] = CalculateDensity(posX + x, posY + y, posZ + z);
+					}
+				}
+			}
+
+			triLerpDensityMap(densityMap, section);
+			
+			for (int x = 0; x < sectionSize; x++) {
+				for (int z = 0; z < sectionSize; z++) {
+					BiomeType type = this._biomeGenerator.GetBiomeAt (posX + x, posZ + z);
+					int firstBlockHeight = section.chunk.heightMap[x, z];
+					
+					for (int y = sectionSize - 1; y >= 0; y--) {
+						
+						
+						if (y <= 32) {
+							//ocean
+							section.SetBlock(x,y,z, BlockType.Water);
+							continue;
+						}
+						
+						float dens = densityMap[x,y,z];
+						
+						if ((dens >= 0 && dens < 32)) {
+							
+							// Some block was set...
+							if (firstBlockHeight == -1) {
+								firstBlockHeight = y;
+								section.chunk.heightMap[x,z] = y;
+							}
+							
+							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.7) {
+								SetBlock(x, y, z, firstBlockHeight, type, section);
+							} else {
+								section.SetBlock(x,y,z, BlockType.Air);
+							}
+							
+							continue;
+						} else if (dens >= 32) {
+							// Some block was set...
+							if (firstBlockHeight == -1) {
+								firstBlockHeight = y;
+								section.chunk.heightMap[x,z] = y;
+							}
+							
+							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.6) {
+								SetBlock(x, y, z, firstBlockHeight, type, section);
+							} else {
+								section.SetBlock(x,y,z,BlockType.Air);
+							}
+							
+							continue;
+						}
+					}
+				}
+			}
+		}
+
+		/*public void GenerateChunk(Chunk chunk) {
 
 			float[,,] densityMap = new float[chunk.sectionSize+1,chunk.worldY+1, chunk.sectionSize+1];
 
@@ -109,7 +180,7 @@ namespace AssemblyCSharp
 					}
 				}
 			}
-		}
+		}*/
 
 		private float CalculateDensity(int x, int y, int z) {
 
@@ -188,37 +259,95 @@ namespace AssemblyCSharp
 			}
 		}
 
-		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Chunk chunk) {
+		private void triLerpDensityMap(float[,,] densityMap, Section section) {
+			int sectionSize = section.sectionSize;
 
-			int depth = y - firstBlock;
-
-			switch (biome) {
-
-				case BiomeType.GrassLand:
-				case BiomeType.Mountain:
-				case BiomeType.SeasonalForest:
-				case BiomeType.Woodland:
-					if (depth <= 3 && y >28 && y <=32) {
-						chunk.SetBlock(x, y, z, BlockType.Sand);
-					} else if (depth == 0 && y > 32 && y < 170) {
-						chunk.SetBlock(x, y, z, BlockType.Grass);
-					} else if (depth == 0 && y >= 240) {
-						chunk.SetBlock(x, y, z, BlockType.Snow);
-					} else {
-						chunk.SetBlock(x, y, z, BlockType.Stone);
-					} 
-					break;
-				case BiomeType.Desert:
-					chunk.SetBlock(x, y, z, BlockType.Sand);
-					break;
-				case BiomeType.Tundra:
-					chunk.SetBlock(x, y, z, BlockType.Snow);
-					break;
-				default: 
-					chunk.SetBlock(x, y, z, BlockType.Snow);
-					break;
+			for (int x = 0; x < sectionSize; x++) {
+				for (int y = 0; y < sectionSize; y++) {
+					for (int z = 0; z < sectionSize; z++) {
+						if (!(x % SAMPLE_RATE_XZ == 0 && y % SAMPLE_RATE_Y == 0 && z % SAMPLE_RATE_XZ == 0)) {
+							int offsetX = (x / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
+							int offsetY = (y / SAMPLE_RATE_Y) * SAMPLE_RATE_Y;
+							int offsetZ = (z / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
+							densityMap[x, y, z] = (float)PMath.TriLerp(x, y, z,
+								densityMap[offsetX, offsetY, offsetZ],
+								densityMap[offsetX, SAMPLE_RATE_Y + offsetY, offsetZ],
+								densityMap[offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
+								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
+								offsetX, SAMPLE_RATE_XZ + offsetX, offsetY, SAMPLE_RATE_Y + offsetY, offsetZ, offsetZ + SAMPLE_RATE_XZ);
+						}
+					}
+				}
 			}
+		}
 
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Chunk chunk) {
+			
+			int depth = y - firstBlock;
+			
+			switch (biome) {
+				
+			case BiomeType.GrassLand:
+			case BiomeType.Mountain:
+			case BiomeType.SeasonalForest:
+			case BiomeType.Woodland:
+				if (depth <= 3 && y >28 && y <=32) {
+					chunk.SetBlock(x, y, z, BlockType.Sand);
+				} else if (depth == 0 && y > 32 && y < 170) {
+					chunk.SetBlock(x, y, z, BlockType.Grass);
+				} else if (depth == 0 && y >= 240) {
+					chunk.SetBlock(x, y, z, BlockType.Snow);
+				} else {
+					chunk.SetBlock(x, y, z, BlockType.Stone);
+				} 
+				break;
+			case BiomeType.Desert:
+				chunk.SetBlock(x, y, z, BlockType.Sand);
+				break;
+			case BiomeType.Tundra:
+				chunk.SetBlock(x, y, z, BlockType.Snow);
+				break;
+			default: 
+				chunk.SetBlock(x, y, z, BlockType.Snow);
+				break;
+			}
+			
+		}
+
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Section section) {
+			
+			int depth = y - firstBlock;
+			
+			switch (biome) {
+				
+			case BiomeType.GrassLand:
+			case BiomeType.Mountain:
+			case BiomeType.SeasonalForest:
+			case BiomeType.Woodland:
+				if (depth <= 3 && y >28 && y <=32) {
+					section.SetBlock(x, y, z, BlockType.Sand);
+				} else if (depth == 0 && y > 32 && y < 170) {
+					section.SetBlock(x, y, z, BlockType.Grass);
+				} else if (depth == 0 && y >= 240) {
+					section.SetBlock(x, y, z, BlockType.Snow);
+				} else {
+					section.SetBlock(x, y, z, BlockType.Stone);
+				} 
+				break;
+			case BiomeType.Desert:
+				section.SetBlock(x, y, z, BlockType.Sand);
+				break;
+			case BiomeType.Tundra:
+				section.SetBlock(x, y, z, BlockType.Snow);
+				break;
+			default: 
+				section.SetBlock(x, y, z, BlockType.Snow);
+				break;
+			}
 		}
 	}
 }

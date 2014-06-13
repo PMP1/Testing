@@ -17,7 +17,7 @@ namespace AssemblyCSharp
 
 	public enum BlockType 
 	{
-		Unknown = 0,
+		Air = 0,
 		Dirt = 1,
 		Grass = 2,
 		Stone = 3,
@@ -30,7 +30,7 @@ namespace AssemblyCSharp
 	{
 		private Block[] blockList = new Block[] {
 				
-			new Block (BlockType.Unknown, 3, 3),
+			new Block (BlockType.Air, 3, 3),
 			new Block (BlockType.Dirt,	0, 3),
 			new Block (BlockType.Grass,0, 2),
 			new Block (BlockType.Stone,0, 1),

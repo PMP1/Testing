@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using AssemblyCSharp;
 
 public class Section : MonoBehaviour
 {
@@ -21,18 +22,30 @@ public class Section : MonoBehaviour
 	//private List<Vector2> newUV2 = new List<Vector2> ();
 	private List<Color> newColor = new List<Color> ();
 	private float tUnit = 0.25f;
-	private Vector2 tStone = new Vector2 (0, 1);
-	private Vector2 tGrass = new Vector2 (0, 2);
-	private Vector2 tDirt = new Vector2 (0, 3);
-	private Vector2 tSand = new Vector2 (1, 2);
-	private Vector2 t2 = new Vector2 (2, 1);
-	private Vector2 t3 = new Vector2 (2, 2);
-	private Vector2 t4 = new Vector2 (2, 3);
+
+	//private Vector2 t2 = new Vector2 (2, 1);
+	//private Vector2 t3 = new Vector2 (2, 2);
+	//private Vector2 t4 = new Vector2 (2, 3);
+
+
+	public byte[,,] data;
+	public byte[,,] lightData;
+	public byte[,,] daylightData;
+
+
+	//aspirational info
+	private bool isSolid = false;
+	private bool isAir = false;
+	private bool isLoaded = false;
+	private int hightestPoint = 0;
+	private int lowestPoint = 0;
+
 	
 	private Mesh mesh;
 	private MeshCollider col;
 	private int faceCount;
 	private int colliderFaceCount;
+
 	public int sectionSize = 16;
 	public int sectionX;
 	public int sectionY;
@@ -73,6 +86,11 @@ public class Section : MonoBehaviour
 		}
 	}
 
+	public void SetBlock(int x, int y, int z, BlockType type)
+	{
+		this.data [x, y, z] = (byte)type;
+	}
+
 	public void SetCollisionMesh(List<Vector3> verts, List<int> tris)
 	{
 		newColliderTriangles = tris;
@@ -86,7 +104,7 @@ public class Section : MonoBehaviour
 
 			SectionColliderGenerator generator = new SectionColliderGenerator();
 			//GenerateCollisionMesh ();
-			generator.GenerateCollisionMatrix(this);
+			//generator.GenerateCollisionMatrix(this);
 		}
 
 		for (int x=0; x<sectionSize; x++) {
@@ -132,12 +150,34 @@ public class Section : MonoBehaviour
 
 	byte Block (int x, int y, int z)
 	{
-		return chunk.Block (x, y + sectionY, z);
+        /*
+        if (y >= sectionSize)
+        {
+            int secY = sectionY / sectionSize;
+            if (chunk.sections.Length > secY + 1 && chunk.sections[secY + 1] != null)
+                return chunk.sections[secY + 1].Block(z, y - sectionSize, z);
+        }
+        if (y < 0)
+        {
+            int secY = sectionY / sectionSize;
+            if (secY - 1 > 0 && chunk.sections[secY - 1] != null)
+                return chunk.sections[secY - 1].Block(z, sectionSize - y, z);
+        }*/
+        if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
+        {
+            return chunk.Block(x, y, z);
+        }
+
+
+        return data [x, y, z];
+		//return chunk.Block (x, y + sectionY, z);
 	}
 
 	byte LightBlock (int x, int y, int z)
 	{
-		byte l = chunk.LightBlock (x, y + sectionY, z);
+        byte l = 5;
+        //byte l = daylightData [x, y, z];
+		//byte l = chunk.LightBlock (x, y + sectionY, z);
 		return (byte)Mathf.Max (l, 0);
 	}
 	

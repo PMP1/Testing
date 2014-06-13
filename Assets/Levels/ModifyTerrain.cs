@@ -15,7 +15,7 @@ public class ModifyTerrain : MonoBehaviour {
 		world=gameObject.GetComponent("World") as World;
 		cameraGO=GameObject.FindGameObjectWithTag("MainCamera");
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,256); //needs to load at 256
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,10,256); //needs to load at 256
 
 		//Need to call an inittial set of chunk updates here so that the lighting is rendered
 		for(int x = 0; x < world.chunks.GetLength(0); x++){ 
@@ -43,7 +43,7 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180);
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,10,180);
 	}
 
 	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload){
@@ -182,7 +182,9 @@ public class ModifyTerrain : MonoBehaviour {
 
 		int blockPosX = x % world.sectionSize;
 		int blockPosZ = z % world.sectionSize;
-		world.chunks [updateX, updateZ].data[blockPosX,y,blockPosZ] = block;
+        int sectionY = y / world.sectionSize;
+        int sectionPosY = y % world.sectionSize;
+		world.chunks [updateX, updateZ].sections[sectionY].data[blockPosX,sectionPosY,blockPosZ] = block;
 
 		print("Updating: " + updateX + ", " + updateY + ", " + updateZ);
 

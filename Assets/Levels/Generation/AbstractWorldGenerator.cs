@@ -49,9 +49,19 @@ namespace AssemblyCSharp
 		/// Creates the chunk.
 		/// </summary>
 		/// <param name="chunk">Chunk.</param>
-		public void CreateChunk(Chunk chunk) {
+		/*public void CreateChunk(Chunk chunk) {
 			foreach (IFirstPassGenerator generator in firstPassGenerators) {
 				generator.GenerateChunk(chunk);
+			}
+		}*/
+
+		/// <summary>
+		/// Creates the chunk.
+		/// </summary>
+		/// <param name="chunk">Chunk.</param>
+		public void CreateSection(Section section) {
+			foreach (IFirstPassGenerator generator in firstPassGenerators) {
+				generator.GenerateSection(section);
 			}
 		}
 		
