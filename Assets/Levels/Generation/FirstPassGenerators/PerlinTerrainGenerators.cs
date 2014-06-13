@@ -74,7 +74,7 @@ namespace AssemblyCSharp
 					for (int y = sectionSize - 1; y >= 0; y--) {
 						
 						
-						if (y <= 32) {
+						if (y + posY <= 32) {
 							//ocean
 							section.SetBlock(x,y,z, BlockType.Water);
 							continue;
@@ -86,8 +86,8 @@ namespace AssemblyCSharp
 							
 							// Some block was set...
 							if (firstBlockHeight == -1) {
-								firstBlockHeight = y;
-								section.chunk.heightMap[x,z] = y;
+								firstBlockHeight = y + posY;
+								section.chunk.heightMap[x,z] = y + posY;
 							}
 							
 							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.7) {
@@ -100,8 +100,8 @@ namespace AssemblyCSharp
 						} else if (dens >= 32) {
 							// Some block was set...
 							if (firstBlockHeight == -1) {
-								firstBlockHeight = y;
-								section.chunk.heightMap[x,z] = y;
+								firstBlockHeight = y + posY;
+								section.chunk.heightMap[x,z] = y + posY;
 							}
 							
 							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.6) {
@@ -320,7 +320,9 @@ namespace AssemblyCSharp
 
 		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Section section) {
 			
-			int depth = y - firstBlock;
+			int posY = section.sectionY;
+			int globalY = posY + y;
+			int depth = globalY - firstBlock;
 			
 			switch (biome) {
 				
@@ -328,11 +330,11 @@ namespace AssemblyCSharp
 			case BiomeType.Mountain:
 			case BiomeType.SeasonalForest:
 			case BiomeType.Woodland:
-				if (depth <= 3 && y >28 && y <=32) {
+				if (depth <= 3 && globalY >28 && globalY <=32) {
 					section.SetBlock(x, y, z, BlockType.Sand);
-				} else if (depth == 0 && y > 32 && y < 170) {
+				} else if (depth == 0 && globalY > 32 && globalY < 170) {
 					section.SetBlock(x, y, z, BlockType.Grass);
-				} else if (depth == 0 && y >= 240) {
+				} else if (depth == 0 && globalY >= 240) {
 					section.SetBlock(x, y, z, BlockType.Snow);
 				} else {
 					section.SetBlock(x, y, z, BlockType.Stone);
