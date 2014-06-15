@@ -30,8 +30,7 @@ public class SectionColliderGenerator
 
 	byte Block (int x, int y, int z)
 	{
-        return CurrentSection.data [x, y, z];
-		//return CurrentChunk.Block (x, y + CurrentSection.sectionY, z);
+        return CurrentSection.Block(x, y, z);
 	}
 
 	/// <summary>

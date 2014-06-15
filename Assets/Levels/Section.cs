@@ -23,6 +23,7 @@ public class Section : MonoBehaviour
 	private List<Color> newColor = new List<Color> ();
 	private float tUnit = 0.25f;
 
+    public int Id = 0;
 	//private Vector2 t2 = new Vector2 (2, 1);
 	//private Vector2 t3 = new Vector2 (2, 2);
 	//private Vector2 t4 = new Vector2 (2, 3);
@@ -104,7 +105,8 @@ public class Section : MonoBehaviour
 
 			SectionColliderGenerator generator = new SectionColliderGenerator();
 			//GenerateCollisionMesh ();
-			//generator.GenerateCollisionMatrix(this);
+
+			generator.GenerateCollisionMatrix(this);
 		}
 
 		for (int x=0; x<sectionSize; x++) {
@@ -148,29 +150,14 @@ public class Section : MonoBehaviour
 		UpdateMesh ();
 	}
 
-	byte Block (int x, int y, int z)
+	public byte Block (int x, int y, int z)
 	{
-        /*
-        if (y >= sectionSize)
-        {
-            int secY = sectionY / sectionSize;
-            if (chunk.sections.Length > secY + 1 && chunk.sections[secY + 1] != null)
-                return chunk.sections[secY + 1].Block(z, y - sectionSize, z);
-        }
-        if (y < 0)
-        {
-            int secY = sectionY / sectionSize;
-            if (secY - 1 > 0 && chunk.sections[secY - 1] != null)
-                return chunk.sections[secY - 1].Block(z, sectionSize - y, z);
-        }*/
         if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
         {
-            return chunk.Block(x, y, z);
+            return chunk.Block(x, y + sectionY, z);
         }
 
-
         return data [x, y, z];
-		//return chunk.Block (x, y + sectionY, z);
 	}
 
 	byte LightBlock (int x, int y, int z)

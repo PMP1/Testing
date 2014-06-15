@@ -435,6 +435,11 @@ public class Chunk : MonoBehaviour {
         int sectionIndex = y / sectionSize;
         int sectionY = y % sectionSize;
 
+        /*if (y < 0 || y >= sectionSize)
+        {
+
+        }*/
+
 		if ( !IsInChunk(x, y, z)) {
 
 			Chunk neighbour = GetNeighbouringChunk(x, y, z);
@@ -546,7 +551,7 @@ public class Chunk : MonoBehaviour {
 			sections[y].data = new byte[sectionSize,sectionSize,sectionSize];
 			sections[y].lightData = new byte[sectionSize,sectionSize,sectionSize];
 			sections[y].daylightData = new byte[sectionSize,sectionSize,sectionSize];
-
+            sections[y].Id = y;
 			world.worldGenerator.CreateSection(sections[y]);
 
 			
