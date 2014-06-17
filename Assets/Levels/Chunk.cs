@@ -22,13 +22,10 @@ public class Chunk : MonoBehaviour {
 
 	//need to save world data here
 	public byte biome;
-	//public byte[,,] data;
-	//public byte[,,] lightData;
-	//public byte[,,] daylightData;
+
 	public int[,] heightMap; // records the max height of a solid object (used for quick daylight)
     public int maxHeight;
     public int minHeight;
-
 
 	//some debug info
 	public byte updateType = 0; 
@@ -132,22 +129,22 @@ public class Chunk : MonoBehaviour {
 	}
 
 	public void SetHeightMap() {
-		heightMap = new int[16,16];
+        heightMap = new int[sectionSize,sectionSize];
 
-		for (int i = 0; i < 0; i++) {
-			for (int j = 0; j < 0; j++) {
-				heightMap[i,j] = 0;
-			}
-		}
+        for (int i = 0; i < sectionSize; i++) {
+            for (int j = 0; j < sectionSize; j++) {
+                heightMap[i,j] = 0;
+            }
+        }
         maxHeight = 0;
         minHeight = 0;
-
+        
         int len = sections.Length;
-
-		for (int x=0; x<sectionSize; x++) 
-		{
-			for (int z=0; z<sectionSize; z++) 
-			{
+        
+        for (int x = 0; x < sectionSize; x++) 
+        {
+            for (int z = 0; z < sectionSize; z++) 
+            {
                 for (int s = len - 1; s >= 0; s--)
                 {
                     Section section = sections[s];
@@ -161,39 +158,24 @@ public class Chunk : MonoBehaviour {
                             if (posY < minHeight) minHeight = posY;
                             break;
                         }
-
                     }
                 }
-
-                            //to be replaced...
-				/*for (int y=worldY - 1; y >= 0; y--) 
-				{
-                    //
-					if (Block (x, y, z) != 0)
-					{
-						heightMap[x,z] = y;
-                        if (y > maxHeight) maxHeight = y;
-                        if (y < minHeight) minHeight = y;
-						break;
-					}
-				}*/
-			}
+            }
 		}
 	}
 
-	public void DefaultHeightMap() {
-		heightMap = new int[16,16];
-		
-		for (int i = 0; i < 0; i++) {
-			for (int j = 0; j < 0; j++) {
-				heightMap[i,j] = -1;
-			}
-		}
-	}
+    public void DefaultHeightMap() {
+    
+        heightMap = new int[sectionSize,sectionSize];
+        
+        for (int i = 0; i < sectionSize; i++) {
+            for (int j = 0; j < sectionSize; j++) {
+            	heightMap[i,j] = -1;
+            }
+        }
+    }
 
-	/// <summary>
-	/// Fills the sky to heightmap with light and then spreads out from where the light hits
-	/// </summary>
+
 	/*void GenerateDayLightData()
 	{
 
