@@ -87,6 +87,31 @@ public class Section : MonoBehaviour
 		}
 	}
 
+    public byte Block (int x, int y, int z)
+    {
+        if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
+        {
+            return chunk.Block(x, y + sectionY, z);
+        }
+        
+        return data [x, y, z];
+    }
+    
+    public byte LightBlock (int x, int y, int z)
+    {
+        byte l = 5;
+        
+        if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
+        {
+            l = chunk.Block(x, y + sectionY, z);
+        } else
+        {
+            l = daylightData [x, y, z];
+        }
+        
+        return (byte)Mathf.Max (l, 0);
+    }
+
 	public void SetBlock(int x, int y, int z, BlockType type)
 	{
 		this.data [x, y, z] = (byte)type;
@@ -97,6 +122,15 @@ public class Section : MonoBehaviour
 		newColliderTriangles = tris;
 		newColliderVertices = verts;
 	}
+
+    public bool IsInSection(int x, int y, int z)
+    {
+        if (x < 0 || y < 0 || z < 0)
+            return false;
+        if (x >= sectionSize || y >= sectionSize || z >= sectionSize)
+            return false;
+        return true;
+    }
 
 
 	public void GenerateMesh ()
@@ -150,23 +184,7 @@ public class Section : MonoBehaviour
 		UpdateMesh ();
 	}
 
-	public byte Block (int x, int y, int z)
-	{
-        if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
-        {
-            return chunk.Block(x, y + sectionY, z);
-        }
-
-        return data [x, y, z];
-	}
-
-	byte LightBlock (int x, int y, int z)
-	{
-        byte l = 5;
-        //byte l = daylightData [x, y, z];
-		//byte l = chunk.LightBlock (x, y + sectionY, z);
-		return (byte)Mathf.Max (l, 0);
-	}
+	
 	
 	private Vector2 GetTexture(int type) {
 		return world.BlockManager.GetTexture ((byte) type);

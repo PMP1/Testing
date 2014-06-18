@@ -93,7 +93,7 @@ public class Chunk : MonoBehaviour {
 				//terrain has been updated
                 LightGenerator lightGen = new LightGenerator();
                 lightGen.GenerateDaylight(this);
-
+                lightGen.SpreadDaylight(this);
                 //SetHeightMap();
 				//GenerateDayLightData();
 
@@ -108,7 +108,8 @@ public class Chunk : MonoBehaviour {
 
                 LightGenerator lightGen = new LightGenerator();
                 lightGen.GenerateDaylight(this);
-				//GenerateDayLightData();
+                lightGen.SpreadDaylight(this);
+                //GenerateDayLightData();
 				
 				for( int i = 0; i < sections.Length; i ++) {
 					sections[i].lightUpdate = true;
@@ -161,25 +162,29 @@ public class Chunk : MonoBehaviour {
                             if (posY < minHeight) minHeight = posY;
                             break;
                         }
-
                     }
                 }
-
-                            //to be replaced...
-				/*for (int y=worldY - 1; y >= 0; y--) 
-				{
-                    //
-					if (Block (x, y, z) != 0)
-					{
-						heightMap[x,z] = y;
-                        if (y > maxHeight) maxHeight = y;
-                        if (y < minHeight) minHeight = y;
-						break;
-					}
-				}*/
 			}
 		}
 	}
+
+    public void SetHeightMapMaxMin()
+    {
+        maxHeight = 0;
+        minHeight = 0;
+
+        for (int x=0; x<sectionSize; x++)
+        {
+            for (int z=0; z<sectionSize; z++)
+            {
+                var h = heightMap[x, z];
+                if (h > maxHeight) 
+                    maxHeight = h;
+                if (h < minHeight) 
+                    minHeight = h;
+            }
+        }
+    }
 
 	public void DefaultHeightMap() {
 		heightMap = new int[16,16];
@@ -189,6 +194,8 @@ public class Chunk : MonoBehaviour {
 				heightMap[i,j] = -1;
 			}
 		}
+        maxHeight = 0;
+        minHeight = 0;
 	}
 
 	/// <summary>
@@ -321,124 +328,19 @@ public class Chunk : MonoBehaviour {
 		}
 	}*/
 
-	/// <summary>
-	/// Does a chunk exist and is loaded at x, z
-	/// </summary>
-	/// <returns></returns>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	private bool IsChunk(int x, int z) {
 
-		if ( x < 0 || z < 0 || x >= world.worldX || z >= world.worldZ)
-		{
-			return false;
-		}
-		if (!world.chunks [x, z]) {
-				return false;
-		}
-		return true;
-	}
 
-	/// <summary>
-	/// Determines whether the chunk at x,z contains a section y
-	/// </summary>
-	/// <returns><c>true</c> if this instance is section the specified x z y; otherwise, <c>false</c>.</returns>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	/// <param name="y">The y coordinate.</param>
-	private bool IsSection(int x, int z, int y)
-	{
-		if (IsChunk (x, z)) {
-			if (world.chunks[x, z].sections[y]) return true;
-		}
-		return false;
-	}
 
-	private bool IsInSection(Section section,  int globalY) 
-	{
-		int sectionMin = section.sectionY * section.sectionSize;
+	
 
-		if (globalY >= sectionMin + section.sectionSize)
-			return false;
-		if (globalY < sectionMin)
-			return false;
-		return true;
-	}
+	
 
-	private bool IsInSection (Section section, int x, int y, int z)
-	{
-		if (IsInChunk (x, y, z) && IsInSection (section, x, y, z))
-			return true;
-		return false;
-	}
 
-	/// <summary>
-	/// Does x, y, z fall within the chunk bounds
-	/// </summary>
-	/// <returns></returns>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="y">The y coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	private bool IsInChunk (int x, int y, int z)
-	{
-		if( x>=sectionSize || x<0 || y>=world.worldY || y<0 || z>=sectionSize || z<0)
-		{
-			return false;
-		}
-		return true;
-	}
-
-	/// <summary>
-	/// Gets the neighbouring chunk based on the local x, y, y.
-	/// </summary>
-	/// <returns>The neighbouring chunk.</returns>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="y">The y coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	private Chunk GetNeighbouringChunk(int x, int y, int z) {
-
-		if (y >= world.worldY || y < 0) return null;
-
-		int offsetX = 0;
-		int offsetZ = 0;
-
-		if (x < 0) offsetX = -1;
-		if (x >= sectionSize) offsetX = 1;
-		if (z < 0) offsetZ = -1;
-		if (z >= sectionSize) offsetZ = 1;
-
-		if (IsChunk(this.chunkX + offsetX, this.chunkZ + offsetZ))
-			return world.chunks[this.chunkX + offsetX, this.chunkZ + offsetZ];
-
-		return null; 
-	}
-
-	/// <summary>
-	/// Gets the offset x, y, z for a neighhbour
-	/// </summary>
-	/// <returns>The offset local.</returns>
-	/// <param name="i">The index.</param>
-	private int GetNeighbourLocal(int i) {
-		if (i < 0) return sectionSize + i;
-		if (i >= sectionSize) return sectionSize - i;
-		return i;
-	}
-
-    /*public byte GetSafeBlock(int x, int y, int z)
-    {
-        int posY = y / sectionSize;
-        int pos
-    }*/
 
 	public byte Block (int x, int y, int z)
 	{
         int sectionIndex = y / sectionSize;
         int sectionY = y % sectionSize;
-
-        /*if (y < 0 || y >= sectionSize)
-        {
-
-        }*/
 
 		if ( !IsInChunk(x, y, z)) {
 
@@ -451,52 +353,91 @@ public class Chunk : MonoBehaviour {
 	}
 
 
-
-   /* public Section GetSectionFromY (int y)
+    public byte LightBLock (int x, int y, int z)
     {
-        if (y > worldY || y < 0)
-        {
-            return null;
-        } else
-        {
-            int sectionY = y / sectionSize;
-            if (sections[sectionY] != null)
-            {
-                return sections[sectionY];
-            }
+        int sectionIndex = y / sectionSize;
+        int sectionY = y % sectionSize;
+        
+        if ( !IsInChunk(x, y, z)) {
+            
+            Chunk neighbour = GetNeighbouringChunk(x, y, z);
+            if (neighbour == null) return 1;
+            return neighbour.sections[sectionIndex].daylightData[GetNeighbourLocal(x), sectionY, GetNeighbourLocal(z)];
         }
-        return null;
-    }*/
+        
+        return sections[sectionIndex].daylightData[x,sectionY,z];
+    }
 
-    /*public byte GetDataFromGlobalY(int x, int y, int z)
+    /// <summary>
+    /// Does x, y, z fall within the chunk bounds
+    /// </summary>
+    /// <returns></returns>
+    /// <param name="x">The x coordinate.</param>
+    /// <param name="y">The y coordinate.</param>
+    /// <param name="z">The z coordinate.</param>
+    public bool IsInChunk (int x, int y, int z)
     {
-        Section section = GetSectionFromY(y);
-
-        if (section != null)
-
-
-    }*/
-
-	/// <summary>
-	/// Gets the data for any given x, y, z position
-	/// </summary>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="y">The y coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	/*public byte Block (int x, int y, int z)
-	{
-		if (IsInChunk(x, y, z))
+        if( x>=sectionSize || x<0 || y>=world.worldY || y<0 || z>=sectionSize || z<0)
         {
-            int sectionY = GetSectionFromY(y);
-            if (sectionY < 0) return -1;
-            if (sections[sectionY] != null) 
-                return sections[sectionY].data[x, y, z  
-        } 
-        else
-        {
-
+            return false;
         }
-	}*/
+        return true;
+    }
+
+    /// <summary>
+    /// Does a chunk exist and is loaded at x, z
+    /// </summary>
+    /// <returns></returns>
+    /// <param name="x">The x coordinate.</param>
+    /// <param name="z">The z coordinate.</param>
+    private bool IsChunk(int x, int z) {
+
+        if ( x < 0 || z < 0 || x >= world.worldX || z >= world.worldZ)
+        {
+            return false;
+        }
+        if (!world.chunks [x, z]) {
+            return false;
+        }
+        return true;
+
+    }
+
+    /// <summary>
+    /// Gets the neighbouring chunk based on the local x, y, y.
+    /// </summary>
+    /// <returns>The neighbouring chunk.</returns>
+    /// <param name="x">The x coordinate.</param>
+    /// <param name="y">The y coordinate.</param>
+    /// <param name="z">The z coordinate.</param>
+    private Chunk GetNeighbouringChunk(int x, int y, int z) {
+        
+        if (y >= world.worldY || y < 0) return null;
+        
+        int offsetX = 0;
+        int offsetZ = 0;
+        
+        if (x < 0) offsetX = -1;
+        if (x >= sectionSize) offsetX = 1;
+        if (z < 0) offsetZ = -1;
+        if (z >= sectionSize) offsetZ = 1;
+        
+        if (IsChunk(this.chunkX + offsetX, this.chunkZ + offsetZ))
+            return world.chunks[this.chunkX + offsetX, this.chunkZ + offsetZ];
+        
+        return null; 
+    }
+
+    /// <summary>
+    /// Gets the offset x, y, z for a neighhbour
+    /// </summary>
+    /// <returns>The offset local.</returns>
+    /// <param name="i">The index.</param>
+    private int GetNeighbourLocal(int i) {
+        if (i < 0) return sectionSize + i;
+        if (i >= sectionSize) return sectionSize - i;
+        return i;
+    }
 
 
 
@@ -554,7 +495,7 @@ public class Chunk : MonoBehaviour {
             sections[y].Id = y;
 			world.worldGenerator.CreateSection(sections[y]);
 
-			
+            SetHeightMapMaxMin();
 		}
 	}
 }
