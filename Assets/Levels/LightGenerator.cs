@@ -75,11 +75,18 @@ namespace AssemblyCSharp
         {
             int sectionSize = chunk.sectionSize;
             int noSections = chunk.sections.Length;
+            int max = chunk.maxHeight;
+            int min = chunk.minHeight;
          
+
             for (int i = noSections - 1; i >=0; i--)
             { 
 
                 Section section = chunk.sections [i];
+                int sectionPosY = section.sectionY * sectionSize;
+
+                if (sectionPosY + sectionSize > max || sectionPosY < min) continue;
+
 
                 //spread daylight when we hit a floor
                 for (int x = 0; x < sectionSize; x++)

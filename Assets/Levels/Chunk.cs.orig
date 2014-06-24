@@ -161,7 +161,8 @@ public class Chunk : MonoBehaviour {
                         }
                     }
                 }
-            }
+<<<<<<< HEAD
+			}
 		}
 	}
 
@@ -174,14 +175,15 @@ public class Chunk : MonoBehaviour {
         {
             for (int z=0; z<sectionSize; z++)
             {
-                var h = heightMap [x, z];
+                var h = heightMap[x, z];
                 if (h > maxHeight) 
                     maxHeight = h;
                 if (h < minHeight) 
                     minHeight = h;
+=======
             }
-        }
-    }
+		}
+	}
 
     public void DefaultHeightMap() {
     
@@ -190,12 +192,104 @@ public class Chunk : MonoBehaviour {
         for (int i = 0; i < sectionSize; i++) {
             for (int j = 0; j < sectionSize; j++) {
             	heightMap[i,j] = -1;
+>>>>>>> 44753c6d9984ec7d0e7f63929b8d912a1f280253
             }
         }
     }
 
-
+<<<<<<< HEAD
+	public void DefaultHeightMap() {
+		heightMap = new int[16,16];
 		
+		for (int i = 0; i < 0; i++) {
+			for (int j = 0; j < 0; j++) {
+				heightMap[i,j] = -1;
+			}
+		}
+        maxHeight = 0;
+        minHeight = 0;
+	}
+=======
+>>>>>>> 44753c6d9984ec7d0e7f63929b8d912a1f280253
+
+	/*void GenerateDayLightData()
+	{
+
+		for (int i = sections.Length - 1; i >=0; i--) { 
+
+			Section section = sections [i];
+			section.daylightData = new byte[sectionSize, sectionSize, sectionSize];
+			int posY = section.sectionY * sectionSize;
+
+			//floodfill initial daylight
+			for (int x = 0; x < sectionSize; x++) {
+					for (int z = 0; z < sectionSize; z++) {
+							for (int y = sectionSize - 1; y >= 0 && y + posY > this.heightMap [x, z] + 1; y--) {
+									section.daylightData [x, y, z] = 15;
+							}
+					}
+			}
+
+		}
+		for (int i = sections.Length - 1; i >=0; i--) { 
+
+			Section section = sections [i];
+			//spread daylightwhen we hit a floor
+			for (int x = 0; x < sectionSize; x++) {
+				for (int z = 0; z < sectionSize; z++) {
+
+					int y = this.heightMap [x, z];
+
+					y = y % sectionSize;
+
+					//if heightmap value is above this section then we need to take y from the previous section
+
+					if (y > -1)
+					{
+						//Make sure that y is local not global
+						section.daylightData [x, (y + 1) % sectionSize, z] = 15;
+
+						SpreadDaylight (x, y + 2, z, 13, section); //up
+						SpreadDaylight (x, y, z, 13, section); //down
+						SpreadDaylight (x + 1, y + 1, z, 13, section);
+						SpreadDaylight (x - 1, y + 1, z, 13, section);
+						SpreadDaylight (x, y + 1, z + 1, 13, section);
+						SpreadDaylight (x, y + 1, z - 1, 13, section);
+					}
+				}
+			}
+
+			//Get the daylight from neighbouring chunks
+			SpreadDaylightFromXSection (chunkX + 1, 0, sectionSize - 1, section.sectionY);
+			SpreadDaylightFromXSection (chunkX - 1, sectionSize - 1, 0, section.sectionY);
+			SpreadDaylightFromZSection (chunkZ + 1, 0, sectionSize - 1, section.sectionY);
+			SpreadDaylightFromZSection (chunkZ - 1, sectionSize - 1, 0, section.sectionY);
+		}
+	}*/
+
+
+	/*public void SpreadDaylight(int x, int y, int z, byte level, Section section) {
+
+		if (!IsInChunk(x, y, z)) return;
+
+
+		//TODO spread light up a chunk
+
+		if (section.daylightData [x, y, z] < level && level > 1 && Block(x,y,z) == 0) {
+
+			section.daylightData [x, y, z] = level;
+			updateLight = true;
+			level -= 2;
+			SpreadDaylight(x, y + 1, z, level, section); //up
+			SpreadDaylight(x, y - 1, z, level, section); //down
+			SpreadDaylight(x + 1, y, z, level, section);
+			SpreadDaylight(x - 1, y, z, level, section);
+			SpreadDaylight(x, y, z + 1, level, section);
+			SpreadDaylight(x, y, z - 1, level, section);
+		}
+	}*/
+
+	
 	/*void SpreadDaylightFromXSection(int chunk_X, int from_x, int to_x, int sectionY) {
 		if (IsSection (chunkX, chunkZ, sectionY)) {
 			Section section = world.chunks[chunkX, chunkZ].sections[sectionY];
@@ -235,6 +329,24 @@ public class Chunk : MonoBehaviour {
 			}
 		}
 	}*/
+
+
+	//TODO remove this funtion???
+	/*void SpreadDaylightToChunk(int chunkX, int chunkZ, int x, int y, int z, byte level) {
+
+		if (IsChunk (chunkX, chunkZ)) {
+			world.chunks [chunkX, chunkZ].SpreadDaylight (x, y, z, level);
+		}
+	}*/
+
+
+
+
+	
+
+	
+
+
 
 	public byte Block (int x, int y, int z)
 	{
@@ -338,6 +450,36 @@ public class Chunk : MonoBehaviour {
         return i;
     }
 
+
+
+/*	public byte DayLightBlock (int x, int y, int z)
+	{
+
+	}
+*/
+
+	/*public byte LightBlock (int x, int y, int z)
+	{
+		//TODO Move this to be in section
+		if (x >= sectionSize && (chunkX*sectionSize) + 1 < world.worldX && world.chunks[chunkX + 1, chunkZ]) {
+			return world.chunks[chunkX + 1, chunkZ].LightBlock(sectionSize - x,y,z);
+		}
+		if (x < 0 && chunkX - 1 >= 0 && world.chunks[chunkX - 1, chunkZ]) {
+			return world.chunks[chunkX - 1, chunkZ].LightBlock(sectionSize + x,y,z);
+		}
+		if (z >= sectionSize && (chunkZ*sectionSize) + 1 < world.worldZ && world.chunks[chunkX, chunkZ + 1]) {
+			return world.chunks[chunkX, chunkZ + 1].LightBlock(x,y,sectionSize - z);
+		}
+		if (z < 0 && chunkZ -1 >= 0 && world.chunks[chunkX, chunkZ - 1]) {
+			return world.chunks[chunkX, chunkZ - 1].LightBlock(x,y,sectionSize + z);
+		}
+
+		if( x>=sectionSize || x<0 || y>=worldY || y<0 || z>=sectionSize || z<0)
+		{
+			return (byte)0;
+		}
+		return daylightData[x,y,z];
+	}*/
 
 	public void GenColumn(){
 		

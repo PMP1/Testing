@@ -77,6 +77,7 @@ namespace AssemblyCSharp
 						if (y + posY <= 32) {
 							//ocean
 							section.SetBlock(x,y,z, BlockType.Water);
+                            section.containsWater = true;
 							continue;
 						}
 						
@@ -92,8 +93,10 @@ namespace AssemblyCSharp
 							
 							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.7) {
 								SetBlock(x, y, z, firstBlockHeight, type, section);
-							} else {
+                                section.containsSolid = true;
+                            } else {
 								section.SetBlock(x,y,z, BlockType.Air);
+                                section.containsAir = true;
 							}
 							
 							continue;
@@ -106,8 +109,10 @@ namespace AssemblyCSharp
 							
 							if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.6) {
 								SetBlock(x, y, z, firstBlockHeight, type, section);
-							} else {
+                                section.containsSolid = true;
+                            } else {
 								section.SetBlock(x,y,z,BlockType.Air);
+                                section.containsAir = true;
 							}
 							
 							continue;
@@ -115,72 +120,8 @@ namespace AssemblyCSharp
 					}
 				}
 			}
+            setSectionStats(section);
 		}
-
-		/*public void GenerateChunk(Chunk chunk) {
-
-			float[,,] densityMap = new float[chunk.sectionSize+1,chunk.worldY+1, chunk.sectionSize+1];
-
-			for (int x = 0; x <= chunk.sectionSize; x += SAMPLE_RATE_XZ) {
-				for (int z = 0; z <= chunk.sectionSize; z += SAMPLE_RATE_XZ) {
-					for (int y = 0; y <= chunk.worldY; y += SAMPLE_RATE_Y) {
-						densityMap[x,y,z] = CalculateDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z);
-					}
-				}
-			}
-
-			triLerpDensityMap(densityMap, chunk);
-
-			for (int x = 0; x < chunk.sectionSize; x++) {
-				for (int z = 0; z < chunk.sectionSize; z++) {
-					BiomeType type = this._biomeGenerator.GetBiomeAt ((chunk.chunkX * chunk.sectionSize) + x, (chunk.chunkZ * chunk.sectionSize) + z);
-					int firstBlockHeight = -1;
-
-					for (int y = chunk.worldY - 1; y >= 0; y--) {
-
-
-						if (y <= 32) {
-							//ocean
-							chunk.data[x,y,z] = 3;
-							continue;
-						}
-
-						float dens = densityMap[x,y,z];
-
-						if ((dens >= 0 && dens < 32)) {
-							
-							// Some block was set...
-							if (firstBlockHeight == -1) {
-								firstBlockHeight = y;
-								chunk.heightMap[x,z] = y;
-							}
-							
-							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.7) {
-								SetBlock(x, y, z, firstBlockHeight, type, chunk);
-							} else {
-								chunk.data[x,y,z] = 0;
-							}
-							
-							continue;
-						} else if (dens >= 32) {
-							// Some block was set...
-							if (firstBlockHeight == -1) {
-								firstBlockHeight = y;
-								chunk.heightMap[x,z] = y;
-							}
-							
-							if (calcCaveDensity((chunk.chunkX * chunk.sectionSize) + x, y, (chunk.chunkZ * chunk.sectionSize) + z) > -0.6) {
-								SetBlock(x, y, z, firstBlockHeight, type, chunk);
-							} else {
-								chunk.data[x,y,z] = 0;
-							}
-							
-							continue;
-						}
-					}
-				}
-			}
-		}*/
 
 		private float CalculateDensity(int x, int y, int z) {
 
@@ -235,30 +176,6 @@ namespace AssemblyCSharp
 			return result > 0.0 ? result : 0;
 		}
 		
-		private void triLerpDensityMap(float[,,] densityMap, Chunk chunk) {
-			for (int x = 0; x < chunk.sectionSize; x++) {
-				for (int y = 0; y < chunk.worldY; y++) {
-					for (int z = 0; z < chunk.sectionSize; z++) {
-						if (!(x % SAMPLE_RATE_XZ == 0 && y % SAMPLE_RATE_Y == 0 && z % SAMPLE_RATE_XZ == 0)) {
-							int offsetX = (x / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
-							int offsetY = (y / SAMPLE_RATE_Y) * SAMPLE_RATE_Y;
-							int offsetZ = (z / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
-							densityMap[x, y, z] = (float)PMath.TriLerp(x, y, z,
-								densityMap[offsetX, offsetY, offsetZ],
-								densityMap[offsetX, SAMPLE_RATE_Y + offsetY, offsetZ],
-								densityMap[offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
-								densityMap[offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
-								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ],
-								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ],
-								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY, offsetZ + SAMPLE_RATE_XZ],
-								densityMap[SAMPLE_RATE_XZ + offsetX, offsetY + SAMPLE_RATE_Y, offsetZ + SAMPLE_RATE_XZ],
-								offsetX, SAMPLE_RATE_XZ + offsetX, offsetY, SAMPLE_RATE_Y + offsetY, offsetZ, offsetZ + SAMPLE_RATE_XZ);
-						}
-					}
-				}
-			}
-		}
-
 		private void triLerpDensityMap(float[,,] densityMap, Section section) {
 			int sectionSize = section.sectionSize;
 
@@ -317,6 +234,46 @@ namespace AssemblyCSharp
 			}
 			
 		}
+
+        private void setSectionStats(Section section) 
+        {
+            int sectionSize = section.sectionSize;
+            bool hasAir = false;
+            bool hasSolid = false;
+            int posY = section.sectionY;
+
+            if (section.containsAir && !section.containsSolid && !section.containsWater)
+            {
+                section.isAir = true;
+                section.isSolid = false;
+            } else if (section.containsSolid && !section.containsWater && !section.containsAir)
+            {
+                section.isAir = false;
+                section.isSolid = true;
+            } else
+            {
+                section.isAir = false;
+                section.isSolid = false;
+            }
+
+
+
+            /*for (int x = 0; x < sectionSize; x++)
+            {
+                for (int z = 0; z < sectionSize; z++)
+                {
+                    int height = section.chunk.heightMap[x, z];
+
+                    if (height < posY + sectionSize)
+                    {
+
+                    }
+
+                }
+            }*/
+        
+        }
+
 
 		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Section section) {
 			

@@ -16,12 +16,6 @@ namespace AssemblyCSharp
 	/// </summary>
 	public interface IFirstPassGenerator
 	{
-		/// <summary>
-		/// Generates the chunk. Nust not rely on any outside data, 
-		/// shoudl all be based of noise calculations to prevent errors
-		/// </summary>
-		/// <param name="chunk">Chunk.</param>
-		//void GenerateChunk(Chunk chunk);
 
 		/// <summary>
 		/// Generates a single section.

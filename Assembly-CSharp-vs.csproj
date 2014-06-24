@@ -68,6 +68,7 @@
      <Compile Include="Assets\Levels\Noise.cs" />
      <Compile Include="Assets\Levels\Section.cs" />
      <Compile Include="Assets\Levels\SectionColliderGenerator.cs" />
+     <Compile Include="Assets\Levels\StatsEngine.cs" />
      <Compile Include="Assets\Levels\TimeManager.cs" />
      <Compile Include="Assets\Levels\Utilities\PMath.cs" />
      <Compile Include="Assets\Levels\Utilities\Random.cs" />

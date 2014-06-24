@@ -189,6 +189,7 @@ public class ModifyTerrain : MonoBehaviour {
 		print("Updating: " + updateX + ", " + updateY + ", " + updateZ);
 
 		world.chunks[updateX, updateZ].update=true;
+        world.chunks [updateX, updateY].updateHeightMap = true;
 
 		if(x-(world.sectionSize*updateX)==0 && updateX!=0){
 			world.chunks[updateX-1, updateZ].update=true;

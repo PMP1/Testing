@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using AssemblyCSharp;
+using System;
 
 public class Section : MonoBehaviour
 {
@@ -19,28 +20,26 @@ public class Section : MonoBehaviour
 	private List<Vector3> newColliderVertices = new List<Vector3> ();
 	private List<int> newColliderTriangles = new List<int> ();
 	
-	//private List<Vector2> newUV2 = new List<Vector2> ();
 	private List<Color> newColor = new List<Color> ();
 	private float tUnit = 0.25f;
 
     public int Id = 0;
-	//private Vector2 t2 = new Vector2 (2, 1);
-	//private Vector2 t3 = new Vector2 (2, 2);
-	//private Vector2 t4 = new Vector2 (2, 3);
-
-
 	public byte[,,] data;
 	public byte[,,] lightData;
 	public byte[,,] daylightData;
 
 
-	//aspirational info
-	private bool isSolid = false;
-	private bool isAir = false;
-	private bool isLoaded = false;
-	private int hightestPoint = 0;
-	private int lowestPoint = 0;
+	public bool isSolid = false;
+	public bool isAir = false;
+	public bool isLoaded = false;
+    public bool containsAir = false;
+    public bool containsSolid = false;
+    public bool containsWater = false;
 
+    
+    //aspirational info
+    public int hightestPoint = 0;
+    public int lowestPoint = 0;
 	
 	private Mesh mesh;
 	private MeshCollider col;
@@ -75,16 +74,22 @@ public class Section : MonoBehaviour
 
 	void LateUpdate () {
 
+        DateTime start = DateTime.Now; 
+
 		if (update) {
 			GenerateMesh ();
 			update = false;
+            StatsEngine.UpdateSection(DateTime.Now.Subtract(start).Seconds);
 		} else if (lightUpdate) {
 			GenerateLight ();
 			lightUpdate = false;
+            StatsEngine.UpdateSection(DateTime.Now.Subtract(start).Seconds);
 		} else if (updateDayLight) {
 			GenerateDayLight();
 			updateDayLight = false;
+            //StatsEngine.UpdateSection(DateTime.Now.Subtract(start).Seconds);
 		}
+        //StatsEngine.UpdateSection(DateTime.Now.Subtract(start).Seconds);
 	}
 
     public byte Block (int x, int y, int z)
@@ -103,7 +108,7 @@ public class Section : MonoBehaviour
         
         if (x < 0 || x >= sectionSize || y < 0 || y >= sectionSize || z < 0 || z >= sectionSize)
         {
-            l = chunk.Block(x, y + sectionY, z);
+            l = chunk.LightBLock(x, y + sectionY, z);
         } else
         {
             l = daylightData [x, y, z];
@@ -138,8 +143,6 @@ public class Section : MonoBehaviour
 		if (useCollisionMatrix) {
 
 			SectionColliderGenerator generator = new SectionColliderGenerator();
-			//GenerateCollisionMesh ();
-
 			generator.GenerateCollisionMatrix(this);
 		}
 

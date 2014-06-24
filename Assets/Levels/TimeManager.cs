@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class TimeManager : MonoBehaviour {
 	
@@ -42,6 +43,7 @@ public class TimeManager : MonoBehaviour {
 		accum += Time.timeScale/Time.deltaTime;
 		++frames;
 		
+        StatsEngine.UpdateTime(Time.deltaTime);
 		// Interval ended - update GUI text and start new interval
 		if( timeleft <= 0.0 ) {
 			// display two fractional digits (f2 format)

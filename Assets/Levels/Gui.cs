@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
+using System.Collections.Generic;
 
 public class Gui : MonoBehaviour {
 	
@@ -58,57 +60,70 @@ public class Gui : MonoBehaviour {
 	}
 	void OnGUI () {
 
-		//full day = 24 seconds
-		//1 second = 1 tick
+        //full day = 24 seconds
+        //1 second = 1 tick
 
-		GUI.DrawTexture(new Rect(10,10,100,100), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
-		GUI.DrawTexture(new Rect(10,110,100,100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
-		GUI.DrawTexture(new Rect(10,210,100,100), terrainTexture, ScaleMode.ScaleToFit, true, 1.0f);
-		GUI.DrawTexture(new Rect(10,310,100,100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 10, 100, 100), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 110, 100, 100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 210, 100, 100), terrainTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 310, 100, 100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
 		
 		
-		System.TimeSpan test = new System.TimeSpan();
-		int totalChunks = 0;
-		int totalUpdate1 = 0;
-		int totalUpdate2 = 0;
-		int totalUpdate3 = 0;
+        System.TimeSpan test = new System.TimeSpan();
+        int totalChunks = 0;
+        int totalUpdate1 = 0;
+        int totalUpdate2 = 0;
+        int totalUpdate3 = 0;
 		
-		for (int x=0; x<world.worldX/world.sectionSize; x++){
-			for (int z=0; z<world.worldZ/world.sectionSize; z++){
-				if (world.chunks[x, z]) {
-					test.Add(world.chunks[x, z].updateTime);
-					totalChunks ++;
-					if (world.chunks[x, z].updateType == 1) totalUpdate1 ++;
-					if (world.chunks[x, z].updateType == 2) totalUpdate2 ++;
-					if (world.chunks[x, z].updateType == 3) totalUpdate3 ++;
-				}
-			}
-		}
+        for (int x=0; x<world.worldX/world.sectionSize; x++)
+        {
+            for (int z=0; z<world.worldZ/world.sectionSize; z++)
+            {
+                if (world.chunks [x, z])
+                {
+                    test.Add(world.chunks [x, z].updateTime);
+                    totalChunks ++;
+                    if (world.chunks [x, z].updateType == 1)
+                        totalUpdate1 ++;
+                    if (world.chunks [x, z].updateType == 2)
+                        totalUpdate2 ++;
+                    if (world.chunks [x, z].updateType == 3)
+                        totalUpdate3 ++;
+                }
+            }
+        }
 		
-		GUI.Label (new Rect (300, 10, 100, 20), world.startupTime.ToString() );
-		GUI.Label (new Rect (300, 20, 100, 20), world.runningTime.ToString() );
-		GUI.Label (new Rect (300, 30, 100, 20), Time.time.ToString() );
-		GUI.Label (new Rect (300, 40, 100, 20), Time.timeSinceLevelLoad.ToString() );
-		GUI.Label (new Rect (300, 50, 100, 20), Time.realtimeSinceStartup.ToString() );
+        GUI.Label(new Rect(300, 10, 100, 20), world.startupTime.ToString());
+        GUI.Label(new Rect(300, 20, 100, 20), world.runningTime.ToString());
+        GUI.Label(new Rect(300, 30, 100, 20), Time.time.ToString());
+        GUI.Label(new Rect(300, 40, 100, 20), Time.timeSinceLevelLoad.ToString());
+        GUI.Label(new Rect(300, 50, 100, 20), Time.realtimeSinceStartup.ToString());
 
-		int loadTime = (int) Time.realtimeSinceStartup - (int)Time.timeSinceLevelLoad;
-		int loadTest = (int)(((float)loadTime / 77f) * 100);
+        int loadTime = (int)Time.realtimeSinceStartup - (int)Time.timeSinceLevelLoad;
+        int loadTest = (int)(((float)loadTime / 77f) * 100);
 
-		GUI.Label (new Rect (300, 60, 200, 20), 
+        GUI.Label(new Rect(300, 60, 200, 20), 
 				string.Concat(
 		           	"Load time: ", loadTime.ToString(),
 				   	" (",
 		           	loadTest.ToString(),
 					"%)"
-				));
+        ));
 
 
-		GUI.Label (new Rect (10, 10, 100, 20), Time.timeSinceLevelLoad.ToString() );
+        GUI.Label(new Rect(10, 10, 100, 20), Time.timeSinceLevelLoad.ToString());
 
-		GUI.Label (new Rect (10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());
+        GUI.Label(new Rect(10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());
 
-		GUI.Label (new Rect (10, 50, 100, 20), time.fps.ToString());
+        GUI.Label(new Rect(10, 50, 100, 20), time.fps.ToString());
 
-	}
 
+        int hist = StatsEngine.GetSectionUpdate();
+        GUI.Label(new Rect(10, 70, 200, 20), "Updated Sections: " + hist.ToString());
+
+        float t1 = StatsEngine.GetSectionUpdateTime();
+        GUI.Label(new Rect(10, 80, 200, 20), "Updated Section Time: " + t1.ToString("0.00000"));
+
+
+    }
 }
