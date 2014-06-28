@@ -190,7 +190,7 @@ public class Section : MonoBehaviour
 	
 	
 	private Vector2 GetTexture(int type) {
-		return world.BlockManager.GetTexture ((byte) type);
+		return BlockManager.GetTexture ((byte) type);
 	}
 
 	void CubeTop (int x, int y, int z, byte block)
@@ -427,7 +427,6 @@ public class Section : MonoBehaviour
 		mesh.Optimize ();
 		mesh.RecalculateNormals ();
 
-
 		//Update the collider
 		col.sharedMesh = null;
 
@@ -441,7 +440,6 @@ public class Section : MonoBehaviour
 		newColliderTriangles.Clear ();
 
 		GenerateDayLight ();
-		//renderer.material.SetFloat ("_Sun", 0f);
 
 		newVertices.Clear ();
 		newUV.Clear ();

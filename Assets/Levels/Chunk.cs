@@ -36,11 +36,11 @@ public class Chunk : MonoBehaviour {
 
 	}
 
-	public void Init() {
+	public void Init(bool useSectionLoader) {
 		sections=new Section[Mathf.FloorToInt(worldY/sectionSize)];
 		//daylightData = new byte[sectionSize, worldY, sectionSize];
 		DefaultHeightMap();// sets the heightmap to be all -1 - used for section generation
-		GenColumn ();
+        GenColumn (useSectionLoader);
 		update = true;
 	}
 	
@@ -339,7 +339,7 @@ public class Chunk : MonoBehaviour {
     }
 
 
-	public void GenColumn(){
+	public void GenColumn(bool useSectionLoader){
 		
 
 		for (int y = (worldY/sectionSize) - 1; y >= 0; y--){
@@ -362,7 +362,13 @@ public class Chunk : MonoBehaviour {
 			sections[y].lightData = new byte[sectionSize,sectionSize,sectionSize];
 			sections[y].daylightData = new byte[sectionSize,sectionSize,sectionSize];
             sections[y].Id = y;
-			world.worldGenerator.CreateSection(sections[y]);
+
+            if (useSectionLoader) {
+                SectionLoader.RequestSection(sections[y]);
+            }
+			else {
+                PerlinWorldGenerator.CreateSection(sections[y]);
+            }
 
             SetHeightMapMaxMin();
 		}

@@ -26,9 +26,9 @@ namespace AssemblyCSharp
 		Water = 6
 	}
 
-	public class BlockManager
+	public static class BlockManager
 	{
-		private Block[] blockList = new Block[] {
+		private static Block[] blockList = new Block[] {
 				
 			new Block (BlockType.Air, 3, 3),
 			new Block (BlockType.Dirt,	0, 3),
@@ -43,12 +43,12 @@ namespace AssemblyCSharp
 			new Block (BlockType.Snow, 2, 1)
 		};
 
-		public Block GetBlock(byte id) 
+		public static Block GetBlock(byte id) 
 		{
 			return blockList [id];
 		}
 
-		public Vector2 GetTexture(byte id)
+		public static Vector2 GetTexture(byte id)
 		{
 			return blockList [id].Texture;
 		}

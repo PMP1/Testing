@@ -20,9 +20,9 @@ public class World : MonoBehaviour {
 
 
 	public WorldConfig configSettings;
-	public AbstractWorldGenerator worldGenerator;
+	//public AbstractWorldGenerator worldGenerator;
 
-	public BlockManager BlockManager { get; set; }
+	//public BlockManager BlockManager { get; set; }
 	public SectionColliderGenerator SectionCollider { get; set; }
 
 	public System.TimeSpan startupTime;
@@ -34,9 +34,7 @@ public class World : MonoBehaviour {
 		
 		//Sytem starting
 		start = System.DateTime.Now;
-
-		this.BlockManager = new BlockManager ();
-		this.SectionCollider = new SectionColliderGenerator ();
+        this.SectionCollider = new SectionColliderGenerator ();
 
 
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
@@ -44,10 +42,8 @@ public class World : MonoBehaviour {
 		                               
 		configSettings = new WorldConfig("PMP");
 		
-		worldGenerator = new PerlinWorldGenerator();
-		worldGenerator.SetSeed(configSettings.Seed);
-
-
+        PerlinWorldGenerator.Init();
+        PerlinWorldGenerator.SetSeed(configSettings.Seed);
 	}
 
 
@@ -62,7 +58,7 @@ public class World : MonoBehaviour {
 	/// <param name="x">The x coordinate.</param>
 	/// <param name="z">The z coordinate.</param>
 	/// <param name="dist">Dist.</param>
-	public void GenColumn(int x, int z, float dist){
+	public void GenColumn(int x, int z, float dist, bool useSectionLoader){
 
 		GameObject newChunkColumn= Instantiate(chunk,new Vector3(x*sectionSize-0.5f,
 		                                                               0*sectionSize+0.5f,
@@ -78,7 +74,7 @@ public class World : MonoBehaviour {
 		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
 		chunks [x, z].useCollisionMatrix = dist < 132 ? true : false;
 		//worldGenerator.CreateChunk(chunks [x, z]);
-		chunks [x, z].Init ();
+        chunks [x, z].Init (useSectionLoader);
 
 	}
 	

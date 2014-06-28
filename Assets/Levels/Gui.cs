@@ -19,12 +19,12 @@ public class Gui : MonoBehaviour {
 	void Start () {
 		world=worldGO.GetComponent("World") as World;
 		
-		print( world.worldGenerator.GetTexturePixel("Temperature",0,0));
+		print( PerlinWorldGenerator.GetTexturePixel("Temperature",0,0));
 		
 		tempTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-				tempTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Temperature",i*1,j*1));
+                tempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Temperature",i*1,j*1));
 			}
 		}
 		tempTexture.Apply();
@@ -32,7 +32,7 @@ public class Gui : MonoBehaviour {
 		humidTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-				humidTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Humidity",i*1,j*1));
+                humidTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Humidity",i*1,j*1));
 			}
 		}
 		humidTexture.Apply();
@@ -40,7 +40,7 @@ public class Gui : MonoBehaviour {
 		terrainTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-				terrainTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Terrain",i*1,j*1));
+                terrainTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Terrain",i*1,j*1));
 			}
 		}
 		terrainTexture.Apply();
@@ -48,7 +48,7 @@ public class Gui : MonoBehaviour {
 		heightTexture = new Texture2D(500, 500, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 500; i++) {
 			for(int j = 0; j < 500; j++) {
-				heightTexture.SetPixel(i, j, world.worldGenerator.GetTexturePixel("Height",i*16,j*16));
+                heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Height",i*16,j*16));
 			}
 		}
 		heightTexture.Apply();

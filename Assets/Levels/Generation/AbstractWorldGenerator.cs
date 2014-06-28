@@ -13,18 +13,15 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
-	public abstract class AbstractWorldGenerator
+	public static class AbstractWorldGenerator
 	{
 	
-		private String seed;
-		private IBiomeGenerator biomeGenerator;
-		private List<IFirstPassGenerator> firstPassGenerators = new List<IFirstPassGenerator>();
+		private static String seed;
+		private static IBiomeGenerator biomeGenerator;
+		private static List<IFirstPassGenerator> firstPassGenerators = new List<IFirstPassGenerator>();
 		
-		public AbstractWorldGenerator ()
-		{
-		}
 		
-		public void SetSeed(string newSeed) {
+		public static void SetSeed(string newSeed) {
 			seed = newSeed;
 			
 			biomeGenerator = new BiomeGenerator(seed);
@@ -39,7 +36,7 @@ namespace AssemblyCSharp
 		/// Register the specified generator.
 		/// </summary>
 		/// <param name="generator">Generator.</param>
-		protected void Register(IFirstPassGenerator generator) {
+		public static void Register(IFirstPassGenerator generator) {
 			generator.SetBiomeGenerator(biomeGenerator);
 			generator.SetSeed(seed);
 			firstPassGenerators.Add(generator);
@@ -59,14 +56,14 @@ namespace AssemblyCSharp
 		/// Creates the chunk.
 		/// </summary>
 		/// <param name="chunk">Chunk.</param>
-		public void CreateSection(Section section) {
+		public static void CreateSection(Section section) {
 			foreach (IFirstPassGenerator generator in firstPassGenerators) {
 				generator.GenerateSection(section);
 			}
 		}
 		
 		//TODO add texture generation for debug
-		public Color GetTexturePixel(string layerName, int x, int z) {
+		public static Color GetTexturePixel(string layerName, int x, int z) {
 			float hum =0;
 			float temp = 0;
 			switch (layerName) {

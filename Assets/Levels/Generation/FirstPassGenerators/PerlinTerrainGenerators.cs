@@ -145,6 +145,7 @@ namespace AssemblyCSharp
 				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 512.0f + densityHills * 64.0f) * flatten);
 			}
 			return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
+            //-256 + (((32 + 32)) + 0 + 
 		}
 
 		private float CalcBaseTerrain(int x, int z)

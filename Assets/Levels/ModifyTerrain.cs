@@ -15,7 +15,7 @@ public class ModifyTerrain : MonoBehaviour {
 		world=gameObject.GetComponent("World") as World;
 		cameraGO=GameObject.FindGameObjectWithTag("MainCamera");
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,256); //needs to load at 256
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256, false); //needs to load at 256
 
 		//Need to call an inittial set of chunk updates here so that the lighting is rendered
 		for(int x = 0; x < world.chunks.GetLength(0); x++){ 
@@ -43,10 +43,10 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180);
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180, true);
 	}
 
-	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload){
+	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
 
 
 		for(int x=0;x<world.chunks.GetLength(0);x++){
@@ -57,7 +57,7 @@ public class ModifyTerrain : MonoBehaviour {
 				
 				if(dist<distToLoad){
 					if(world.chunks[x,z]==null){
-						world.GenColumn(x,z, dist);
+						world.GenColumn(x,z, dist, useSectionLoader);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {
 							world.chunks[x - 1, z].update = true;
 						}
