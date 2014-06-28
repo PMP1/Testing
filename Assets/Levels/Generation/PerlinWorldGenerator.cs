@@ -61,6 +61,17 @@ namespace AssemblyCSharp
                 generator.GenerateSection(section);
             }
         }
+
+        
+        /// <summary>
+        /// Creates the chunk.
+        /// </summary>
+        /// <param name="chunk">Chunk.</param>
+        public static void CreateChunk(Chunk2 chunk) {
+            foreach (IFirstPassGenerator generator in firstPassGenerators) {
+                generator.GenerateSection(chunk);
+            }
+        }
         
         //TODO add texture generation for debug
         public static Color GetTexturePixel(string layerName, int x, int z) {

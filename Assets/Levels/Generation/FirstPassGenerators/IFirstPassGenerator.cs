@@ -22,6 +22,8 @@ namespace AssemblyCSharp
 		/// </summary>
 		/// <param name="section">Section.</param>
 		void GenerateSection(Section section);
+
+        void GenerateChunk(Chunk2 chunk);
 		
 		void SetBiomeGenerator(IBiomeGenerator generator);
 		
