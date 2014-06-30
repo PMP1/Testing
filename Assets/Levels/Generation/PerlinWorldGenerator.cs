@@ -69,7 +69,7 @@ namespace AssemblyCSharp
         /// <param name="chunk">Chunk.</param>
         public static void CreateChunk(Chunk2 chunk) {
             foreach (IFirstPassGenerator generator in firstPassGenerators) {
-                generator.GenerateSection(chunk);
+                generator.GenerateChunk(chunk);
             }
         }
         

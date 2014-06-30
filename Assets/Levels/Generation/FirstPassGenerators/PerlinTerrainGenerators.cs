@@ -151,7 +151,7 @@ namespace AssemblyCSharp
                 for (int z = 0; z < sectionSize; z++)
                 {
                     BiomeType type = this._biomeGenerator.GetBiomeAt(posX + x, posZ + z);
-                    chunk.setBiomeMap(x, z, (byte)type);
+                    chunk.SetBiomeMap(x, z, (byte)type);
 
                     int firstBlockHeight = -1;
                     
@@ -161,7 +161,7 @@ namespace AssemblyCSharp
                         if (y <= 32)
                         {
                             //ocean
-                            data [x + 16 * (y + 256 * z)] = BlockType.Water;
+                            data [x + 16 * (y + 256 * z)] = (byte)BlockType.Water;
                             chunk.containsWater = true;
                             continue;
                         }
@@ -175,7 +175,7 @@ namespace AssemblyCSharp
                             if (firstBlockHeight == -1)
                             {
                                 firstBlockHeight = y;
-                                chunk.setHeightMap(x, z) = y;
+                                chunk.SetHeightMap(x, z, (byte)y);
                             }
                             
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.7)
@@ -193,7 +193,7 @@ namespace AssemblyCSharp
                             if (firstBlockHeight == -1)
                             {
                                 firstBlockHeight = y;
-                                chunk.setHeightMap(x, z) = y;
+                                chunk.SetHeightMap(x, z, (byte)y);
                             }
                             
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.6)

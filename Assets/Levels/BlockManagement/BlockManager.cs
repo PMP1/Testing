@@ -30,21 +30,23 @@ namespace AssemblyCSharp
 	{
 		private static Block[] blockList = new Block[] {
 				
-			new Block (BlockType.Air, 3, 3),
-			new Block (BlockType.Dirt,	0, 3),
-			new Block (BlockType.Grass,0, 2),
-			new Block (BlockType.Stone,0, 1),
-			new Block (BlockType.Sand, 1, 3),
-			new Block (BlockType.Snow, 3, 3),
-			new Block (BlockType.Water, 0, 0),
-			new Block (BlockType.Snow, 1, 2),
-			new Block (BlockType.Snow, 1, 3),
-			new Block (BlockType.Snow, 2, 0),
-			new Block (BlockType.Snow, 2, 1)
+			new Block (BlockType.Air, 3, 3, 0),
+			new Block (BlockType.Dirt,	0, 3, 16),
+			new Block (BlockType.Grass,0, 2, 16),
+			new Block (BlockType.Stone,0, 1, 16),
+			new Block (BlockType.Sand, 1, 3, 16),
+			new Block (BlockType.Snow, 3, 3, 16),
+			new Block (BlockType.Water, 0, 0, 16),
+			new Block (BlockType.Snow, 1, 2, 16),
+			new Block (BlockType.Snow, 1, 3, 16),
+			new Block (BlockType.Snow, 2, 0, 16),
+			new Block (BlockType.Snow, 2, 1, 16)
 		};
 
 		public static Block GetBlock(byte id) 
 		{
+            if (id == null)
+                id = (byte)0;
 			return blockList [id];
 		}
 
@@ -52,6 +54,13 @@ namespace AssemblyCSharp
 		{
 			return blockList [id].Texture;
 		}
+
+        public static int GetLightOpacity(byte id)
+        {
+            if (id == null)
+                id = 0;
+            return blockList [id].LightOpacity;
+        }
 	}
 }
 

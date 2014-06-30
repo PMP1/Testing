@@ -21,12 +21,14 @@ namespace AssemblyCSharp
         //16*16 = 256
 
         Section2[] sections;
+        int firstSection; 
 
         byte[] biomeMap;
 
         byte[] heightMap;
         int maxHeight;
         int minHeight;
+
 
         bool[] daylightColumnUpdates;
 
@@ -77,21 +79,94 @@ namespace AssemblyCSharp
                     }
                 }
             }
+
+            SetFirstSection();
+        }
+
+        private void SetFirstSection()
+        {
+            for (int y = 15; y >= 0; y--)
+            {
+                if (this.sections[y] != null)
+                {
+                    this.firstSection = y;
+                    return;
+                }
+            }
         }
 
         /// <summary>
         /// A quickway to update a height, used during generation
         /// </summary>
-        /// <param name="x">The x coordinate.</param>
+        /// <param name="x">The x coordinate.</pforaram>
         /// <param name="z">The z coordinate.</param>
         /// <param name="height">Height.</param>
-        public void setHeightMap(int x, int z, byte height) {
+        public void SetHeightMap(int x, int z, byte height) 
+        {
             this.heightMap[ x + 16 * z] = height;
         }
 
-        public void setBiomeMap(int x, int z, byte biome) {
+        public void SetBiomeMap(int x, int z, byte biome) 
+        {
             this.biomeMap[ x + 16 * z] = biome;
         }
+
+        public byte GetBlockId(int x, int y, int z)
+        {
+            int secY = y / 16;
+            if (sections.Length < secY)
+                return 0;
+
+            Section2 sec = this.sections [secY];
+
+            if (sec == null)
+            {
+                return 0;
+            } else
+            {
+                int secYPos = y - (secY * 16); //TODO check this for speed issues
+                return sec.GetBlockId(x, secYPos, z);
+            }
+        }
+
+        #region light operators
+
+        public int GetLightOpacity(int x, int y, int z) 
+        {
+            return BlockManager.GetLightOpacity(GetBlockId(x, y, z));
+        }
+
+        public void GenerateDaylight() 
+        {
+            //bool secChanged[] = false;
+            for (int x = 0; x < 16; x++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    for (int y = (this.firstSection * sectionSize) + sectionSize - 1; y > 0; y --)
+                    {
+
+                        int lightLevel = 15;
+
+                        lightLevel -= this.GetLightOpacity(x, y, z);
+                        if (lightLevel > 0) {
+                            Section2 sec = this.sections[y /16];
+                            sec.SetDatlightData(x, y, z, lightLevel);
+                        }
+
+                    }
+
+                    this.daylightColumnUpdates[x + 16 * z] = true;
+                }
+            }
+        }
+
+        public void SpreadDaylight()
+        {
+
+        }
+
+        #endregion
     }
 }
 
