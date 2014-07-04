@@ -29,6 +29,10 @@ public class World : MonoBehaviour {
 	public System.TimeSpan runningTime;
 	private System.DateTime start;
 	// Use this for initialization
+
+    public ChunkManager chunkManager;
+
+
 	void Awake() {
 	
 		
@@ -44,6 +48,9 @@ public class World : MonoBehaviour {
 		
         PerlinWorldGenerator.Init();
         PerlinWorldGenerator.SetSeed(configSettings.Seed);
+
+
+        chunkManager = new ChunkManager(gameObject.GetComponent("World") as World);
 	}
 
 

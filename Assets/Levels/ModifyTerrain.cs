@@ -15,15 +15,18 @@ public class ModifyTerrain : MonoBehaviour {
 		world=gameObject.GetComponent("World") as World;
 		cameraGO=GameObject.FindGameObjectWithTag("MainCamera");
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256, false); //needs to load at 256
+
+
+
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,10,256, false); //needs to load at 256
 
 		//Need to call an inittial set of chunk updates here so that the lighting is rendered
-		for(int x = 0; x < world.chunks.GetLength(0); x++){ 
+		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
 			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
 				if (world.chunks[x, z])
 					world.chunks[x, z].DoUpdate();
 			}
-		}
+		}*/
 
 
 		//this will then give us a true start up time
@@ -43,7 +46,7 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180, true);
+		//LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180, true);
 	}
 
 	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
@@ -56,7 +59,10 @@ public class ModifyTerrain : MonoBehaviour {
 				                                        z*world.sectionSize),new Vector2(playerPos.x,playerPos.z));
 				
 				if(dist<distToLoad){
-					if(world.chunks[x,z]==null){
+
+                    world.chunkManager.LoadChunk(x, z);
+
+					/*if(world.chunks[x,z]==null){
 						world.GenColumn(x,z, dist, useSectionLoader);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {
 							world.chunks[x - 1, z].update = true;
@@ -78,7 +84,7 @@ public class ModifyTerrain : MonoBehaviour {
 					if(world.chunks[x,z]!=null){
 						
 						world.UnloadColumn(x,z);
-					}
+					}*/
 				}
 			}
 		}

@@ -18,6 +18,7 @@ namespace AssemblyCSharp
 		public Vector2 Texture {get; set; }
 		public Vector2 TextureTop {get; set; }
         public int LightOpacity { get; set; }
+         
 
 		public Block(BlockType type, int texX, int texY, int opacity)
 		{

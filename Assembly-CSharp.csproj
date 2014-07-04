@@ -52,7 +52,9 @@
      <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Chunk2.cs" />
      <Compile Include="Assets\Levels\ChunkManager\ChunkManager.cs" />
+     <Compile Include="Assets\Levels\ChunkManager\ChunkRenderer.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Section2.cs" />
+     <Compile Include="Assets\Levels\ChunkManager\SectionGO.cs" />
      <Compile Include="Assets\Levels\Generation\AbstractWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\BiomeGenerator.cs" />
      <Compile Include="Assets\Levels\Generation\BiomeType.cs" />

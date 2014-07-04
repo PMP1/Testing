@@ -17,12 +17,21 @@ namespace AssemblyCSharp
         byte[] daylightData;
         byte[] lightData;
 
-        public Section2()
+        public int posY; 
+
+        public SectionGO sectionGO;
+
+        public Section2(int y)
         {
+            this.posY = y;
+            data = new byte[4096];
+            daylightData = new byte[4096];
+            lightData = new byte[4096];
         }
 
-        public Section2(byte[] data)
+        public Section2(int y, byte[] data)
         {
+            this.posY = y;
             this.data = data;
         }
 
@@ -54,7 +63,7 @@ namespace AssemblyCSharp
         #region Light Access
         public void SetDatlightData(int x, int  y, int z, int level) 
         {
-            this.SetDAylightData( + 16 * (y + 256 * z), level);
+            this.SetDAylightData(x + 16 * (y + 256 * z), level);
         }
 
         public void SetDAylightData(int xyz, int level)

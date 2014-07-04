@@ -10,18 +10,121 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
-
+using UnityEngine;
 
 namespace AssemblyCSharp
 {
     public class ChunkManager
     {
+        Hashtable chunkCollection = new Hashtable();
 
-        List<Section2> sectionCollection = new List<Section2>(); 
+        public GameObject worldGO;
+        public World world;
+        //AbstractWorldGenerator worldGenerator;
 
-        public ChunkManager()
+        ChunkRenderer renderer;
+
+        public ChunkManager(World world)
         {
+            this.world = world;
+            this.renderer = new ChunkRenderer(this);
+            //TODO convert generator from static class
+            //worldGenerator = new PerlinWorldGenerator();
+            //worldGenerator.init();
+            //worldGenerator.setSeed(world.configSettings.Seed());
         }
+
+        public void LoadChunk(int x, int z) 
+        {
+            Chunk2 chunk = new Chunk2(this, x, z);
+
+            PerlinWorldGenerator.CreateChunk(chunk);
+
+            chunkCollection.Add(x + ":" + z, chunk);
+
+            chunk.isDataLoaded = true;
+        }
+
+        public void UnLoadChunk(int x, int z)
+        {
+
+        }
+
+        public void SaveChunk(int x, int z)
+        {
+
+        }
+
+        public Chunk2 GetChunk(int x, int z)
+        {
+            //TODO should I have the concept of an empty chunk?
+            Chunk2 chunk = (Chunk2)chunkCollection [x + ":" + z];
+            return chunk;
+        }
+
+        public int GetBlockId(int x, int y, int z)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return 0;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+                int xSectionPos = x % 16;
+                int zSectionPos = z % 16;
+
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                return chunk.GetBlockId(xSectionPos, y, zSectionPos);
+            }
+        }
+
+        public Block GetBlock(int x, int y, int z)
+        {
+            return BlockManager.GetBlock((byte)this.GetBlockId(x, y, z));
+        }
+
+        public int GetHeightAt(int x, int z)
+        {
+            int xPos = x / 16;
+            int zPos = z / 16;
+            int xSectionPos = x % 16;
+            int zSectionPos = z % 16;
+            
+            Chunk2 chunk = this.GetChunk(xPos, zPos);
+            return chunk.heightMap[xSectionPos + 16 * zSectionPos];
+        }
+
+
+        #region Chunk Exists
+        public bool DoChunksExist(int x, int y, int z, int blockDist)
+        {
+            return this.DoChunksExist(x - blockDist, x + blockDist, y - blockDist, y + blockDist, z - blockDist, z + blockDist);
+        }
+
+        public bool DoChunksExist(int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
+        {
+
+            for (int x = minX; x <= maxX; x++)
+            {
+                for (int z = minZ; z<= minZ; z++)
+                {
+                    if (!this.DoesChunkExist(x, z))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        public bool DoesChunkExist(int x, int y)
+        {
+            if (chunkCollection.Contains(x + ":" + y))
+                return true;
+            return false;
+        }
+        #endregion
+
+
     }
 }
 

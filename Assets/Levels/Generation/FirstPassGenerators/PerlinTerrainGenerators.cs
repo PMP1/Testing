@@ -131,7 +131,7 @@ namespace AssemblyCSharp
             int heightY = chunk.yHeight;
             byte[] data = new byte[sectionSize * sectionSize * heightY];
             
-            float[,,] densityMap = new float[sectionSize + 1, sectionSize + 1, sectionSize + 1];
+            float[,,] densityMap = new float[sectionSize + 1, heightY + 1, sectionSize + 1];
             
             for (int x = 0; x <= sectionSize; x += SAMPLE_RATE_XZ)
             {

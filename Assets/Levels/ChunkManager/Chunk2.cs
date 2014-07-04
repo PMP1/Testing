@@ -18,16 +18,18 @@ namespace AssemblyCSharp
         public int yHeight;
         int sectionSize = 16;
 
+        public ChunkManager manager;
+
         //16*16 = 256
 
         Section2[] sections;
-        int firstSection; 
+        public int firstSection; 
 
         byte[] biomeMap;
 
-        byte[] heightMap;
-        int maxHeight;
-        int minHeight;
+        public byte[] heightMap;
+        public int maxHeight;
+        public int minHeight;
 
 
         bool[] daylightColumnUpdates;
@@ -35,19 +37,26 @@ namespace AssemblyCSharp
 
         public bool containsWater = false;
 
+        public bool isDataLoaded = false;
+        public bool isDaylightCalculated = false;
+        public bool isLightCalculated = false;
 
         //section = 4096
 
         //all 65536
-        public Chunk2(int x, int z)
+        public Chunk2(ChunkManager manager, int x, int z)
         {
             zPosition = x;
             zPosition = z;
+            yHeight = 256;
+
+            this.manager = manager;
 
             sections = new Section2[sectionSize];
             biomeMap = new byte[sectionSize * sectionSize];
             heightMap = new byte[sectionSize * sectionSize];
             daylightColumnUpdates = new bool[sectionSize * sectionSize];
+
 
 
         }
@@ -64,17 +73,17 @@ namespace AssemblyCSharp
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        int xyz = x + 16 * (y + 256 * z);
-                        byte block = chunkData[xyz];//TODO CHECK THIS
+                        //int xyz = x + 16 * (y + 256 * z);
+                        byte block = chunkData[x + 16 * (y + 256 * z)];//TODO CHECK THIS
 
                         if (block != 0) {
 
                             int section = height / 16;
-                            if (sections[section] == null) {
-                                sections[section] = new Section2();
+                            if (sections[section - 1] == null) {
+                                sections[section - 1] = new Section2(section - 1);
                             }
 
-                            sections[section].SetBlockId(xyz, block);
+                            sections[section - 1].SetBlockId(x + 16 * (y + 16 * z), block);
                         }
                     }
                 }
@@ -93,6 +102,14 @@ namespace AssemblyCSharp
                     return;
                 }
             }
+        }
+
+        public Section2 GetSection(int y)
+        {
+            if (y > this.firstSection)
+                return null;
+
+            return this.sections [y];
         }
 
         /// <summary>
@@ -129,6 +146,12 @@ namespace AssemblyCSharp
             }
         }
 
+
+        public bool hasNeighbours(int x, int y, int z, int blockDist)
+        {
+            return manager.DoChunksExist(x, y, z, blockDist);
+        }
+
         #region light operators
 
         public int GetLightOpacity(int x, int y, int z) 
@@ -151,7 +174,7 @@ namespace AssemblyCSharp
                         lightLevel -= this.GetLightOpacity(x, y, z);
                         if (lightLevel > 0) {
                             Section2 sec = this.sections[y /16];
-                            sec.SetDatlightData(x, y, z, lightLevel);
+                            sec.SetDatlightData(x, y % 16, z, lightLevel);
                         }
 
                     }
