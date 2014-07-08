@@ -141,8 +141,11 @@ Camera:
     m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
   m_HDR: 0
   m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: .0219999999
 --- !u!4 &421093337
 Transform:
   m_ObjectHideFlags: 0
@@ -154,6 +157,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 0
 --- !u!1 &500331163
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,6 +192,7 @@ MonoBehaviour:
   worldY: 256
   worldZ: 512
   section: {fileID: 100000, guid: 672482c107a30084093a8e62d0417e67, type: 2}
+  sectionGO: {fileID: 100000, guid: 5b4053eef7cfd744ba916993d8857db9, type: 2}
   chunk: {fileID: 100000, guid: d890fdf17fb4b41419fd2ac607f4738a, type: 2}
   sectionSize: 16
   time: {fileID: 500331167}
@@ -203,6 +208,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
+  m_RootOrder: 2
 --- !u!114 &500331166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,8 +386,11 @@ Camera:
     m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
   m_HDR: 0
   m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: .0219999999
 --- !u!4 &1483025149
 Transform:
   m_ObjectHideFlags: 0
@@ -393,6 +402,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1838601263}
+  m_RootOrder: 1
 --- !u!1 &1838601262
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,6 +435,7 @@ Transform:
   - {fileID: 1963834693}
   - {fileID: 1483025149}
   m_Father: {fileID: 0}
+  m_RootOrder: 1
 --- !u!114 &1838601264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,6 +566,7 @@ Transform:
   m_LocalScale: {x: .400000006, y: .5, z: .400000006}
   m_Children: []
   m_Father: {fileID: 1838601263}
+  m_RootOrder: 0
 --- !u!23 &1963834694
 Renderer:
   m_ObjectHideFlags: 0
@@ -574,9 +586,8 @@ Renderer:
   m_UseLightProbes: 0
   m_LightProbeAnchor: {fileID: 0}
   m_ScaleInLightmap: 1
-  m_SortingLayer: 0
-  m_SortingOrder: 0
   m_SortingLayerID: 0
+  m_SortingOrder: 0
 --- !u!33 &1963834695
 MeshFilter:
   m_ObjectHideFlags: 0

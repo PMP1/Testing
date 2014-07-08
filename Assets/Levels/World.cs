@@ -10,6 +10,7 @@ public class World : MonoBehaviour {
 	public int worldZ=16;
 
 	public GameObject section;
+    public GameObject sectionGO;
 	public GameObject chunk;
 	public Chunk[,] chunks; 
 	public int sectionSize=16;
@@ -31,6 +32,7 @@ public class World : MonoBehaviour {
 	// Use this for initialization
 
     public ChunkManager chunkManager;
+   // public ChunkRenderer chunkRenderer;
 
 
 	void Awake() {
@@ -51,6 +53,7 @@ public class World : MonoBehaviour {
 
 
         chunkManager = new ChunkManager(gameObject.GetComponent("World") as World);
+        //chunkRenderer = new ChunkRenderer(chunkManager, gameObject.GetComponent("World") as World);
 	}
 
 
@@ -89,4 +92,10 @@ public class World : MonoBehaviour {
 
 		Object.Destroy(chunks [x, z].gameObject);
 	}
+
+    public GameObject CreateSectionGO(Chunk2 chunk, Section2 sec) {
+        return Instantiate(sectionGO, 
+                           new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
+                           new Quaternion(0, 0, 0, 0)) as GameObject;
+    }
 }

@@ -126,8 +126,8 @@ namespace AssemblyCSharp
         public void GenerateChunk(Chunk2 chunk) 
         {
             int sectionSize = 16;
-            int posX = chunk.xPosition;
-            int posZ = chunk.zPosition;
+            int posX = chunk.xPosition * 16;
+            int posZ = chunk.zPosition * 16;
             int heightY = chunk.yHeight;
             byte[] data = new byte[sectionSize * sectionSize * heightY];
             
@@ -137,7 +137,7 @@ namespace AssemblyCSharp
             {
                 for (int z = 0; z <= sectionSize; z += SAMPLE_RATE_XZ)
                 {
-                    for (int y = 0; y <= sectionSize; y += SAMPLE_RATE_Y)
+                    for (int y = 0; y <= heightY; y += SAMPLE_RATE_Y)
                     {
                         densityMap [x, y, z] = CalculateDensity(posX + x, y, posZ + z);
                     }
@@ -161,7 +161,11 @@ namespace AssemblyCSharp
                         if (y <= 32)
                         {
                             //ocean
-                            data [x + 16 * (y + 256 * z)] = (byte)BlockType.Water;
+                            //row + Self.width * (col + Self.height * layer)
+                            //x + 16 * (z * 16 + y)
+                            //16 + 16 *(256 + 16)
+                            //16 + 16 * (512)
+                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Water;
                             chunk.containsWater = true;
                             continue;
                         }
@@ -183,7 +187,7 @@ namespace AssemblyCSharp
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
                             {
-                                data [x + 16 * (y + 256 * z)] = (byte)BlockType.Air;
+                                data [x + 16 * (z + 16 * y)] = (byte)BlockType.Air;
                             }
                             
                             continue;
@@ -201,7 +205,7 @@ namespace AssemblyCSharp
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
                             {
-                                data [x + 16 * (y + 256 * z)] = (byte)BlockType.Air;
+                                data [x + 16 * (z + 16 * y)] = (byte)BlockType.Air;
                             }
                             
                             continue;
@@ -296,9 +300,9 @@ namespace AssemblyCSharp
         private void triLerpDensityMap(float[,,] densityMap) {
             int sectionSize = 16;
             
-            for (int x = 0; x < sectionSize; x++) {
-                for (int y = 0; y < sectionSize; y++) {
-                    for (int z = 0; z < sectionSize; z++) {
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 256; y++) {
+                    for (int z = 0; z < 16; z++) {
                         if (!(x % SAMPLE_RATE_XZ == 0 && y % SAMPLE_RATE_Y == 0 && z % SAMPLE_RATE_XZ == 0)) {
                             int offsetX = (x / SAMPLE_RATE_XZ) * SAMPLE_RATE_XZ;
                             int offsetY = (y / SAMPLE_RATE_Y) * SAMPLE_RATE_Y;

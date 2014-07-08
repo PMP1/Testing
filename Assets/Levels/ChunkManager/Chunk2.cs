@@ -46,7 +46,7 @@ namespace AssemblyCSharp
         //all 65536
         public Chunk2(ChunkManager manager, int x, int z)
         {
-            zPosition = x;
+            xPosition = x;
             zPosition = z;
             yHeight = 256;
 
@@ -74,22 +74,24 @@ namespace AssemblyCSharp
                     for (int y = 0; y < height; y++)
                     {
                         //int xyz = x + 16 * (y + 256 * z);
-                        byte block = chunkData[x + 16 * (y + 256 * z)];//TODO CHECK THIS
+                        byte block = chunkData[x + 16 * (z + 16 * y)];//TODO CHECK THIS
 
                         if (block != 0) {
 
-                            int section = height / 16;
-                            if (sections[section - 1] == null) {
-                                sections[section - 1] = new Section2(section - 1);
+                            int section = y / 16;
+                            if (sections[section] == null) {
+                                sections[section] = new Section2(section);
                             }
 
-                            sections[section - 1].SetBlockId(x + 16 * (y + 16 * z), block);
+                            sections[section].SetBlockId(x, y % 16, z, block);
                         }
                     }
                 }
             }
 
             SetFirstSection();
+            GenerateDaylight(); //TODO remove this to milti threaded
+
         }
 
         private void SetFirstSection()

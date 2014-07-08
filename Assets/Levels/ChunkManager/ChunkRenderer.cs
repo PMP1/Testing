@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class ChunkRenderer: MonoBehaviour
+    public class ChunkRenderer
     {
         public GameObject sectionGo;
         private World world;
@@ -32,9 +32,10 @@ namespace AssemblyCSharp
 
         private int faceCount = 0;
 
-        public ChunkRenderer(ChunkManager manager)
+        public ChunkRenderer(ChunkManager manager, World world)
         {
             this.chunkManager = manager;
+            this.world = world;
         }
 
         private bool smoothLighting = true;
@@ -43,7 +44,7 @@ namespace AssemblyCSharp
         {
             int firstSection = chunk.firstSection;
 
-            for (int secY = firstSection; secY >= 0; secY++) 
+            for (int secY = firstSection; secY >= 0; secY--) 
             {
                 Section2 section = chunk.GetSection(secY);
                 RenderSection(section, chunk);
@@ -54,16 +55,23 @@ namespace AssemblyCSharp
         {
             GenerateMesh(sec, chunk);
 
-            GameObject newSectionGO = Instantiate(sectionGo, 
+            GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
+
+            /*GameObject newSectionGO = Instantiate(sectionGo, 
                                                   new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
                                                   new Quaternion(0, 0, 0, 0)) as GameObject;
+            */
+
             sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
-            sec.sectionGO.SetMesh(newUV, newVertices, newTriangles);
+            sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
 
             newUV.Clear();
             newVertices.Clear();
             newTriangles.Clear();
+            newColor.Clear();
             faceCount = 0;
+
+            sec.sectionGO.Test();
         }
 
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
@@ -82,9 +90,9 @@ namespace AssemblyCSharp
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        posx = x + chunkx;
+                        posx = x + (chunkx * 16);
                         posy = y + (section.posY * 16);
-                        posz = z + chunkz;
+                        posz = z + (chunkz * 16);
 
                         Block block = this.chunkManager.GetBlock(posx, posy, posz);
 
@@ -97,7 +105,7 @@ namespace AssemblyCSharp
                             Block blockS = this.chunkManager.GetBlock(posx, posy, posz - 1);
                             Block blockW = this.chunkManager.GetBlock(posx - 1, posy, posz);
 
-                            if (blockT.BlockType == BlockType.Air || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
+                            if (blockT.BlockType == BlockType.Air)// || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
                             {
                                 CubeTop(posx,posy, posz, block);
                             }
@@ -118,6 +126,8 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
+
+            CubeLight(0, 0, 0, 0);
         }
 
         private void CubeNorth (int x, int y, int z, Block block)
@@ -129,6 +139,8 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
+
+            CubeLight(0, 0, 0, 0);
         }
 
         private void CubeEast (int x, int y, int z, Block block)
@@ -140,6 +152,8 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
+
+            CubeLight(0, 0, 0, 0);
         }
 
         
@@ -152,6 +166,8 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
+
+            CubeLight(0, 0, 0, 0);
         }
 
 
@@ -165,6 +181,8 @@ namespace AssemblyCSharp
 
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
+
+            CubeLight(0, 0, 0, 0);
         }
 
         private void CubeBot (int x, int y, int z, Block block)
@@ -177,7 +195,8 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-            
+
+            CubeLight(0, 0, 0, 0);
         }
 
         

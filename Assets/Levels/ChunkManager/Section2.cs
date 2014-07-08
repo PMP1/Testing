@@ -39,18 +39,26 @@ namespace AssemblyCSharp
 
         public void SetBlockId(int x, int y, int z, byte block) 
         {
-            this.SetBlockId(x + 16 * (y + 256 * z), block);
+            this.SetBlockId(x + 16 * (z + 16 * y), block);
         }
 
         public void SetBlockId(int xyz, byte block)
         {
+            try 
+            {
             this.data [xyz] = block;
             //this may be a good place to check to see if an update is needed?
+            }
+            catch
+            {
+                int i = 0;
+
+            }
         }
 
         public byte GetBlockId(int x, int y, int z)
         {
-            return this.GetBlockId(x + 16 * (y + 256 * z));
+            return this.GetBlockId(x + 16 * (z + 16 * y));
         }
 
         public byte GetBlockId(int xyz)
@@ -63,7 +71,7 @@ namespace AssemblyCSharp
         #region Light Access
         public void SetDatlightData(int x, int  y, int z, int level) 
         {
-            this.SetDAylightData(x + 16 * (y + 256 * z), level);
+            this.SetDAylightData(x + 16 * (z + 16 * y), level);
         }
 
         public void SetDAylightData(int xyz, int level)

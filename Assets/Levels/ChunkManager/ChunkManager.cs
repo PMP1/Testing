@@ -27,7 +27,7 @@ namespace AssemblyCSharp
         public ChunkManager(World world)
         {
             this.world = world;
-            this.renderer = new ChunkRenderer(this);
+            this.renderer = new ChunkRenderer(this, world);
             //TODO convert generator from static class
             //worldGenerator = new PerlinWorldGenerator();
             //worldGenerator.init();
@@ -43,6 +43,8 @@ namespace AssemblyCSharp
             chunkCollection.Add(x + ":" + z, chunk);
 
             chunk.isDataLoaded = true;
+
+            renderer.RenderChunk(chunk);
         }
 
         public void UnLoadChunk(int x, int z)
@@ -75,6 +77,11 @@ namespace AssemblyCSharp
                 int zSectionPos = z % 16;
 
                 Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return (int)BlockType.Air;
+                    //throw new ArgumentNullException();
+                }
                 return chunk.GetBlockId(xSectionPos, y, zSectionPos);
             }
         }

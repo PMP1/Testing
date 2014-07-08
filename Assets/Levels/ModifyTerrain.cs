@@ -61,7 +61,7 @@ public class ModifyTerrain : MonoBehaviour {
 				if(dist<distToLoad){
 
                     world.chunkManager.LoadChunk(x, z);
-
+                    //world.chunkRenderer.RenderChunk(world.chunkManager.GetChunk(x, z));
 					/*if(world.chunks[x,z]==null){
 						world.GenColumn(x,z, dist, useSectionLoader);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {

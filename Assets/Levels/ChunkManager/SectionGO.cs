@@ -12,79 +12,105 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AssemblyCSharp
-{
 
-public class SectionGO: MonoBehaviour
-{
 
-    
-    private List<Vector3> newColliderVertices = new List<Vector3> ();
-    private List<int> newColliderTriangles = new List<int> ();
-    
-    private List<Color> newColor = new List<Color> ();
-    private float tUnit = 0.25f;
-
-    private Mesh mesh;
-    private MeshCollider col;
-    private int faceCount;
-    private int colliderFaceCount;
-
-    public SectionGO()
-    {
-    }
-
-    // Use this for initialization
-    void Start ()
-    { 
-        mesh = GetComponent<MeshFilter> ().mesh;
-        col = GetComponent<MeshCollider> ();
-    }
-    
-    // Update is called once per frame
-    void Update ()
-    {
-        
-    }
-    
-    void LateUpdate () 
+    public class SectionGO: MonoBehaviour
     {
 
-    }
+        private List<Vector3> newVertices = new List<Vector3> ();
+        private List<int> newTriangles = new List<int> ();
+        private List<Vector2> newUV = new List<Vector2> ();
+        private List<Vector3> newColliderVertices = new List<Vector3> ();
+        private List<int> newColliderTriangles = new List<int> ();
+        
+        private List<Color> newColor = new List<Color> ();
+        private float tUnit = 0.25f;
 
-    public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles)
+        private Mesh mesh;
+        private MeshCollider col;
+        private int faceCount;
+        private int colliderFaceCount;
+
+        private bool updateMesh = false;
+
+        public SectionGO()
+        {
+            //mesh = GetComponent<MeshFilter>().mesh;
+            //col = GetComponent<MeshCollider>();
+        }
+
+
+        // Use this for initialization
+        void Start ()
+        { 
+            mesh = GetComponent<MeshFilter> ().mesh;
+            col = GetComponent<MeshCollider> ();   
+        }
+        
+        // Update is called once per frame
+        void Update ()
+        {
+            if (updateMesh)
+            {
+                UpdateMesh();
+                updateMesh = false;
+            }
+        }
+        
+        void LateUpdate () 
+        {
+
+        }
+
+        public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles, List<Color> newColors)
+        {
+            this.newUV = newUV;
+            this.newVertices = newVertices;
+            this.newTriangles = newTriangles;
+            this.newColor = newColors;
+            this.updateMesh = true;
+        }
+
+        public void Test() 
     {
-        mesh.Clear ();
-        mesh.vertices = newVertices.ToArray ();
-        mesh.uv = newUV.ToArray ();
-        mesh.colors = newColor.ToArray();
-        mesh.triangles = newTriangles.ToArray ();
-        mesh.Optimize ();
-        mesh.RecalculateNormals ();
-        
-        //Update the collider
-        /*col.sharedMesh = null;
-        
-        Mesh newMesh = new Mesh();
-        newMesh.vertices  = newColliderVertices.ToArray();
-        newMesh.triangles = newColliderTriangles.ToArray();
-        newMesh.RecalculateBounds();
-        col.sharedMesh = newMesh;
-        colliderFaceCount = 0;
-        newColliderVertices.Clear ();
-        newColliderTriangles.Clear ();
-        */
-        //GenerateDayLight ();
-        
-        //newVertices.Clear ();
-        //newUV.Clear ();
-        //newColor.Clear();
-        //newTriangles.Clear ();
-        
-        //faceCount = 0;
+        faceCount --;
+        faceCount++;
+    }
+
+        private void UpdateMesh()
+        {
+            mesh.Clear ();
+            mesh.vertices = newVertices.ToArray ();
+            mesh.uv = newUV.ToArray ();
+            mesh.colors = newColor.ToArray();
+            mesh.triangles = newTriangles.ToArray ();
+            mesh.Optimize ();
+            mesh.RecalculateNormals ();
+            
+            //Update the collider
+            /*col.sharedMesh = null;
+            
+            Mesh newMesh = new Mesh();
+            newMesh.vertices  = newColliderVertices.ToArray();
+            newMesh.triangles = newColliderTriangles.ToArray();
+            newMesh.RecalculateBounds();
+            col.sharedMesh = newMesh;
+            colliderFaceCount = 0;
+            newColliderVertices.Clear ();
+            newColliderTriangles.Clear ();
+            */
+            //GenerateDayLight ();
+            
+            //newVertices.Clear ();
+            //newUV.Clear ();
+            //newColor.Clear();
+            //newTriangles.Clear ();
+            
+            //faceCount = 0;
 
 
+        }
     }
-    }
-}
+
+
 
