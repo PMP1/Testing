@@ -119,12 +119,15 @@ public class TimeManager : MonoBehaviour {
     }
 
 	private void UpdateLight() {
-		for(int x = 0; x < world.chunks.GetLength(0); x++){ 
+
+        world.chunkManager.UpdateDaylight(this.previousDayLight);
+
+		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
 			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
 				if (world.chunks[x, z])
 					world.chunks[x, z].changeDayLight = true;
 			}
-		}
+		}*/
 	}
 
 	public byte GetDaylightLevel() {

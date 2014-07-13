@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AssemblyCSharp;
 
 public class SectionColliderGenerator
 {
@@ -36,78 +37,177 @@ public class SectionColliderGenerator
 	/// <summary>
 	/// Generates the collision mesh.
 	/// </summary>
-	public void GenerateCollisionMatrix (Section section)
-	{
-		SectionSize = section.sectionSize;
+    public void GenerateCollisionMatrix (Section section)
+    {
+        SectionSize = section.sectionSize;
+        
+        bool [,] meshTop =      new bool[SectionSize,SectionSize];
+        bool [,] meshBottom =   new bool[SectionSize,SectionSize];
+        bool [,] meshEast =     new bool[SectionSize,SectionSize];
+        bool [,] meshWest =     new bool[SectionSize,SectionSize];
+        bool [,] meshNorth =    new bool[SectionSize,SectionSize];
+        bool [,] meshSouth =    new bool[SectionSize,SectionSize];
+        
+        CurrentSection = section;
+        CurrentChunk = section.chunk; 
+        
+        
+        newColliderVertices = new List<Vector3> ();
+        newColliderTriangles = new List<int> ();
+        colliderFaceCount = 0;
+        
+        for (int y=0; y<SectionSize; y++) {
+            for (int x=0; x<SectionSize; x++) {
+                for (int z=0; z<SectionSize; z++) {
+                    if (Block (x, y, z) != 0) {
+                        if (Block (x, y + 1, z) <= 0) {
+                            meshTop[x, z] = true;
+                        }
+                        if (Block (x, y - 1, z) <= 0) {
+                            meshBottom[x, z] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshTop, y, 0);
+            CullCollisionMatrix(meshBottom, y, 1);
+        }
+        
+        for (int x=0; x < SectionSize; x++) {
+            for (int y=0; y < SectionSize; y++) {
+                for (int z=0; z < SectionSize; z++) {
+                    if (Block (x, y, z) != 0) {
+                        if (Block (x + 1, y, z) <= 0) {
+                            meshEast[y, z] = true;
+                        }
+                        if (Block (x - 1, y, z) <= 0) {
+                            meshBottom[y, z] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshEast, x, 3);
+            CullCollisionMatrix(meshBottom, x, 5);
+        }
+        
+        for (int z=0; z<SectionSize; z++) {
+            for (int x=0; x<SectionSize; x++) {
+                for (int y=0; y<SectionSize; y++) {
+                    if (Block (x, y, z) != 0) {
+                        if (Block (x, y, z + 1) <= 0) {
+                            meshNorth[y, x] = true;
+                        }
+                        if (Block (x, y, z - 1) <= 0) {
+                            meshSouth[y, x] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshNorth, z, 2);
+            CullCollisionMatrix(meshSouth, z, 4);
+        }
+        section.hasCollisionMatrix = true;
+        section.SetCollisionMesh (newColliderVertices, newColliderTriangles);
 
-		bool [,] meshTop = 		new bool[SectionSize,SectionSize];
-		bool [,] meshBottom = 	new bool[SectionSize,SectionSize];
-		bool [,] meshEast = 	new bool[SectionSize,SectionSize];
-		bool [,] meshWest = 	new bool[SectionSize,SectionSize];
-		bool [,] meshNorth = 	new bool[SectionSize,SectionSize];
-		bool [,] meshSouth = 	new bool[SectionSize,SectionSize];
+    }
 
-		CurrentSection = section;
-		CurrentChunk = section.chunk; 
+    public void GenerateCollisionMatrix(Chunk2 chunk)
+    {
+
+    }
+
+    public void GenerateCollisionMatrix (Section2 section, ref List<int> tris, ref List<Vector3> verts)
+    {
+        bool [,] meshTop = new bool[16, 16];
+        bool [,] meshBottom = new bool[16, 16];
+        bool [,] meshEast = new bool[16, 16];
+        bool [,] meshWest = new bool[16, 16];
+        bool [,] meshNorth = new bool[16, 16];
+        bool [,] meshSouth = new bool[16, 16];
+
+        int posY = section.posY * 16;
+        int posX = section.chunk.xPosition * 16;
+        int posZ = section.chunk.zPosition * 16;
+
+        newColliderVertices = new List<Vector3>();
+        newColliderTriangles = new List<int>();
+        colliderFaceCount = 0;
+        
+        for (int y = 0; y < 16; y++)
+        {
+            for (int x = 0; x < 16; x++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    if (section.GetBlockId(x, y, z) != (byte)0)
+                    {
+                        if (section.chunk.manager.GetBlockId(x + posX, y + posY + 1, z + posZ) <= (byte)0)
+                        {
+                            meshTop [x, z] = true;
+                        }
+                        if (section.chunk.manager.GetBlockId(x + posX, y + posY - 1, z + posZ) <= (byte)0)
+                        {
+                            meshBottom [x, z] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshTop, y, 0);
+            CullCollisionMatrix(meshBottom, y, 1);
+        }
 
 
-		newColliderVertices = new List<Vector3> ();
-		newColliderTriangles = new List<int> ();
-		colliderFaceCount = 0;
+        for (int x = 0; x < 16; x++)
+        {
+            for (int y = 0; y < 16; y++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    if (section.GetBlockId(x, y, z) != 0)
+                    {
+                        if (section.chunk.manager.GetBlockId(x + 1 + posX, y + posY, z + posZ) <= 0)
+                        {
+                            meshEast [y, z] = true;
+                        }
+                        if (section.chunk.manager.GetBlockId(x - 1 + posX, y + posY, z + posZ) <= 0)
+                        {
+                            meshBottom [y, z] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshEast, x, 3);
+            CullCollisionMatrix(meshBottom, x, 5);
+        }
 
-		for (int y=0; y<SectionSize; y++) {
-			for (int x=0; x<SectionSize; x++) {
-				for (int z=0; z<SectionSize; z++) {
-					if (Block (x, y, z) != 0) {
-						if (Block (x, y + 1, z) <= 0) {
-							meshTop[x, z] = true;
-						}
-						if (Block (x, y - 1, z) <= 0) {
-							meshBottom[x, z] = true;
-						}
-					}
-				}
-			}
-			CullCollisionMatrix(meshTop, y, 0);
-			CullCollisionMatrix(meshBottom, y, 1);
-		}
-		
-		for (int x=0; x < SectionSize; x++) {
-			for (int y=0; y < SectionSize; y++) {
-				for (int z=0; z < SectionSize; z++) {
-					if (Block (x, y, z) != 0) {
-						if (Block (x + 1, y, z) <= 0) {
-							meshEast[y, z] = true;
-						}
-						if (Block (x - 1, y, z) <= 0) {
-							meshBottom[y, z] = true;
-						}
-					}
-				}
-			}
-			CullCollisionMatrix(meshEast, x, 3);
-			CullCollisionMatrix(meshBottom, x, 5);
-		}
-		
-		for (int z=0; z<SectionSize; z++) {
-			for (int x=0; x<SectionSize; x++) {
-				for (int y=0; y<SectionSize; y++) {
-					if (Block (x, y, z) != 0) {
-						if (Block (x, y, z + 1) <= 0) {
-							meshNorth[y, x] = true;
-						}
-						if (Block (x, y, z - 1) <= 0) {
-							meshSouth[y, x] = true;
-						}
-					}
-				}
-			}
-			CullCollisionMatrix(meshNorth, z, 2);
-			CullCollisionMatrix(meshSouth, z, 4);
-		}
-		section.hasCollisionMatrix = true;
-		section.SetCollisionMesh (newColliderVertices, newColliderTriangles);;
-	}
+        
+        for (int z=0; z<16; z++)
+        {
+            for (int x=0; x<16; x++)
+            {
+                for (int y=0; y<16; y++)
+                {
+                    if (section.GetBlockId(x, y, z) != 0)
+                    {
+                        if (section.chunk.manager.GetBlockId(x + posX, y + posY, z + posZ + 1) <= 0)
+                        {
+                            meshNorth [y, x] = true;
+                        }
+                        if (section.chunk.manager.GetBlockId(x + posX, y + posY, z + posZ - 1) <= 0)
+                        {
+                            meshSouth [y, x] = true;
+                        }
+                    }
+                }
+            }
+            CullCollisionMatrix(meshNorth, z, 2);
+            CullCollisionMatrix(meshSouth, z, 4);
+        }
+        //section.hasCollisionMatrix = true;
+        //section.SetCollisionMesh(newColliderVertices, newColliderTriangles);
+        tris = newColliderTriangles;
+        verts = newColliderVertices;
+    }
 
 
 	// top 0 bottom 1 N 2 E 3 S 4 W 5

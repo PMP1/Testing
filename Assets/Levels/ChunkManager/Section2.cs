@@ -19,14 +19,16 @@ namespace AssemblyCSharp
 
         public int posY; 
 
+        public Chunk2 chunk;
         public SectionGO sectionGO;
 
-        public Section2(int y)
+        public Section2(int y, Chunk2 cnk)
         {
             this.posY = y;
             data = new byte[4096];
             daylightData = new byte[4096];
             lightData = new byte[4096];
+            chunk = cnk;
         }
 
         public Section2(int y, byte[] data)

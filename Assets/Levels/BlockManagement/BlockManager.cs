@@ -15,7 +15,7 @@ using UnityEngine;
 namespace AssemblyCSharp
 {
 
-	public enum BlockType 
+	public enum BlockType:int 
 	{
 		Air = 0,
 		Dirt = 1,

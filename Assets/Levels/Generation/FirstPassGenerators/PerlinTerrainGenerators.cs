@@ -335,26 +335,26 @@ namespace AssemblyCSharp
                 case BiomeType.Woodland:
                     if (depth <= 3 && y > 28 && y <= 32)
                     {
-                        data [x + 16 * (y + 256 * z)] = (byte)BlockType.Sand;
+                        data [x + 16 * (z + 16 * y)] = (byte)BlockType.Sand;
                     } else if (depth == 0 && y > 32 && y < 170)
                     {
-                        data [x + 16 * (y + 256 * z)] = (byte)BlockType.Grass;
+                        data [x + 16 * (z + 16 * y)] = (byte)BlockType.Grass;
                     } else if (depth == 0 && y >= 240)
                     {
-                        data [x + 16 * (y + 256 * z)] = (byte)BlockType.Snow;
+                        data [x + 16 * (z + 16 * y)] = (byte)BlockType.Snow;
                     } else
                     {
-                        data [x + 16 * (y + 256 * z)] = (byte)BlockType.Stone;
+                        data [x + 16 * (z + 16 * y)] = (byte)BlockType.Stone;
                     } 
                     break;
                 case BiomeType.Desert:
-                    data [x + 16 * (y + 256 * z)] = (byte)BlockType.Sand;
+                    data [x + 16 * (z + 16 * y)] = (byte)BlockType.Sand;
                     break;
                 case BiomeType.Tundra:
-                    data [x + 16 * (y + 256 * z)] = (byte)BlockType.Snow;
+                    data [x + 16 * (z + 16 * y)] = (byte)BlockType.Snow;
                     break;
                 default: 
-                    data [x + 16 * (y + 256 * z)] = (byte)BlockType.Snow;
+                    data [x + 16 * (z + 16 * y)] = (byte)BlockType.Snow;
                     break;
             }
         }

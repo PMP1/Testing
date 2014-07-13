@@ -80,7 +80,7 @@ namespace AssemblyCSharp
 
                             int section = y / 16;
                             if (sections[section] == null) {
-                                sections[section] = new Section2(section);
+                                sections[section] = new Section2(section, this);
                             }
 
                             sections[section].SetBlockId(x, y % 16, z, block);
@@ -189,6 +189,21 @@ namespace AssemblyCSharp
         public void SpreadDaylight()
         {
 
+        }
+
+        public void UpdateDaylight(byte level)
+        {
+
+            for (int i = 0; i < 16; i++)
+            {
+                if (sections[i] != null)
+                {
+                    Section2 sec = sections[i];
+                    if (sec.sectionGO) {
+                        sec.sectionGO.SetDaylight(level);
+                    }
+                }
+            }
         }
 
         #endregion

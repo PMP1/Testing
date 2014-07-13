@@ -14,7 +14,7 @@ namespace AssemblyCSharp
 {
 	public class Block
 	{
-		public BlockType BlockType { get; set; }
+		public BlockType BlkType { get; set; }
 		public Vector2 Texture {get; set; }
 		public Vector2 TextureTop {get; set; }
         public int LightOpacity { get; set; }
@@ -22,14 +22,14 @@ namespace AssemblyCSharp
 
 		public Block(BlockType type, int texX, int texY, int opacity)
 		{
-			BlockType = type;
+            BlkType = type;
 			Texture = new Vector2 (texX, texY);
             LightOpacity = opacity;
 		}
 
 		public Block(BlockType type, int texX, int texY, int texXTop, int texYTop, int opacity)
 		{
-			BlockType = type;
+            BlkType = type;
 			Texture = new Vector2 (texX, texY);
 			Texture = new Vector2 (texXTop, texYTop);
             LightOpacity = opacity;

@@ -94,8 +94,11 @@ public class World : MonoBehaviour {
 	}
 
     public GameObject CreateSectionGO(Chunk2 chunk, Section2 sec) {
-        return Instantiate(sectionGO, 
+        GameObject go =  Instantiate(sectionGO, 
                            new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
-                           new Quaternion(0, 0, 0, 0)) as GameObject;
+                                     new Quaternion(0, 0, 0, 0)) as GameObject;
+
+        //go.world = gameObject.GetComponent("World") as World;
+        return go;
     }
 }

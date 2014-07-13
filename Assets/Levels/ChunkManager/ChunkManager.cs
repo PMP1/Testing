@@ -79,7 +79,7 @@ namespace AssemblyCSharp
                 Chunk2 chunk = this.GetChunk(xPos, zPos);
                 if (chunk == null) 
                 {
-                    return (int)BlockType.Air;
+                    return 3;
                     //throw new ArgumentNullException();
                 }
                 return chunk.GetBlockId(xSectionPos, y, zSectionPos);
@@ -88,7 +88,8 @@ namespace AssemblyCSharp
 
         public Block GetBlock(int x, int y, int z)
         {
-            return BlockManager.GetBlock((byte)this.GetBlockId(x, y, z));
+            int blockId = this.GetBlockId(x, y, z);
+            return BlockManager.GetBlock((byte)blockId);
         }
 
         public int GetHeightAt(int x, int z)
@@ -131,7 +132,18 @@ namespace AssemblyCSharp
         }
         #endregion
 
+        public void UpdateDaylight(byte light)
+        {
+           foreach (var key in chunkCollection.Keys)
+            {
+                ((Chunk2)chunkCollection[key]).UpdateDaylight(light);
+            }
 
+           /* for (int i = 0; i < chunkCollection.Count(); i++)
+            {
+                chunkCollection.Keys
+            }*/
+        }
     }
 }
 

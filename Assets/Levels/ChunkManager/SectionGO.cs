@@ -14,103 +14,129 @@ using System.Collections.Generic;
 
 
 
-    public class SectionGO: MonoBehaviour
+public class SectionGO: MonoBehaviour
+{
+    public World world; //ref to worldgameobject
+
+
+    private bool updateDaylightLevel = false;
+
+
+    private List<Vector3> newVertices = new List<Vector3> ();
+    private List<int> newTriangles = new List<int> ();
+    private List<Vector2> newUV = new List<Vector2> ();
+    private List<Vector3> newColliderVertices = new List<Vector3> ();
+    private List<int> newColliderTriangles = new List<int> ();
+        
+
+
+    private List<Color> newColor = new List<Color> ();
+    private float dayLightLevel = 16;
+    private float tUnit = 0.25f;
+
+    private Mesh mesh;
+    private MeshCollider col;
+    //private int faceCount;
+    private int colliderFaceCount;
+
+    private bool updateMesh = false;
+
+    public SectionGO()
     {
-
-        private List<Vector3> newVertices = new List<Vector3> ();
-        private List<int> newTriangles = new List<int> ();
-        private List<Vector2> newUV = new List<Vector2> ();
-        private List<Vector3> newColliderVertices = new List<Vector3> ();
-        private List<int> newColliderTriangles = new List<int> ();
-        
-        private List<Color> newColor = new List<Color> ();
-        private float tUnit = 0.25f;
-
-        private Mesh mesh;
-        private MeshCollider col;
-        private int faceCount;
-        private int colliderFaceCount;
-
-        private bool updateMesh = false;
-
-        public SectionGO()
-        {
-            //mesh = GetComponent<MeshFilter>().mesh;
-            //col = GetComponent<MeshCollider>();
-        }
-
-
-        // Use this for initialization
-        void Start ()
-        { 
-            mesh = GetComponent<MeshFilter> ().mesh;
-            col = GetComponent<MeshCollider> ();   
-        }
-        
-        // Update is called once per frame
-        void Update ()
-        {
-            if (updateMesh)
-            {
-                UpdateMesh();
-                updateMesh = false;
-            }
-        }
-        
-        void LateUpdate () 
-        {
-
-        }
-
-        public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles, List<Color> newColors)
-        {
-            this.newUV = newUV;
-            this.newVertices = newVertices;
-            this.newTriangles = newTriangles;
-            this.newColor = newColors;
-            this.updateMesh = true;
-        }
-
-        public void Test() 
-    {
-        faceCount --;
-        faceCount++;
     }
 
-        private void UpdateMesh()
+    // Use this for initialization
+    void Start ()
+    { 
+        mesh = GetComponent<MeshFilter> ().mesh;
+        col = GetComponent<MeshCollider> ();   
+    }
+    
+    // Update is called once per frame
+    void Update ()
+    {
+        if (updateMesh)
         {
-            mesh.Clear ();
-            mesh.vertices = newVertices.ToArray ();
-            mesh.uv = newUV.ToArray ();
-            mesh.colors = newColor.ToArray();
-            mesh.triangles = newTriangles.ToArray ();
-            mesh.Optimize ();
-            mesh.RecalculateNormals ();
-            
-            //Update the collider
-            /*col.sharedMesh = null;
-            
-            Mesh newMesh = new Mesh();
-            newMesh.vertices  = newColliderVertices.ToArray();
-            newMesh.triangles = newColliderTriangles.ToArray();
-            newMesh.RecalculateBounds();
-            col.sharedMesh = newMesh;
-            colliderFaceCount = 0;
-            newColliderVertices.Clear ();
-            newColliderTriangles.Clear ();
-            */
-            //GenerateDayLight ();
-            
-            //newVertices.Clear ();
-            //newUV.Clear ();
-            //newColor.Clear();
-            //newTriangles.Clear ();
-            
-            //faceCount = 0;
+            UpdateMesh();
+            updateMesh = false;
+            updateDaylightLevel = false;
+        }
 
-
+        if (updateDaylightLevel)
+        {
+            UpdateDayLight();
+            updateDaylightLevel = false;
         }
     }
+    
+    void LateUpdate () 
+    {
+
+    }
+
+    public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles, List<Color> newColors)
+    {
+        this.newUV = new List<Vector2>(newUV);
+        this.newVertices = new List<Vector3>(newVertices);
+        this.newTriangles = new List<int>(newTriangles);
+        this.newColor = new List<Color>(newColors);
+        this.updateMesh = true;
+    }
+
+    public void SetCollider(List<Vector3> newColliderVertices, List<int> newColliderTriangles)
+    {
+        this.newColliderVertices = new List<Vector3>(newColliderVertices);
+        this.newColliderTriangles = new List<int>(newColliderTriangles);
+    }
+
+    public void SetDaylight(byte level) 
+    {
+        this.dayLightLevel = (float)level / 16f;
+        this.updateDaylightLevel = true;
+    }
+
+    private void UpdateDayLight()
+    {
+        //byte w = world.time.GetDaylightLevel();
+        renderer.material.SetFloat ("_Sun", this.dayLightLevel);
+    }
+
+    private void UpdateMesh()
+    {
+        mesh.Clear();
+        mesh.vertices = newVertices.ToArray();
+        mesh.uv = newUV.ToArray();
+        mesh.colors = newColor.ToArray();
+        mesh.triangles = newTriangles.ToArray();
+        mesh.Optimize();
+        mesh.RecalculateNormals();
+            
+        //Update the collider
+        col.sharedMesh = null;
+
+        Mesh newMesh = new Mesh();
+
+        newMesh.vertices  = newColliderVertices.ToArray();
+        newMesh.triangles = newColliderTriangles.ToArray();
+        newMesh.RecalculateBounds();
+        col.sharedMesh = newMesh;
+        colliderFaceCount = 0;
+
+        //GenerateDayLight();
+        renderer.material.SetFloat ("_Sun", this.dayLightLevel);
+            
+        newVertices.Clear();
+        newUV.Clear();
+        newColor.Clear();
+        newTriangles.Clear();
+
+        newColliderVertices.Clear ();
+        newColliderTriangles.Clear ();
+
+    }
+
+}
+
 
 
 

@@ -32,10 +32,13 @@ namespace AssemblyCSharp
 
         private int faceCount = 0;
 
+        private SectionColliderGenerator colliderGenerator;
+
         public ChunkRenderer(ChunkManager manager, World world)
         {
             this.chunkManager = manager;
             this.world = world;
+            this.colliderGenerator = new SectionColliderGenerator();
         }
 
         private bool smoothLighting = true;
@@ -43,35 +46,40 @@ namespace AssemblyCSharp
         public void RenderChunk(Chunk2 chunk) 
         {
             int firstSection = chunk.firstSection;
+            byte daylightLevel = world.time.GetDaylightLevel();
 
             for (int secY = firstSection; secY >= 0; secY--) 
             {
                 Section2 section = chunk.GetSection(secY);
-                RenderSection(section, chunk);
+                RenderSection(section, chunk, daylightLevel);
             }
         }
 
-        private void RenderSection(Section2 sec, Chunk2 chunk) 
+        private void RenderSection(Section2 sec, Chunk2 chunk, byte daylight) 
         {
             GenerateMesh(sec, chunk);
 
-            GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
+            if (faceCount > 0)
+            {
+                colliderGenerator.GenerateCollisionMatrix(sec, ref newColliderTriangles, ref newColliderVertices);
 
-            /*GameObject newSectionGO = Instantiate(sectionGo, 
-                                                  new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
-                                                  new Quaternion(0, 0, 0, 0)) as GameObject;
-            */
-
-            sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
-            sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
-
+                GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
+                sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
+                sec.sectionGO.world = world;
+                sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
+                sec.sectionGO.SetCollider(newColliderVertices, newColliderTriangles);
+                sec.sectionGO.SetDaylight(daylight);
+            }
             newUV.Clear();
             newVertices.Clear();
             newTriangles.Clear();
             newColor.Clear();
             faceCount = 0;
 
-            sec.sectionGO.Test();
+            newColliderTriangles.Clear();
+            newColliderVertices.Clear();
+
+
         }
 
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
@@ -96,7 +104,10 @@ namespace AssemblyCSharp
 
                         Block block = this.chunkManager.GetBlock(posx, posy, posz);
 
-                        if (block.BlockType == BlockType.Air || block.LightOpacity < 16)
+                        int t1 = (int)block.BlkType;
+                        int t2 = (int)BlockType.Air;
+
+                        if (t1 != t2)//|| block.LightOpacity < 16)
                         {
                             Block blockT = this.chunkManager.GetBlock(posx, posy + 1, posz);
                             Block blockB = this.chunkManager.GetBlock(posx, posy - 1, posz);
@@ -105,9 +116,35 @@ namespace AssemblyCSharp
                             Block blockS = this.chunkManager.GetBlock(posx, posy, posz - 1);
                             Block blockW = this.chunkManager.GetBlock(posx - 1, posy, posz);
 
-                            if (blockT.BlockType == BlockType.Air)// || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
+
+                            if ((int)blockT.BlkType == (int)BlockType.Air) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
                             {
-                                CubeTop(posx,posy, posz, block);
+                                CubeTop(x, y, z, block);
+                                CubeTopLight(posx, posy, posz, block);
+                            }
+                            if ((int)blockB.BlkType == (int)BlockType.Air)
+                            {
+                                CubeBot(x, y, z, block);
+                            }
+                            if ((int)blockN.BlkType == (int)BlockType.Air)
+                            {
+                                CubeNorth(x, y, z, block);
+                                CubeNorthLight(posx, posy, posz, block);
+                            }
+                            if ((int)blockE.BlkType == (int)BlockType.Air)
+                            {
+                                CubeEast(x, y, z, block);
+                                CubeEastLight(posx, posy, posz, block);
+                            }
+                            if ((int)blockS.BlkType == (int)BlockType.Air)
+                            {
+                                CubeSouth(x, y, z, block);
+                                CubeSouthLight(posx, posy, posz, block);
+                            }
+                            if ((int)blockW.BlkType == (int)BlockType.Air)
+                            {
+                                CubeWest(x, y, z, block);
+                                CubeWestLight(posx, posy, posz, block);
                             }
                         }
                     }
@@ -127,7 +164,8 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(0, 0, 0, 0);
+
+            //CubeLight(3, 3, 3, 3);
         }
 
         private void CubeNorth (int x, int y, int z, Block block)
@@ -140,7 +178,8 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(0, 0, 0, 0);
+            ///CubeNorthLight(x, y, z, block);
+            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeEast (int x, int y, int z, Block block)
@@ -153,7 +192,7 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(0, 0, 0, 0);
+            //CubeLight(0, 0, 0, 0);
         }
 
         
@@ -167,7 +206,7 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(0, 0, 0, 0);
+            //CubeLight(0, 0, 0, 0);
         }
 
 
@@ -182,7 +221,7 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(0, 0, 0, 0);
+            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeBot (int x, int y, int z, Block block)
@@ -218,7 +257,7 @@ namespace AssemblyCSharp
                 int c3 = GetCornerLight(blockS, blockE, blockSE);
                 int c4 = GetCornerLight(blockN, blockE, blockNE);
             
-                CubeLight(c1, c2, c3, c4);
+                CubeLight(c1, c4, c3, c2);
             } else
             {
                 CubeLight(0, 0, 0, 0);
@@ -228,36 +267,95 @@ namespace AssemblyCSharp
         
         private void CubeNorthLight(int x, int y, int z, Block block) 
         {
-            /*Block blockN = this.chunkManager.GetBlock(x, y + 1, z + 1);
-            Block blockNE = this.chunkManager.GetBlock(x + 1, y + 1, z + 1);
-            Block blockE = this.chunkManager.GetBlock(x+ 1, y + 1, z);
-            Block blockSE = this.chunkManager.GetBlock(x + 1, y + 1, z - 1);
-            Block blockS = this.chunkManager.GetBlock(x, y + 1, z - 1);
-            Block blockSW = this.chunkManager.GetBlock(x - 1, y + 1, z - 1);
-            Block blockW = this.chunkManager.GetBlock(x - 1, y + 1, z);
-            Block blockNW = this.chunkManager.GetBlock(x - 1, y + 1, z + 1);
-            
-            int c1 = GetCornerLight(blockN, blockW, blockNW);
-            int c2 = GetCornerLight(blockS, blockW, blockSW);
-            int c3 = GetCornerLight(blockS, blockE, blockSE);
-            int c4 = GetCornerLight(blockN, blockE, blockNE);
-            
-            CubeLight(c1, c2, c3, c4);
-            */
 
+            Block blockT  = this.chunkManager.GetBlock (x,   y+1, z+1); //top
+            Block blockTE = this.chunkManager.GetBlock (x+1, y+1, z+1); //top - east
+            Block blockE  = this.chunkManager.GetBlock (x+1, y,   z+1);
+            Block blockBE = this.chunkManager.GetBlock (x+1, y-1, z+1);
+            Block blockB  = this.chunkManager.GetBlock (x,   y-1, z+1);
+            Block blockBW = this.chunkManager.GetBlock (x-1, y-1, z+1);
+            Block blockW  = this.chunkManager.GetBlock (x-1, y,   z+1);
+            Block blockTW= this.chunkManager.GetBlock (x-1, y+1, z+1);
 
+            int c1 = GetCornerLight(blockT, blockW, blockTW);
+            int c2 = GetCornerLight(blockB, blockW, blockBW);
+            int c3 = GetCornerLight(blockB, blockE, blockBE);
+            int c4 = GetCornerLight(blockT, blockE, blockTE);
+            
+            CubeLight(c3, c4, c1, c2);       
         }
+        
+        private void CubeEastLight(int x, int y, int z, Block block) 
+        {
+            
+            Block blockT  = this.chunkManager.GetBlock(x+1, y+1, z); //top
+            Block blockTN = this.chunkManager.GetBlock(x+1, y+1, z+1); //top - east
+            Block blockN  = this.chunkManager.GetBlock(x+1, y,   z+1);
+            Block blockBN = this.chunkManager.GetBlock(x+1, y-1, z+1);
+            Block blockB  = this.chunkManager.GetBlock(x+1, y-1, z);
+            Block blockBS = this.chunkManager.GetBlock(x+1, y-1, z-1);
+            Block blockS  = this.chunkManager.GetBlock(x+1, y,   z-1);
+            Block blockTS = this.chunkManager.GetBlock(x+1, y+1, z-1);
+            
+            int c1 = GetCornerLight(blockT, blockN, blockTN);
+            int c2 = GetCornerLight(blockB, blockN, blockBN);
+            int c3 = GetCornerLight(blockB, blockS, blockBS);
+            int c4 = GetCornerLight(blockT, blockS, blockTS);
+            
+            CubeLight(c3, c4, c1, c2);       
+        }
+
+        
+        private void CubeSouthLight(int x, int y, int z, Block block) 
+        {
+            Block blockT  = this.chunkManager.GetBlock(x,   y+1, z-1); //top
+            Block blockTE = this.chunkManager.GetBlock(x+1, y+1, z-1); //top - east
+            Block blockE  = this.chunkManager.GetBlock(x+1, y,   z-1);
+            Block blockBE = this.chunkManager.GetBlock(x+1, y-1, z-1);
+            Block blockB  = this.chunkManager.GetBlock(x,   y-1, z-1);
+            Block blockBW = this.chunkManager.GetBlock(x-1, y-1, z-1);
+            Block blockW  = this.chunkManager.GetBlock(x-1, y,   z-1);
+            Block blockTW = this.chunkManager.GetBlock(x-1, y+1, z-1);
+            
+            int c1 = GetCornerLight(blockT, blockE, blockTE);
+            int c2 = GetCornerLight(blockB, blockE, blockBE);
+            int c3 = GetCornerLight(blockB, blockW, blockBW);
+            int c4 = GetCornerLight(blockT, blockW, blockTW);
+            
+            CubeLight(c3, c4, c1, c2);       
+        }
+
+        private void CubeWestLight(int x, int y, int z, Block block) 
+        {   
+
+            Block blockT  = this.chunkManager.GetBlock(x-1, y+1, z); //top
+            Block blockTN = this.chunkManager.GetBlock(x-1, y+1, z+1); //top - north
+            Block blockN  = this.chunkManager.GetBlock(x-1, y,   z+1);
+            Block blockBN = this.chunkManager.GetBlock(x-1, y-1, z+1);
+            Block blockB  = this.chunkManager.GetBlock(x-1, y-1, z);
+            Block blockBS = this.chunkManager.GetBlock(x-1, y-1, z-1);
+            Block blockS  = this.chunkManager.GetBlock(x-1, y,   z-1);
+            Block blockTS = this.chunkManager.GetBlock(x-1, y+1, z-1);
+           
+            int c1 = GetCornerLight(blockT, blockN, blockTN);
+            int c2 = GetCornerLight(blockB, blockN, blockBN);
+            int c3 = GetCornerLight(blockB, blockS, blockBS);
+            int c4 = GetCornerLight(blockT, blockS, blockTS);
+
+            CubeLight(c2, c1, c4, c3);       
+        }
+
 
         private int GetCornerLight(Block side1, Block side2, Block corner)
         {
-            if (side1.BlockType != BlockType.Air && side2.BlockType != BlockType.Air)
+            if ((int)side1.BlkType != 0 && (int)side2.BlkType != 0)
             {
                 return 0;
             }
 
-            int hasSide1 = side1.BlockType != BlockType.Air ? 1 : 0;
-            int hasSide2 = side2.BlockType != BlockType.Air ? 1 : 0;
-            int hasCorner = corner.BlockType != BlockType.Air ? 1 : 0;
+            int hasSide1 = (int)side1.BlkType != 0 ? 1 : 0;
+            int hasSide2 = (int)side2.BlkType != 0 ? 1 : 0;
+            int hasCorner = (int)corner.BlkType != 0 ? 1 : 0;
             return 3 - (hasSide1 + hasSide2 + hasCorner);
         }
 
