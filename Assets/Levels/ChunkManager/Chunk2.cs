@@ -156,6 +156,25 @@ namespace AssemblyCSharp
 
         #region light operators
 
+        public byte GetDaylightValue(int x, int y, int z)
+        {
+            int secY = y / 16;
+            if (sections.Length < secY)
+                return 0;
+            
+            Section2 sec = this.sections [secY];
+            
+            if (sec == null)
+            {
+                return 0;
+            } else
+            {
+                int secYPos = y - (secY * 16); //TODO check this for speed issues
+                return sec.GetDaylightValue(x, secYPos, z);
+            }
+
+        }
+
         public int GetLightOpacity(int x, int y, int z) 
         {
             return BlockManager.GetLightOpacity(GetBlockId(x, y, z));
@@ -168,15 +187,19 @@ namespace AssemblyCSharp
             {
                 for (int z = 0; z < 16; z++)
                 {
+                    int lightLevel = 15;
+
                     for (int y = (this.firstSection * sectionSize) + sectionSize - 1; y > 0; y --)
                     {
 
-                        int lightLevel = 15;
+
 
                         lightLevel -= this.GetLightOpacity(x, y, z);
                         if (lightLevel > 0) {
                             Section2 sec = this.sections[y /16];
                             sec.SetDatlightData(x, y % 16, z, lightLevel);
+                        } else {
+                            break;
                         }
 
                     }

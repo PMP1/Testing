@@ -38,13 +38,20 @@ namespace AssemblyCSharp
         {
             Chunk2 chunk = new Chunk2(this, x, z);
 
+            System.DateTime genStart = System.DateTime.Now;
+
             PerlinWorldGenerator.CreateChunk(chunk);
 
             chunkCollection.Add(x + ":" + z, chunk);
 
+            StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
+
+
             chunk.isDataLoaded = true;
 
-            renderer.RenderChunk(chunk);
+
+            //renderer.RenderChunk(chunk);
+
         }
 
         public void UnLoadChunk(int x, int z)
@@ -52,10 +59,24 @@ namespace AssemblyCSharp
 
         }
 
+
+
         public void SaveChunk(int x, int z)
         {
 
         }
+
+        public void RenderInnitialChunks() 
+        {
+            System.DateTime renStart = System.DateTime.Now;
+            foreach (var key in chunkCollection.Keys)
+            {
+                renderer.RenderChunk((Chunk2)chunkCollection[key]);
+            }
+            StatsEngine.ChunkRenderTime += (float)System.DateTime.Now.Subtract(renStart).TotalSeconds;
+        }
+
+       
 
         public Chunk2 GetChunk(int x, int z)
         {
@@ -73,8 +94,11 @@ namespace AssemblyCSharp
             {
                 int xPos = x / 16;
                 int zPos = z / 16;
-                int xSectionPos = x % 16;
-                int zSectionPos = z % 16;
+                //int xSectionPos = x % 16;
+                //int zSectionPos = z % 16;
+
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
 
                 Chunk2 chunk = this.GetChunk(xPos, zPos);
                 if (chunk == null) 

@@ -18,15 +18,25 @@ public class SectionColliderGenerator
 	public int SectionSize { get; set; }
 	public Section CurrentSection { get; set; }
 	public Chunk CurrentChunk { get; set; }
+
+    private Chunk2 currentChunk;
+    private ChunkRenderer chunkRenderer;
+
+
 	private List<Vector3> newColliderVertices = new List<Vector3> ();
 	private List<int> newColliderTriangles = new List<int> ();
 	private int colliderFaceCount = 0;
 
 
-	public SectionColliderGenerator ()
-	{
+    public SectionColliderGenerator ()
+    {
+        
+    }
 
-	}
+    public SectionColliderGenerator(ChunkRenderer renderer)
+    {
+        chunkRenderer = renderer;
+    }
 
 
 	byte Block (int x, int y, int z)
@@ -39,7 +49,7 @@ public class SectionColliderGenerator
 	/// </summary>
     public void GenerateCollisionMatrix (Section section)
     {
-        SectionSize = section.sectionSize;
+        /*SectionSize = section.sectionSize;
         
         bool [,] meshTop =      new bool[SectionSize,SectionSize];
         bool [,] meshBottom =   new bool[SectionSize,SectionSize];
@@ -108,11 +118,27 @@ public class SectionColliderGenerator
         }
         section.hasCollisionMatrix = true;
         section.SetCollisionMesh (newColliderVertices, newColliderTriangles);
-
+*/
     }
 
     public void GenerateCollisionMatrix(Chunk2 chunk)
     {
+
+    }
+
+    private byte GetBlockId(int x, int y, int z)
+    {
+        byte blockId = 3;
+        
+        if (y >= 256 || y < 0)
+        {
+            return (byte)0;
+        }
+        else
+        {
+            return currentChunk.GetBlockId(x, y, z);
+        }
+
 
     }
 
@@ -132,6 +158,8 @@ public class SectionColliderGenerator
         newColliderVertices = new List<Vector3>();
         newColliderTriangles = new List<int>();
         colliderFaceCount = 0;
+
+        currentChunk = section.chunk;
         
         for (int y = 0; y < 16; y++)
         {
@@ -141,11 +169,11 @@ public class SectionColliderGenerator
                 {
                     if (section.GetBlockId(x, y, z) != (byte)0)
                     {
-                        if (section.chunk.manager.GetBlockId(x + posX, y + posY + 1, z + posZ) <= (byte)0)
+                        if (this.GetBlockId(x, y + posY + 1, z) <= (byte)0)
                         {
                             meshTop [x, z] = true;
                         }
-                        if (section.chunk.manager.GetBlockId(x + posX, y + posY - 1, z + posZ) <= (byte)0)
+                        if (this.GetBlockId(x, y + posY - 1, z) <= (byte)0)
                         {
                             meshBottom [x, z] = true;
                         }
@@ -165,11 +193,11 @@ public class SectionColliderGenerator
                 {
                     if (section.GetBlockId(x, y, z) != 0)
                     {
-                        if (section.chunk.manager.GetBlockId(x + 1 + posX, y + posY, z + posZ) <= 0)
+                        if (chunkRenderer.GetBlockId(x + 1, y + posY, z) <= 0)
                         {
                             meshEast [y, z] = true;
                         }
-                        if (section.chunk.manager.GetBlockId(x - 1 + posX, y + posY, z + posZ) <= 0)
+                        if (chunkRenderer.GetBlockId(x - 1, y + posY, z) <= 0)
                         {
                             meshBottom [y, z] = true;
                         }
@@ -189,11 +217,11 @@ public class SectionColliderGenerator
                 {
                     if (section.GetBlockId(x, y, z) != 0)
                     {
-                        if (section.chunk.manager.GetBlockId(x + posX, y + posY, z + posZ + 1) <= 0)
+                        if (chunkRenderer.GetBlockId(x, y + posY, z + 1) <= 0)
                         {
                             meshNorth [y, x] = true;
                         }
-                        if (section.chunk.manager.GetBlockId(x + posX, y + posY, z + posZ - 1) <= 0)
+                        if (chunkRenderer.GetBlockId(x, y + posY, z - 1) <= 0)
                         {
                             meshSouth [y, x] = true;
                         }

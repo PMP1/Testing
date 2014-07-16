@@ -75,7 +75,7 @@ public class Gui : MonoBehaviour {
         int totalUpdate2 = 0;
         int totalUpdate3 = 0;
 		
-        for (int x=0; x<world.worldX/world.sectionSize; x++)
+        /*for (int x=0; x<world.worldX/world.sectionSize; x++)
         {
             for (int z=0; z<world.worldZ/world.sectionSize; z++)
             {
@@ -91,18 +91,38 @@ public class Gui : MonoBehaviour {
                         totalUpdate3 ++;
                 }
             }
-        }
+        }*/
 		
-        GUI.Label(new Rect(300, 10, 100, 20), world.startupTime.ToString());
-        GUI.Label(new Rect(300, 20, 100, 20), world.runningTime.ToString());
-        GUI.Label(new Rect(300, 30, 100, 20), Time.time.ToString());
-        GUI.Label(new Rect(300, 40, 100, 20), Time.timeSinceLevelLoad.ToString());
-        GUI.Label(new Rect(300, 50, 100, 20), Time.realtimeSinceStartup.ToString());
 
         int loadTime = (int)Time.realtimeSinceStartup - (int)Time.timeSinceLevelLoad;
         int loadTest = (int)(((float)loadTime / 77f) * 100);
 
-        GUI.Label(new Rect(300, 60, 200, 20), 
+
+        GUI.Label(new Rect(300, 20, 300, 20), "Actual load time : ");
+        GUI.Label(new Rect(300, 10, 300, 20), "Total Generation time : ");
+        GUI.Label(new Rect(300, 30, 300, 20), " - Chunk Gen time : ");
+        GUI.Label(new Rect(300, 40, 300, 20), " - Chunk Render time : ");
+        GUI.Label(new Rect(300, 50, 300, 20), " - - Section Mesh Gen : ");
+        GUI.Label(new Rect(300, 60, 300, 20), " - - Section Colllider : ");
+        GUI.Label(new Rect(300, 70, 300, 20), " - - Section Smooth light: ");
+        GUI.Label(new Rect(300, 80, 300, 20), " - - Section GO create : ");
+
+
+        GUI.Label(new Rect(500, 20, 300, 20), loadTime.ToString());
+        GUI.Label(new Rect(500, 10, 300, 20), world.startupTime.Seconds.ToString() + "(" + ((world.startupTime.Seconds / loadTime) * 100).ToString() + "%)");
+        GUI.Label(new Rect(500, 30, 300, 20), StatsEngine.PrevChunkGenTime.ToString());
+        GUI.Label(new Rect(500, 40, 300, 20), StatsEngine.ChunkRenderTime.ToString());
+        GUI.Label(new Rect(500, 50, 300, 20), StatsEngine.SectionMeshGen.ToString());
+        GUI.Label(new Rect(500, 60, 300, 20), StatsEngine.SectionColliderGen.ToString());
+        GUI.Label(new Rect(500, 70, 300, 20), StatsEngine.SectionSmoothLighting.ToString());
+        GUI.Label(new Rect(500, 80, 300, 20), StatsEngine.SectionGoCreate.ToString());
+
+
+        //GUI.Label(new Rect(300, 50, 300, 20), Time.realtimeSinceStartup.ToString());
+
+
+
+        GUI.Label(new Rect(300, 90, 200, 20), 
 				string.Concat(
 		           	"Load time: ", loadTime.ToString(),
 				   	" (",
@@ -111,11 +131,11 @@ public class Gui : MonoBehaviour {
         ));
 
 
-        GUI.Label(new Rect(10, 10, 100, 20), Time.timeSinceLevelLoad.ToString());
+        //GUI.Label(new Rect(10, 10, 100, 20), Time.timeSinceLevelLoad.ToString());
 
         GUI.Label(new Rect(10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());
 
-        GUI.Label(new Rect(10, 50, 100, 20), time.fps.ToString());
+        GUI.Label(new Rect(10, 50, 100, 20), "FPS:  " + time.fps.ToString());
 
 
         int hist = StatsEngine.GetSectionUpdate();

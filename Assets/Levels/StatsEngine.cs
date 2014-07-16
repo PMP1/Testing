@@ -32,6 +32,26 @@ namespace AssemblyCSharp
         private static List<float> sectionUpdateTimeHistory = new List<float>();
 
 
+        public static float ChunksLoaded = 0;
+        public static float TotalLoadTime = 0;
+        public static float ChunkGenTime = 0;
+        public static float ChunkRenderTime = 0;
+        public static float SectionMeshGen = 0;
+        public static float SectionGoCreate = 0;
+        public static float SectionSmoothLighting = 0;
+        public static float SectionColliderGen = 0;
+
+        public static float ChunkDaylightFill = 0;
+
+
+        public static float PrevChunksLoaded = 0;
+        public static float PrevChunkGenTime = 0;
+        public static float PrevChunkDaylightFill = 0;
+
+
+
+
+
         public static void UpdateTime (float next)
         {
             timeLeft -= next;
@@ -46,6 +66,14 @@ namespace AssemblyCSharp
 
                 sectionUpdateHistory.Add(sectionUpdates);
                 sectionUpdateTimeHistory.Add(sectionUpdateTime);
+
+
+                PrevChunkGenTime = ChunkGenTime;
+                PrevChunkDaylightFill = ChunkDaylightFill;
+                PrevChunksLoaded = ChunksLoaded;
+                //ChunkGenTime = 0;
+                //ChunkDaylightFill = 0;
+                //ChunksLoaded = 0;
 
                 chunkUpdates = 0;
                 chunkUpdateTime = 0;

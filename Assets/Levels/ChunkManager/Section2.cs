@@ -81,6 +81,16 @@ namespace AssemblyCSharp
             this.daylightData [xyz] = (byte)level;
         }
 
+        public byte GetDaylightValue(int x, int y, int z)
+        {
+            return this.GetDaylightValue(x + 16 * (z + 16 * y));
+        }
+
+        private byte GetDaylightValue(int xyz)
+        {
+            return this.daylightData[xyz];
+        }
+
         #endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class ModifyTerrain : MonoBehaviour {
 
@@ -17,9 +18,9 @@ public class ModifyTerrain : MonoBehaviour {
 
 
 
-
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,40,256, false); //needs to load at 256
-
+        //40 is the 1st test
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,10,256, false); //needs to load at 256
+        world.chunkManager.RenderInnitialChunks();
 		//Need to call an inittial set of chunk updates here so that the lighting is rendered
 		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
 			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
@@ -34,6 +35,7 @@ public class ModifyTerrain : MonoBehaviour {
 		//update chunks internal light
 		//then update light from other chunks? good idea phil!!
 		world.startupTime = System.DateTime.Now.Subtract (start);
+        StatsEngine.TotalLoadTime = world.startupTime.Ticks;
 	}
 	
 	// Update is called once per frame
@@ -61,6 +63,10 @@ public class ModifyTerrain : MonoBehaviour {
 				if(dist<distToLoad){
 
                     world.chunkManager.LoadChunk(x, z);
+
+                    StatsEngine.ChunksLoaded++; 
+
+
                     //world.chunkRenderer.RenderChunk(world.chunkManager.GetChunk(x, z));
 					/*if(world.chunks[x,z]==null){
 						world.GenColumn(x,z, dist, useSectionLoader);

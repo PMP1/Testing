@@ -91,7 +91,7 @@ namespace AssemblyCSharp
                                 section.chunk.heightMap[x,z] = y + posY;
                             }
                             
-                            if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.7) {
+                            if (calcCaveDensity(posX + x, posY + y, posZ + z) > 60) {
                                 SetBlock(x, y, z, firstBlockHeight, type, section);
                                 section.containsSolid = true;
                             } else {
@@ -107,7 +107,8 @@ namespace AssemblyCSharp
                                 section.chunk.heightMap[x,z] = y + posY;
                             }
                             
-                            if (calcCaveDensity(posX + x, posY + y, posZ + z) > -0.6) {
+                            if (calcCaveDensity(posX + x, posY + y, posZ + z) > 60.0) //was -0.6 
+                            {
                                 SetBlock(x, y, z, firstBlockHeight, type, section);
                                 section.containsSolid = true;
                             } else {
@@ -200,7 +201,7 @@ namespace AssemblyCSharp
                                 chunk.SetHeightMap(x, z, (byte)y);
                             }
                             
-                            if (calcCaveDensity(posX + x, y, posZ + z) > -0.6)
+                            if (calcCaveDensity(posX + x, y, posZ + z) > -0.4)
                             {
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
