@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class World : MonoBehaviour {
 
@@ -9,88 +10,66 @@ public class World : MonoBehaviour {
 	public int worldZ=16;
 
 	public GameObject section;
+    public GameObject sectionGO;
 	public GameObject chunk;
 	public Chunk[,] chunks; 
 	public int sectionSize=16;
 
+	//scripts
+	public TimeManager time;
+	public ModifyTerrain terrain;
 
+
+	public WorldConfig configSettings;
+	//public AbstractWorldGenerator worldGenerator;
+
+	//public BlockManager BlockManager { get; set; }
+	public SectionColliderGenerator SectionCollider { get; set; }
+
+	public System.TimeSpan startupTime;
+	public System.TimeSpan runningTime;
+	private System.DateTime start;
 	// Use this for initialization
+
+    public ChunkManager chunkManager;
+   // public ChunkRenderer chunkRenderer;
+
+
 	void Awake() {
-
-		data = new byte[worldX,worldY,worldZ];
-
-		for (int x=0; x<worldX; x++){
-			for (int z=0; z<worldZ; z++){
-				int stone=PerlinNoise(x,0,z,10,3,1.2f);
-				stone+= PerlinNoise(x,300,z,20,4,0)+10;
-				int dirt=PerlinNoise(x,100,z,50,2,0) +0; //Added +1 to make sure minimum grass height is 1
-				
-				for (int y=0; y<worldY; y++){
-					if(y<=stone){
-						data[x,y,z]=1;
-					} else if(y<=dirt+stone){ //Changed this line thanks to a comment
-						data[x,y,z]=2;
-					}
-					
-				}
-			}
-		}
+	
 		
+		//Sytem starting
+		start = System.DateTime.Now;
+        this.SectionCollider = new SectionColliderGenerator ();
+
+
 		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
 		                               Mathf.FloorToInt(worldZ/sectionSize)];
+		                               
+		configSettings = new WorldConfig("PMP");
+		
+        PerlinWorldGenerator.Init();
+        PerlinWorldGenerator.SetSeed(configSettings.Seed);
+
+
+        chunkManager = new ChunkManager(gameObject.GetComponent("World") as World);
+        //chunkRenderer = new ChunkRenderer(chunkManager, gameObject.GetComponent("World") as World);
 	}
 
 
-	
 	// Update is called once per frame
 	void Update () {
-	
+		runningTime = System.DateTime.Now.Subtract (start);
 	}
 
-	public byte[,,] GenData(int xpos, int zpos) {
+	/// <summary>
+	/// Gnerates the Chunk for a given x, z
+	/// </summary>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="z">The z coordinate.</param>
+	/// <param name="dist">Dist.</param>
+	public void GenColumn(int x, int z, float dist, bool useSectionLoader){
 
-		byte[,,] colData = new byte[worldX,worldY,worldZ];
-
-		int newX = xpos * sectionSize;
-		int newZ = zpos * sectionSize;
-
-		for (int x=0; x<sectionSize; x++){
-			for (int z=0; z<sectionSize; z++){
-				int stone=PerlinNoise(x + newX,0,z + newZ,10,3,1.2f);
-				stone+= PerlinNoise(x + newX,300,z + newZ,20,4,0)+10;
-				int dirt=PerlinNoise(x + newX,100,z + newZ,50,2,0) +0; //Added +1 to make sure minimum grass height is 1
-				
-				for (int y=0; y<worldY; y++){
-					if(y<=stone){
-						colData[x,y,z]=1;
-					} else if(y<=dirt+stone){ //Changed this line thanks to a comment
-						colData[x,y,z]=2;
-					}
-					
-				}
-			}
-		}
-		return colData;
-	}
-
-	int PerlinNoise(int x,int y, int z, float scale, float height, float power){
-		float rValue;
-
-
-		rValue=Noise.Noise.GetNoise (((double)x) / scale, ((double)y)/ scale, ((double)z) / scale);
-
-		rValue*=height;
-		
-		if(power!=0){
-			rValue=Mathf.Pow( rValue, power);
-		}
-		
-		return (int) rValue;
-	}
-
-	public void GenColumn(int x, int z){
-
-		//generate a chunk column
 		GameObject newChunkColumn= Instantiate(chunk,new Vector3(x*sectionSize-0.5f,
 		                                                               0*sectionSize+0.5f,
 		                                                               z*sectionSize-0.5f),new Quaternion(0,0,0,0)) as GameObject;
@@ -100,7 +79,13 @@ public class World : MonoBehaviour {
 		chunks [x, z].chunkZ=z;
 		chunks [x, z].worldY=worldY;
 		chunks [x, z].worldGO=gameObject;
-		chunks [x, z].data=GenData(x, z);
+		chunks [x, z].world = gameObject.GetComponent ("World") as World;
+		//chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
+		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
+		chunks [x, z].useCollisionMatrix = dist < 132 ? true : false;
+		//worldGenerator.CreateChunk(chunks [x, z]);
+        chunks [x, z].Init (useSectionLoader);
+
 	}
 	
 	public void UnloadColumn(int x, int z){
@@ -108,8 +93,12 @@ public class World : MonoBehaviour {
 		Object.Destroy(chunks [x, z].gameObject);
 	}
 
-	public int SetDaylight() {
-		//midday 12 am
-		return 1;
-	}
+    public GameObject CreateSectionGO(Chunk2 chunk, Section2 sec) {
+        GameObject go =  Instantiate(sectionGO, 
+                           new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
+                                     new Quaternion(0, 0, 0, 0)) as GameObject;
+
+        //go.world = gameObject.GetComponent("World") as World;
+        return go;
+    }
 }
