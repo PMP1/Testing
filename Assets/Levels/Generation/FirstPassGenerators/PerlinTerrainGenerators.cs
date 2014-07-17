@@ -177,14 +177,15 @@ namespace AssemblyCSharp
                         {
                             
                             // Some block was set...
-                            if (firstBlockHeight == -1)
-                            {
-                                firstBlockHeight = y;
-                                chunk.SetHeightMap(x, z, (byte)y);
-                            }
+
                             
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.7)
                             {
+                                if (firstBlockHeight == -1)
+                                {
+                                    firstBlockHeight = y;
+                                    chunk.SetHeightMap(x, z, (byte)y);
+                                }
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
                             {
@@ -195,14 +196,15 @@ namespace AssemblyCSharp
                         } else if (dens >= 32)
                         {
                             // Some block was set...
-                            if (firstBlockHeight == -1)
-                            {
-                                firstBlockHeight = y;
-                                chunk.SetHeightMap(x, z, (byte)y);
-                            }
+
                             
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.4)
                             {
+                                if (firstBlockHeight == -1)
+                                {
+                                    firstBlockHeight = y;
+                                    chunk.SetHeightMap(x, z, (byte)y);
+                                }
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
                             {

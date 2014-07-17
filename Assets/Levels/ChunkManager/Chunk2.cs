@@ -91,7 +91,7 @@ namespace AssemblyCSharp
 
             SetFirstSection();
             GenerateDaylight(); //TODO remove this to milti threaded
-
+            SpreadDaylight();
         }
 
         private void SetFirstSection()
@@ -148,6 +148,11 @@ namespace AssemblyCSharp
             }
         }
 
+        public byte GetHeightMap(int x, int z)
+        {
+            return this.heightMap [x + 16 * z];
+        }
+
 
         public bool hasNeighbours(int x, int y, int z, int blockDist)
         {
@@ -172,7 +177,24 @@ namespace AssemblyCSharp
                 int secYPos = y - (secY * 16); //TODO check this for speed issues
                 return sec.GetDaylightValue(x, secYPos, z);
             }
+        }
 
+        public void SetDaylightValue(int x, int y, int z, byte level)
+        {
+            int secY = y / 16;
+            if (sections.Length < secY)
+                return;
+            
+            Section2 sec = this.sections [secY];
+            
+            if (sec == null)
+            {
+                return;
+            } else
+            {
+                int secYPos = y - (secY * 16); //TODO check this for speed issues
+                sec.SetDatlightData(x, secYPos, z, level);
+            }
         }
 
         public int GetLightOpacity(int x, int y, int z) 
@@ -191,9 +213,6 @@ namespace AssemblyCSharp
 
                     for (int y = (this.firstSection * sectionSize) + sectionSize - 1; y > 0; y --)
                     {
-
-
-
                         lightLevel -= this.GetLightOpacity(x, y, z);
                         if (lightLevel > 0) {
                             Section2 sec = this.sections[y /16];
@@ -211,6 +230,60 @@ namespace AssemblyCSharp
 
         public void SpreadDaylight()
         {
+            for (int x = 0; x < 16; x++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    byte c = GetHeightMap(x, z);
+                    byte n = z < 15 ? GetHeightMap(x, z + 1) : c;
+                    byte e = x < 15 ? GetHeightMap(x + 1, z) : c;
+                    byte s = z > 0 ? GetHeightMap(x, z - 1) : c;
+                    byte w = x < 0 ? GetHeightMap(x - 1, z) : c;
+
+                    //need to get the heighest neighbour
+                    if (n < e) n = e;
+                    if (n < s) n = s;
+                    if (n < w) n = w;
+
+                    if (c != n )
+                    {
+                        int ii = 0;
+                    }
+
+
+                    for (int y = c; y < n; y++)
+                    {
+                        //spread to other columns chunks
+                        SpreadDaylight(x, y, z + 1, 15);
+                        SpreadDaylight(x, y, z - 1, 15);
+                        SpreadDaylight(x + 1, y, z, 15);
+                        SpreadDaylight(x - 1, y, z, 15);
+                    }
+                }
+            }
+        }
+
+        private void SpreadDaylight(int x, int y, int z, byte level)
+        {
+            if (x < 0 || x >= 16 || y >= 255 || y < 0 || z < 0 || z >= 16)
+                return;
+
+            byte current = GetDaylightValue(x, y, z);
+
+            //byte h = GetHeightMap(x, z);
+            level -= 2;
+
+            if (current >= level || level < 2) 
+                return;
+
+            SetDaylightValue(x, y, z, level);
+            
+            SpreadDaylight(x + 1, y, z, level);
+            SpreadDaylight(x - 1, y, z, level);
+            SpreadDaylight(x, y + 1, z, level);
+            SpreadDaylight(x, y - 1, z, level);
+            SpreadDaylight(x, y, z + 1, level);
+            SpreadDaylight(x, y, z - 1, level);
 
         }
 
