@@ -16,7 +16,10 @@ namespace AssemblyCSharp
 {
     public class ChunkManager
     {
-        Hashtable chunkCollection = new Hashtable();
+        private Hashtable chunkCollection = new Hashtable();
+
+
+        private BlockLightUpdate[] collection = new BlockLightUpdate[32*32*32];
 
         public GameObject worldGO;
         public World world;
@@ -136,6 +139,10 @@ namespace AssemblyCSharp
 
         public bool DoChunksExist(int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
         {
+            minX /= 16;
+            maxX /= 16;
+            minZ /= 16;
+            maxZ /= 16;
 
             for (int x = minX; x <= maxX; x++)
             {
@@ -156,18 +163,275 @@ namespace AssemblyCSharp
         }
         #endregion
 
+        #region Light
+
+        public int GetLightValue(int x, int y, int z)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return 15;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return 15;
+                    //throw new ArgumentNullException();
+                }
+                return (int)chunk.GetDaylightValue(xSectionPos, y, zSectionPos);
+            }
+        }
+
+        public void SetLightValue(int x, int y, int z, int level)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+                
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return;
+                }
+                chunk.SetDaylightValue(xSectionPos, y, zSectionPos, (byte)level);
+            }
+        }
+
         public void UpdateDaylight(byte light)
         {
            foreach (var key in chunkCollection.Keys)
             {
                 ((Chunk2)chunkCollection[key]).UpdateDaylight(light);
             }
-
-           /* for (int i = 0; i < chunkCollection.Count(); i++)
-            {
-                chunkCollection.Keys
-            }*/
         }
+
+        public void UpdateLightBlock(int x, int y, int z, byte level)
+        {
+            //origin x, y, z
+            //current x, y, z
+            //current level
+            int capacity = 0;
+            int current = 0;
+
+            //if (DoChunksExist(x, y, x, 17))
+            {
+
+                collection [capacity++] = new BlockLightUpdate(x, y, z, level);
+
+                while (capacity > current)
+                {
+                    int n = 0;
+                    int s = 0;
+                    int t = 0;
+                    int b = 0;
+                    int e = 0;
+                    int w = 0;
+                    bool neightboursLoaded = false;
+
+                    BlockLightUpdate block = collection [current++];
+
+                    int posX = block.posX;
+                    int posY = block.posY;
+                    int posZ = block.posZ;
+
+                    int savedValue = GetLightValue(posX, posY, posZ);
+
+                    int calcValue = 0;
+
+                    if (FacesTheSky(posX, posY, posZ))
+                    {
+                        calcValue = 15;
+                    } else
+                    {
+                        n = GetLightValue(posX, posY, posZ + 1);
+                        s = GetLightValue(posX, posY, posZ - 1);
+                        t = GetLightValue(posX, posY + 1, posZ);
+                        b = GetLightValue(posX, posY - 1, posZ);
+                        e = GetLightValue(posX + 1, posY, posZ);
+                        w = GetLightValue(posX - 1, posY, posZ);
+                        neightboursLoaded = true;
+                        calcValue = CalcLightValue(posX, posY, posZ, n, s, e, w, t, b);
+                    }
+
+
+
+                    if (calcValue != savedValue)
+                    {
+                        SetLightValue(posX, posY, posZ, calcValue);
+
+                        if (capacity < 32762) 
+                        {
+
+                            if (calcValue > savedValue)
+                            {
+                                if (!neightboursLoaded)
+                                {
+                                    n = GetLightValue(posX, posY, posZ + 1);
+                                    s = GetLightValue(posX, posY, posZ - 1);
+                                    t = GetLightValue(posX, posY + 1, posZ);
+                                    b = GetLightValue(posX, posY - 1, posZ);
+                                    e = GetLightValue(posX + 1, posY, posZ);
+                                    w = GetLightValue(posX - 1, posY, posZ);
+                                }
+
+                                //calc distance from staret if (
+                                int diffX = Math.Abs(posX - x);
+                                int diffY = Math.Abs(posY - y);
+                                int diffZ = Math.Abs(posZ - z); 
+
+                                if (diffX + diffY + diffZ < 16)
+                                {
+
+                                    if (n < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ + 1, calcValue);
+                                    }
+                                    if (s < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ - 1, calcValue);
+                                    }
+                                    if (e < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX + 1, posY, posZ, calcValue);
+                                    }
+                                    if (w < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX - 1, posY, posZ, calcValue);
+                                    }
+                                    if (t < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX, posY + 1, posZ, calcValue);
+                                    }
+                                    if (b < calcValue)
+                                    {
+                                        collection [capacity++] = new BlockLightUpdate(posX, posY - 1, posZ, calcValue);
+                                    }
+                                }
+                                //if (GetLightValue
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        
+        private bool FacesTheSky(int x, int y, int z)
+        {
+            int chunkX = x / 16;
+            int chunkZ = z / 16;
+            int localX = x - (chunkX * 16);
+            int localZ = z - (chunkZ * 16);
+
+            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+            if (chunk == null)
+                return true;
+
+            byte height = chunk.GetHeightMap(localX, localZ);
+            
+            if ((int)height == y)
+            {
+                return true; // is directly touched by sunlight
+            }
+            return false;
+        }
+
+
+
+        private int CalcLightValue(int x, int y, int z, int n, int s, int e, int w, int t, int b)
+        {
+            int level = 0;
+
+            int opacity = GetBlock(x, y, z).LightOpacity;
+
+            if (opacity >= 15)
+            {
+                return 0;
+            }
+
+
+
+            n--;
+            s--;
+            e--;
+            w--;
+            t--;
+            b--;
+            /*int chunkX = x / 16;
+            int chunkZ = z / 16;
+            int localX = x - chunkX;
+            int localZ = z - chunkZ;
+
+            byte height = GetChunk(chunkX, chunkZ).GetHeightMap(localX, localZ);
+
+            if ((int)height == y)
+            {
+                return 15; // is directly touched by sunlight
+            }
+*/
+             
+           /* byte n = GetLightValue(x, y, z + 1) - 1;
+            byte s = GetLightValue(x, y, z - 1) - 1;
+            byte t = GetLightValue(x, y + 1, z) - 1;
+            byte b = GetLightValue(x, y - 1, z) - 1;
+            byte e = GetLightValue(x + 1, y, z) - 1;
+            byte w = GetLightValue(x - 1, y, z) - 1;
+*/
+            if (n > level)
+                level = n;
+            if (s > level)
+                level = s;
+            if (t > level)
+                level = t;
+            if (b > level)
+                level = b;
+            if (e > level)
+                level = e;
+            if (w > level)
+                level = w;
+
+            return level;
+        }
+
+
+
+        /*private void SpreadDaylight(int x, int y, int z, byte level)
+        {
+            if (x < 0 || x >= 16 || y >= 255 || y < 0 || z < 0 || z >= 16)
+                return;
+            
+            byte current = GetLightValue(x, y, z);
+            
+            //byte h = GetHeightMap(x, z);
+            level -= 2;
+            
+            if (current >= level || level < 2) 
+                return;
+            
+            SetDaylightValue(x, y, z, level);
+            
+            SpreadDaylight(x + 1, y, z, level);
+            SpreadDaylight(x - 1, y, z, level);
+            SpreadDaylight(x, y + 1, z, level);
+            SpreadDaylight(x, y - 1, z, level);
+            SpreadDaylight(x, y, z + 1, level);
+            SpreadDaylight(x, y, z - 1, level);
+            
+        }*/
+        #endregion
     }
 }
 

@@ -50,7 +50,9 @@
      <Compile Include="Assets\Levels\BlockManagement\BlockGeometry.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockManager.cs" />
      <Compile Include="Assets\Levels\Chunk.cs" />
+     <Compile Include="Assets\Levels\ChunkManager\BlockLightUpdate.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Chunk2.cs" />
+     <Compile Include="Assets\Levels\ChunkManager\ChunkCache.cs" />
      <Compile Include="Assets\Levels\ChunkManager\ChunkManager.cs" />
      <Compile Include="Assets\Levels\ChunkManager\ChunkRenderer.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Section2.cs" />

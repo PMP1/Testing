@@ -73,10 +73,10 @@ namespace AssemblyCSharp
         #region Light Access
         public void SetDatlightData(int x, int  y, int z, int level) 
         {
-            this.SetDAylightData(x + 16 * (z + 16 * y), level);
+            this.SetDaylightData(x + 16 * (z + 16 * y), level);
         }
 
-        public void SetDAylightData(int xyz, int level)
+        public void SetDaylightData(int xyz, int level)
         {
             this.daylightData [xyz] = (byte)level;
         }

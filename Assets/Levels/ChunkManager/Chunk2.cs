@@ -253,39 +253,22 @@ namespace AssemblyCSharp
 
                     for (int y = c; y < n; y++)
                     {
-                        //spread to other columns chunks
-                        SpreadDaylight(x, y, z + 1, 15);
-                        SpreadDaylight(x, y, z - 1, 15);
-                        SpreadDaylight(x + 1, y, z, 15);
-                        SpreadDaylight(x - 1, y, z, 15);
+                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z, 15);
+                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z + 1, 15);
+                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z - 1, 15);
+                        manager.UpdateLightBlock((this.xPosition * 16) + x + 1, y, (this.zPosition * 16) + z, 15);
+                        manager.UpdateLightBlock((this.xPosition * 16) + x - 1, y, (this.zPosition * 16) + z, 15);
+                            //spread to other columns chunks
+                        //SpreadDaylight(x, y, z + 1, 15);
+                       // SpreadDaylight(x, y, z - 1, 15);
+                        //SpreadDaylight(x + 1, y, z, 15);
+                        //SpreadDaylight(x - 1, y, z, 15);
                     }
                 }
             }
         }
 
-        private void SpreadDaylight(int x, int y, int z, byte level)
-        {
-            if (x < 0 || x >= 16 || y >= 255 || y < 0 || z < 0 || z >= 16)
-                return;
 
-            byte current = GetDaylightValue(x, y, z);
-
-            //byte h = GetHeightMap(x, z);
-            level -= 2;
-
-            if (current >= level || level < 2) 
-                return;
-
-            SetDaylightValue(x, y, z, level);
-            
-            SpreadDaylight(x + 1, y, z, level);
-            SpreadDaylight(x - 1, y, z, level);
-            SpreadDaylight(x, y + 1, z, level);
-            SpreadDaylight(x, y - 1, z, level);
-            SpreadDaylight(x, y, z + 1, level);
-            SpreadDaylight(x, y, z - 1, level);
-
-        }
 
         public void UpdateDaylight(byte level)
         {

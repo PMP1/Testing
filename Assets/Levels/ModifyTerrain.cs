@@ -19,7 +19,7 @@ public class ModifyTerrain : MonoBehaviour {
 
 
         //40 is the 1st test
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256, false); //needs to load at 256
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,10,256, false); //needs to load at 256
         world.chunkManager.RenderInnitialChunks();
 		//Need to call an inittial set of chunk updates here so that the lighting is rendered
 		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
@@ -188,7 +188,7 @@ public class ModifyTerrain : MonoBehaviour {
 	
 	public void UpdateChunkAt(int x, int y, int z, byte block){
 		//Updates the chunk containing this block
-		int updateX= Mathf.FloorToInt( x/world.sectionSize);
+		/*int updateX= Mathf.FloorToInt( x/world.sectionSize);
 		int updateY= Mathf.FloorToInt( y/world.sectionSize);
 		int updateZ= Mathf.FloorToInt( z/world.sectionSize);
 
@@ -225,7 +225,7 @@ public class ModifyTerrain : MonoBehaviour {
 		
 		if(z-(world.sectionSize*updateZ)==15 && updateZ!=world.chunks.GetLength(1)-1){
 			world.chunks[updateX, updateZ+1].update=true;
-		}
+		}*/
 	}
 
 
