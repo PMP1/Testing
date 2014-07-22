@@ -91,7 +91,7 @@ namespace AssemblyCSharp
 
             SetFirstSection();
             GenerateDaylight(); //TODO remove this to milti threaded
-            SpreadDaylight();
+            //SpreadDaylight();
         }
 
         private void SetFirstSection()
@@ -258,11 +258,6 @@ namespace AssemblyCSharp
                         manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z - 1, 15);
                         manager.UpdateLightBlock((this.xPosition * 16) + x + 1, y, (this.zPosition * 16) + z, 15);
                         manager.UpdateLightBlock((this.xPosition * 16) + x - 1, y, (this.zPosition * 16) + z, 15);
-                            //spread to other columns chunks
-                        //SpreadDaylight(x, y, z + 1, 15);
-                       // SpreadDaylight(x, y, z - 1, 15);
-                        //SpreadDaylight(x + 1, y, z, 15);
-                        //SpreadDaylight(x - 1, y, z, 15);
                     }
                 }
             }

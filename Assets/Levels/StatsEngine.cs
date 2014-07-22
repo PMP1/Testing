@@ -36,6 +36,9 @@ namespace AssemblyCSharp
         public static float TotalLoadTime = 0;
         public static float ChunkGenTime = 0;
         public static float ChunkRenderTime = 0;
+
+        public static float ChunkSpreadLight = 0;
+
         public static float SectionMeshGen = 0;
         public static float SectionGoCreate = 0;
         public static float SectionSmoothLighting = 0;

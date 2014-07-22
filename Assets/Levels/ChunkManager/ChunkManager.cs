@@ -165,6 +165,19 @@ namespace AssemblyCSharp
 
         #region Light
 
+
+        public void SpreadLightToAllChunks()
+        {
+
+            System.DateTime start = System.DateTime.Now;
+            foreach (var key in chunkCollection.Keys)
+            {
+                ((Chunk2)chunkCollection[key]).SpreadDaylight();
+            }
+            StatsEngine.ChunkSpreadLight += (float)System.DateTime.Now.Subtract(start).TotalSeconds;
+
+        }
+
         public int GetLightValue(int x, int y, int z)
         {
             if (y >= 256 || y < 0)
@@ -220,6 +233,8 @@ namespace AssemblyCSharp
 
         public void UpdateLightBlock(int x, int y, int z, byte level)
         {
+
+            ChunkCache cache = new ChunkCache(x, z, 17, this);
             //origin x, y, z
             //current x, y, z
             //current level
@@ -248,6 +263,14 @@ namespace AssemblyCSharp
                     int posZ = block.posZ;
 
                     int savedValue = GetLightValue(posX, posY, posZ);
+                    int s2 = cache.GetLightValue(posX,posY,posZ);
+
+                    //DEBUG section - must equal each other
+                    if (savedValue != s2)
+                    {
+                        savedValue = GetLightValue(posX, posY, posZ); //(6 6) (0 1)
+                        s2 = cache.GetLightValue(posX,posY,posZ); //(6, 7) (2, 15)
+                    }
 
                     int calcValue = 0;
 

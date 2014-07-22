@@ -15,6 +15,25 @@ namespace AssemblyCSharp
 
         private Chunk2[,] chunkCache;
 
+        private ChunkManager manager;
+
+        private int xMax;
+        private int zMax;
+        private int xMin;
+        private int zMin;
+
+        private int centerX;
+        private int centerZ;
+        private int centerChunkX;
+        private int centerChunkZ;
+        private int xChunkMin;
+        private int zChunkMin;
+        private int xChunkMax;
+        private int zChunkMax;
+        
+        private int xChunks;
+        private int zChunks;
+
 
         /// <summary>
         /// 
@@ -22,10 +41,136 @@ namespace AssemblyCSharp
         /// <param name="x">The global x coordinate.</param>
         /// <param name="z">The global z coordinate.</param>
         /// <param name="dist">Dist.</param>
-        public ChunkCache(int x, int z, int dist)
+        public ChunkCache(int x, int z, int dist, ChunkManager chunkManager)
         {
+            manager = chunkManager;
 
+            xMax = x + dist;
+            zMax = z + dist;
+            xMin = x - dist;
+            zMin = z - dist;
+
+            xChunkMin = xMin / 16;
+            zChunkMin = zMin / 16;
+            xChunkMax = xMax / 16;
+            zChunkMax = zMax / 16;
+
+            xChunks = xChunkMax - xChunkMin + 1;
+            zChunks = zChunkMax - zChunkMin + 1;
+
+            centerX = x;
+            centerZ = z;
+            centerChunkX = (x / 16) - xChunkMin;
+            centerChunkZ = (z / 16) - zChunkMin;
+
+            LoadChunks();
         }
+
+        private void LoadChunks()
+        {
+            chunkCache = new Chunk2[xChunks, zChunks];
+
+            for (int x = xChunkMin; x <= xChunkMax; x++)
+            {
+                for (int z = zChunkMin; z <= zChunkMax; z++)
+                {
+                    chunkCache[x - xChunkMin, z - zChunkMin] = manager.GetChunk(x, z);
+                }
+            }
+        }
+
+        #region GetBlockCode
+
+        private Chunk2 GetChunk(int relX, int relZ)
+        {
+            Chunk2 chunk = chunkCache[(relX / 16) + centerChunkX, (relZ / 16) + centerChunkZ];
+            return chunk;
+        }
+
+        #endregion
+
+        #region HeightMap
+        public int GetHeightMap(int globalX, int globalZ)
+        {
+            int relX = (globalX) - xMin;
+            int relZ = (globalZ) - zMin;
+
+            int chunkposX = globalX - ((globalX / 16) * 16);
+            int chunkposZ = globalZ - ((globalZ / 16) * 16);
+
+            Chunk2 chunk = GetChunk(relX, relZ);
+            if (chunk == null)
+            {
+                return 255;
+            } 
+            else
+            {
+                return chunk.GetHeightMap(chunkposX, chunkposZ);
+            }
+        }
+        #endregion
+
+        #region Light
+        public int GetLightValue(int globalX, int y, int globalZ)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return 15;
+            } else
+            {
+                int relX = (globalX) - centerX;
+                int relZ = (globalZ) - centerZ;
+                
+                int chunkposX = globalX - ((globalX / 16) * 16);
+                int chunkposZ = globalZ - ((globalZ / 16) * 16);
+
+                Chunk2 chunk;
+
+                try
+                {
+                    chunk = GetChunk(relX, relZ);
+                    if (chunk == null) 
+                    {
+                        return 15;
+                    }
+                    return (int)chunk.GetDaylightValue(chunkposX, y, chunkposZ);
+                }
+                catch
+                {
+                    //chunk = GetChunk(relX, relZ);
+                    return 15;
+                }
+
+            }
+        }
+        
+        public void SetLightValue(int globalX, int y, int globalZ, int level)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return;
+            } else
+            {
+                int relX = (globalX) - xMin;
+                int relZ = (globalZ) - zMin;
+                
+                int chunkposX = globalX - (globalX / 16);
+                int chunkposZ = globalZ - (globalZ / 16);
+                
+                Chunk2 chunk = GetChunk(relX, relZ);
+                
+                if (chunk == null) 
+                {
+                    return;
+                }
+                chunk.SetDaylightValue(chunkposX, y, chunkposX, (byte)level);
+            }
+        }
+
+
+        #endregion
+
+
     }
 }
 
