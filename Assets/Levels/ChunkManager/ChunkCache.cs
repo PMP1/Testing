@@ -34,6 +34,9 @@ namespace AssemblyCSharp
         private int xChunks;
         private int zChunks;
 
+        private int _chunkX;
+        private int _chunkZ;
+        private int _dist;
 
         /// <summary>
         /// 
@@ -44,6 +47,10 @@ namespace AssemblyCSharp
         public ChunkCache(int x, int z, int dist, ChunkManager chunkManager)
         {
             manager = chunkManager;
+
+            _chunkX = x >> 4;
+            _chunkZ = z >> 4;
+            _dist = dist;
 
             xMax = x + dist;
             zMax = z + dist;
@@ -83,7 +90,7 @@ namespace AssemblyCSharp
 
         private Chunk2 GetChunk(int relX, int relZ)
         {
-            Chunk2 chunk = chunkCache[(relX / 16) + centerChunkX, (relZ / 16) + centerChunkZ];
+            Chunk2 chunk = chunkCache[relX + centerChunkX, relZ + centerChunkZ];
             return chunk;
         }
 
@@ -108,6 +115,41 @@ namespace AssemblyCSharp
                 return chunk.GetHeightMap(chunkposX, chunkposZ);
             }
         }
+
+        public bool FacesTheSky(int globalX, int globalY, int globalZ)
+        {
+            int chunkX = globalX >> 4;
+            int chunkZ = globalZ >> 4;
+            
+            int relChunkX = chunkX - _chunkX;
+            int relChunkZ = chunkZ - _chunkZ;
+            
+            int chunkposX = globalX - (chunkX * 16);
+            int chunkposZ = globalZ - (chunkZ * 16);
+            
+            Chunk2 chunk;
+
+            try
+            {
+                chunk = GetChunk(relChunkX, relChunkZ);
+                if (chunk == null) 
+                {
+                    return true;
+                }
+
+                byte height = chunk.GetHeightMap(chunkposX, chunkposZ);
+                
+                if ((int)height == globalY)
+                {
+                    return true; // is directly touched by sunlight
+                }
+            }
+            catch
+            {
+                return true;
+            }
+            return false;
+        }
         #endregion
 
         #region Light
@@ -118,17 +160,21 @@ namespace AssemblyCSharp
                 return 15;
             } else
             {
-                int relX = (globalX) - centerX;
-                int relZ = (globalZ) - centerZ;
+
+                int chunkX = globalX >> 4;
+                int chunkZ = globalZ >> 4;
                 
-                int chunkposX = globalX - ((globalX / 16) * 16);
-                int chunkposZ = globalZ - ((globalZ / 16) * 16);
+                int relChunkX = chunkX - _chunkX;
+                int relChunkZ = chunkZ - _chunkZ;
+                
+                int chunkposX = globalX - (chunkX * 16);
+                int chunkposZ = globalZ - (chunkZ * 16);
 
                 Chunk2 chunk;
 
                 try
                 {
-                    chunk = GetChunk(relX, relZ);
+                    chunk = GetChunk(relChunkX, relChunkZ);
                     if (chunk == null) 
                     {
                         return 15;
@@ -151,24 +197,38 @@ namespace AssemblyCSharp
                 return;
             } else
             {
-                int relX = (globalX) - xMin;
-                int relZ = (globalZ) - zMin;
+
+                int chunkX = globalX >> 4;
+                int chunkZ = globalZ >> 4;
+
+                int relChunkX = chunkX - _chunkX;
+                int relChunkZ = chunkZ - _chunkZ;
                 
-                int chunkposX = globalX - (globalX / 16);
-                int chunkposZ = globalZ - (globalZ / 16);
-                
-                Chunk2 chunk = GetChunk(relX, relZ);
-                
-                if (chunk == null) 
+                int chunkposX = globalX - (chunkX * 16);
+                int chunkposZ = globalZ - (chunkZ * 16);
+
+                Chunk2 chunk;
+
+                try
+                {
+                    chunk = GetChunk(relChunkX, relChunkZ);
+                    if (chunk == null) 
+                    {
+                        return;
+                    }
+                    chunk.SetDaylightValue(chunkposX, y, chunkposZ, (byte)level);
+                }
+                catch
                 {
                     return;
                 }
-                chunk.SetDaylightValue(chunkposX, y, chunkposX, (byte)level);
             }
         }
 
 
         #endregion
+
+
 
 
     }

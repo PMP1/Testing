@@ -342,29 +342,11 @@ namespace AssemblyCSharp
                         posy = y + (section.posY * 16);
                         posz = z + (chunkz * 16);
 
-                        //byte id = this.GetBlockId(x, posy, z);
-
                         byte id = section.GetBlockId(x, y, z);
-                        //Block block = this.chunkManager.GetBlock(posx, posy, posz);
-
-                        //int t1 = (int)block.BlkType;
-                        //int t2 = (int)id;
-
-                        //if (t1 != t2) {
-                        //    var ii = 33;
-                        //}
 
                         if (id != (byte)0)//|| block.LightOpacity < 16)
                         {
-                            //Block block = this.chunkManager.GetBlock(posx, posy, posz);
                             Block block = BlockManager.GetBlock((byte)id);
-
-                            //Block blockT = this.chunkManager.GetBlock(posx, posy + 1, posz);
-                            //Block blockB = this.chunkManager.GetBlock(posx, posy - 1, posz);
-                            //Block blockN = this.chunkManager.GetBlock(posx, posy, posz + 1);
-                            //Block blockE = this.chunkManager.GetBlock(posx + 1, posy, posz);
-                            //Block blockS = this.chunkManager.GetBlock(posx, posy, posz - 1);
-                            //Block blockW = this.chunkManager.GetBlock(posx - 1, posy, posz);
 
                             Block blockT = this.GetBlock(x, posy + 1, z);
                             Block blockB = this.GetBlock(x, posy - 1, z);
@@ -386,6 +368,10 @@ namespace AssemblyCSharp
                             if ((int)blockB.BlkType == (int)BlockType.Air)
                             {
                                 CubeBot(x, y, z, block);
+                                startCreateSmoothLight = System.DateTime.Now;
+                                CubeBottomLight(x, posy, z, block);
+                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
+
                             }
                             if ((int)blockN.BlkType == (int)BlockType.Air)
                             {
@@ -432,9 +418,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-
-            //CubeLight(3, 3, 3, 3);
         }
 
         private void CubeNorth (int x, int y, int z, Block block)
@@ -446,9 +429,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            ///CubeNorthLight(x, y, z, block);
-            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeEast (int x, int y, int z, Block block)
@@ -460,8 +440,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            //CubeLight(0, 0, 0, 0);
         }
 
         
@@ -475,7 +453,6 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            //CubeLight(0, 0, 0, 0);
         }
 
 
@@ -489,8 +466,6 @@ namespace AssemblyCSharp
 
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeBot (int x, int y, int z, Block block)
@@ -504,7 +479,6 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(15);
         }
 
         
@@ -513,23 +487,49 @@ namespace AssemblyCSharp
             if (smoothLighting)
             {
 
-                Block blockN = this.GetBlock(x, y + 1, z + 1);
-                Block blockNE = this.GetBlock(x + 1, y + 1, z + 1);
-                Block blockE = this.GetBlock(x + 1, y + 1, z);
-                Block blockSE = this.GetBlock(x + 1, y + 1, z - 1);
-                Block blockS = this.GetBlock(x, y + 1, z - 1);
-                Block blockSW = this.GetBlock(x - 1, y + 1, z - 1);
-                Block blockW = this.GetBlock(x - 1, y + 1, z);
-                Block blockNW = this.GetBlock(x - 1, y + 1, z + 1);
+                byte blockN = this.GetDaylightValue(x, y + 1, z + 1);
+                byte blockNE = this.GetDaylightValue(x + 1, y + 1, z + 1);
+                byte blockE = this.GetDaylightValue(x + 1, y + 1, z);
+                byte blockSE = this.GetDaylightValue(x + 1, y + 1, z - 1);
+                byte blockS = this.GetDaylightValue(x, y + 1, z - 1);
+                byte blockSW = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockW = this.GetDaylightValue(x - 1, y + 1, z);
+                byte blockNW = this.GetDaylightValue(x - 1, y + 1, z + 1);
+                byte blockC = this.GetDaylightValue(x, y + 1, z);
+                float c1 = GetAverageLight(blockN, blockW, blockNW, blockC);
+                float c2 = GetAverageLight(blockS, blockW, blockSW, blockC);
+                float c3 = GetAverageLight(blockS, blockE, blockSE, blockC);
+                float c4 = GetAverageLight(blockN, blockE, blockNE, blockC);
+                    
+                CubeLight(c1, c4, c3, c2);
+            } else
+            {
+                CubeLight(15);
+            }
+        }
 
-                byte light = this.GetDaylightValue(x, y + 1, z);
-            
-                int c1 = GetCornerLight(blockN, blockW, blockNW);
-                int c2 = GetCornerLight(blockS, blockW, blockSW);
-                int c3 = GetCornerLight(blockS, blockE, blockSE);
-                int c4 = GetCornerLight(blockN, blockE, blockNE);
+        
+        private void CubeBottomLight(int x, int y, int z, Block block) 
+        {
+            if (smoothLighting)
+            {
                 
-                CubeLight(c1, c4, c3, c2, light);
+                byte blockN  = this.GetDaylightValue(x, y - 1, z + 1);
+                byte blockNE = this.GetDaylightValue(x + 1, y - 1, z + 1);
+                byte blockE  = this.GetDaylightValue(x + 1, y - 1, z);
+                byte blockSE = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockS  = this.GetDaylightValue(x, y - 1, z - 1);
+                byte blockSW = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockW  = this.GetDaylightValue(x - 1, y - 1, z);
+                byte blockNW = this.GetDaylightValue(x - 1, y - 1, z + 1);
+                byte blockC = this.GetDaylightValue(x, y - 1, z);
+                
+                float c1 = GetAverageLight(blockN, blockW, blockNW, blockC);
+                float c2 = GetAverageLight(blockS, blockW, blockSW, blockC);
+                float c3 = GetAverageLight(blockS, blockE, blockSE, blockC);
+                float c4 = GetAverageLight(blockN, blockE, blockNE, blockC);
+                
+                CubeLight(c2, c3,c4, c1);
             } else
             {
                 CubeLight(15);
@@ -541,23 +541,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT  = this.GetBlock (x,   y+1, z+1); //top
-                Block blockTE = this.GetBlock (x+1, y+1, z+1); //top - east
-                Block blockE  = this.GetBlock (x+1, y,   z+1);
-                Block blockBE = this.GetBlock (x+1, y-1, z+1);
-                Block blockB  = this.GetBlock (x,   y-1, z+1);
-                Block blockBW = this.GetBlock (x-1, y-1, z+1);
-                Block blockW  = this.GetBlock (x-1, y,   z+1);
-                Block blockTW= this.GetBlock (x-1, y+1, z+1);
+                byte blockT  = this.GetDaylightValue(x,   y+1, z+1); //top
+                byte blockTE = this.GetDaylightValue(x+1, y+1, z+1); //top - east
+                byte blockE  = this.GetDaylightValue(x+1, y,   z+1);
+                byte blockBE = this.GetDaylightValue(x+1, y-1, z+1);
+                byte blockB  = this.GetDaylightValue(x,   y-1, z+1);
+                byte blockBW = this.GetDaylightValue(x-1, y-1, z+1);
+                byte blockW  = this.GetDaylightValue(x-1, y,   z+1);
+                byte blockTW = this.GetDaylightValue(x-1, y+1, z+1);
+                byte blockC  = this.GetDaylightValue(x,   y,   z+1);
 
-                int c1 = GetCornerLight(blockT, blockW, blockTW);
-                int c2 = GetCornerLight(blockB, blockW, blockBW);
-                int c3 = GetCornerLight(blockB, blockE, blockBE);
-                int c4 = GetCornerLight(blockT, blockE, blockTE);
+                float c1 = GetAverageLight(blockT, blockW, blockTW, blockC);
+                float c2 = GetAverageLight(blockB, blockW, blockBW, blockC);
+                float c3 = GetAverageLight(blockB, blockE, blockBE, blockC);
+                float c4 = GetAverageLight(blockT, blockE, blockTE, blockC);
 
-                byte light = this.GetDaylightValue(x, y, z + 1);
-
-                CubeLight(c3, c4, c1, c2, light);
+                CubeLight(c3, c4, c1, c2);
             } else
             {
                 CubeLight(15);
@@ -568,23 +567,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x + 1, y + 1, z); //top
-                Block blockTN = this.GetBlock(x + 1, y + 1, z + 1); //top - east
-                Block blockN = this.GetBlock(x + 1, y, z + 1);
-                Block blockBN = this.GetBlock(x + 1, y - 1, z + 1);
-                Block blockB = this.GetBlock(x + 1, y - 1, z);
-                Block blockBS = this.GetBlock(x + 1, y - 1, z - 1);
-                Block blockS = this.GetBlock(x + 1, y, z - 1);
-                Block blockTS = this.GetBlock(x + 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x + 1, y + 1, z); //top
+                byte blockTN = this.GetDaylightValue(x + 1, y + 1, z + 1); //top - east
+                byte blockN = this.GetDaylightValue(x + 1, y, z + 1);
+                byte blockBN = this.GetDaylightValue(x + 1, y - 1, z + 1);
+                byte blockB = this.GetDaylightValue(x + 1, y - 1, z);
+                byte blockBS = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockS = this.GetDaylightValue(x + 1, y, z - 1);
+                byte blockTS = this.GetDaylightValue(x + 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x + 1, y, z);
             
-                int c1 = GetCornerLight(blockT, blockN, blockTN);
-                int c2 = GetCornerLight(blockB, blockN, blockBN);
-                int c3 = GetCornerLight(blockB, blockS, blockBS);
-                int c4 = GetCornerLight(blockT, blockS, blockTS);
+                float c1 = GetAverageLight(blockT, blockN, blockTN, blockC);
+                float c2 = GetAverageLight(blockB, blockN, blockBN, blockC);
+                float c3 = GetAverageLight(blockB, blockS, blockBS, blockC);
+                float c4 = GetAverageLight(blockT, blockS, blockTS, blockC);
 
-                byte light = this.GetDaylightValue(x +1, y, z);
-
-                CubeLight(c3, c4, c1, c2, light);       
+                CubeLight(c3, c4, c1, c2);       
             } else
             {
                 CubeLight(15);
@@ -596,23 +594,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x, y + 1, z - 1); //top
-                Block blockTE = this.GetBlock(x + 1, y + 1, z - 1); //top - east
-                Block blockE = this.GetBlock(x + 1, y, z - 1);
-                Block blockBE = this.GetBlock(x + 1, y - 1, z - 1);
-                Block blockB = this.GetBlock(x, y - 1, z - 1);
-                Block blockBW = this.GetBlock(x - 1, y - 1, z - 1);
-                Block blockW = this.GetBlock(x - 1, y, z - 1);
-                Block blockTW = this.GetBlock(x - 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x, y + 1, z - 1); //top
+                byte blockTE = this.GetDaylightValue(x + 1, y + 1, z - 1); //top - east
+                byte blockE = this.GetDaylightValue(x + 1, y, z - 1);
+                byte blockBE = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockB = this.GetDaylightValue(x, y - 1, z - 1);
+                byte blockBW = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockW = this.GetDaylightValue(x - 1, y, z - 1);
+                byte blockTW = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x, y, z - 1);
             
-                int c1 = GetCornerLight(blockT, blockE, blockTE);
-                int c2 = GetCornerLight(blockB, blockE, blockBE);
-                int c3 = GetCornerLight(blockB, blockW, blockBW);
-                int c4 = GetCornerLight(blockT, blockW, blockTW);
+                float c1 = GetAverageLight(blockT, blockE, blockTE, blockC);
+                float c2 = GetAverageLight(blockB, blockE, blockBE, blockC);
+                float c3 = GetAverageLight(blockB, blockW, blockBW, blockC);
+                float c4 = GetAverageLight(blockT, blockW, blockTW, blockC);
 
-                byte light = this.GetDaylightValue(x, y, z - 1);
-
-                CubeLight(c3, c4, c1, c2, light);
+                CubeLight(c3, c4, c1, c2);
             } else
             {
                 CubeLight(15);
@@ -623,29 +620,37 @@ namespace AssemblyCSharp
         {   
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x - 1, y + 1, z); //top
-                Block blockTN = this.GetBlock(x - 1, y + 1, z + 1); //top - north
-                Block blockN = this.GetBlock(x - 1, y, z + 1);
-                Block blockBN = this.GetBlock(x - 1, y - 1, z + 1);
-                Block blockB = this.GetBlock(x - 1, y - 1, z);
-                Block blockBS = this.GetBlock(x - 1, y - 1, z - 1);
-                Block blockS = this.GetBlock(x - 1, y, z - 1);
-                Block blockTS = this.GetBlock(x - 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x - 1, y + 1, z); //top
+                byte blockTN = this.GetDaylightValue(x - 1, y + 1, z + 1); //top - north
+                byte blockN = this.GetDaylightValue(x - 1, y, z + 1);
+                byte blockBN = this.GetDaylightValue(x - 1, y - 1, z + 1);
+                byte blockB = this.GetDaylightValue(x - 1, y - 1, z);
+                byte blockBS = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockS = this.GetDaylightValue(x - 1, y, z - 1);
+                byte blockTS = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x - 1, y, z);
                
-                int c1 = GetCornerLight(blockT, blockN, blockTN);
-                int c2 = GetCornerLight(blockB, blockN, blockBN);
-                int c3 = GetCornerLight(blockB, blockS, blockBS);
-                int c4 = GetCornerLight(blockT, blockS, blockTS);
+                float c1 = GetAverageLight(blockT, blockN, blockTN, blockC);
+                float c2 = GetAverageLight(blockB, blockN, blockBN, blockC);
+                float c3 = GetAverageLight(blockB, blockS, blockBS, blockC);
+                float c4 = GetAverageLight(blockT, blockS, blockTS, blockC);
 
-                byte light = this.GetDaylightValue(x - 1, y, z);
-
-                CubeLight(c2, c1, c4, c3, light);       
+                CubeLight(c2, c1, c4, c3);       
             } else
             {
                 CubeLight(15);
             }
         }
 
+
+        private float GetAverageLight(byte side1, byte side2, byte side3, byte side4)
+        {
+            if (side1 + side2 + side3 + side4 < 60)
+            {
+                int i = 0; 
+            }
+            return ((float)(side1 + side2 + side3 + side4)) / (16f * 4f);
+        }
 
         private int GetCornerLight(Block side1, Block side2, Block corner)
         {
@@ -668,6 +673,14 @@ namespace AssemblyCSharp
             newColor.Add(new Color(0f,0f,0f,level));
             newColor.Add(new Color(0f,0f,0f,level));
             newColor.Add(new Color(0f,0f,0f,level));
+        }
+
+        void CubeLight(float c1, float c2, float c3, float c4) {
+            
+            newColor.Add(new Color(0f,0f,0f,c1));
+            newColor.Add(new Color(0f,0f,0f,c2));
+            newColor.Add(new Color(0f,0f,0f,c3));
+            newColor.Add(new Color(0f,0f,0f,c4));
         }
 
         void CubeLight(int c1, int c2, int c3, int c4, byte light) {
