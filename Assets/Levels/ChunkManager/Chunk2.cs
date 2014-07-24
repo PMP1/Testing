@@ -40,6 +40,8 @@ namespace AssemblyCSharp
         public bool isDataLoaded = false;
         public bool isDaylightCalculated = false;
         public bool isLightCalculated = false;
+        public bool isSectionsGenerated = false;
+        public bool isSectionsRendered = false;
 
         //section = 4096
 

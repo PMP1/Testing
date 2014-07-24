@@ -342,35 +342,6 @@ public class Chunk : MonoBehaviour {
 	public void GenColumn(bool useSectionLoader){
 		
 
-		for (int y = (worldY/sectionSize) - 1; y >= 0; y--){
-			//Create a temporary Gameobject for the new chunk instead of using chunks[x,y,z]
-			GameObject newChunk= Instantiate(section,new Vector3(chunkX*sectionSize-0.5f,
-			                                                   y*sectionSize+0.5f,
-			                                                     chunkZ*sectionSize-0.5f),new Quaternion(0,0,0,0)) as GameObject;
-
-			sections[y]= newChunk.GetComponent("Section") as Section;
-			sections[y].worldGO=worldGO;
-			sections[y].chunkGO=this.gameObject;
-			sections[y].world=worldGO.GetComponent ("World") as World;
-			sections[y].chunk=this.gameObject.GetComponent ("Chunk") as Chunk;
-			sections[y].sectionSize=sectionSize;
-			sections[y].sectionX=chunkX*sectionSize;
-			sections[y].sectionY=y*sectionSize;
-			sections[y].sectionZ=chunkZ*sectionSize;
-			sections[y].useCollisionMatrix = useCollisionMatrix;
-			sections[y].data = new byte[sectionSize,sectionSize,sectionSize];
-			sections[y].lightData = new byte[sectionSize,sectionSize,sectionSize];
-			sections[y].daylightData = new byte[sectionSize,sectionSize,sectionSize];
-            sections[y].Id = y;
-
-            if (useSectionLoader) {
-                SectionLoader.RequestSection(sections[y]);
-            }
-			else {
-                PerlinWorldGenerator.CreateSection(sections[y]);
-            }
-
-            SetHeightMapMaxMin();
-		}
+		
 	}
 }

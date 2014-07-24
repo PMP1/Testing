@@ -23,10 +23,8 @@ namespace AssemblyCSharp
         private List<Vector3> newVertices = new List<Vector3> ();
         private List<int> newTriangles = new List<int> ();
         private List<Vector2> newUV = new List<Vector2> ();
-        
         private List<Vector3> newColliderVertices = new List<Vector3> ();
         private List<int> newColliderTriangles = new List<int> ();
-        
         private List<Color> newColor = new List<Color> ();
         private float tUnit = 0.25f;
 
@@ -83,6 +81,7 @@ namespace AssemblyCSharp
                 Section2 section = chunk.GetSection(secY);
                 RenderSection(section, chunk, daylightLevel);
             }
+            chunk.isSectionsRendered = true;
         }
 
         private void RenderSection(Section2 sec, Chunk2 chunk, byte daylight) 
@@ -97,15 +96,18 @@ namespace AssemblyCSharp
                 colliderGenerator.GenerateCollisionMatrix(sec, ref newColliderTriangles, ref newColliderVertices);
                 StatsEngine.SectionColliderGen += (float)System.DateTime.Now.Subtract(startCreateCollider).TotalSeconds;
 
-                System.DateTime startCreateGO = System.DateTime.Now;
-                GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
-                StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
+                sec.SetMeshData(newVertices, newTriangles, newUV);
+                sec.SetColorData(newColor);
+                sec.SetColliderData(newColliderVertices, newColliderTriangles);
+                //System.DateTime startCreateGO = System.DateTime.Now;
+                //GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
+                //StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
 
-                sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
-                sec.sectionGO.world = world;
-                sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
-                sec.sectionGO.SetCollider(newColliderVertices, newColliderTriangles);
-                sec.sectionGO.SetDaylight(daylight);
+                //sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
+                //sec.sectionGO.world = world;
+                //sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
+                //sec.sectionGO.SetCollider(newColliderVertices, newColliderTriangles);
+                //sec.sectionGO.SetDaylight(daylight);
             }
             newUV.Clear();
             newVertices.Clear();

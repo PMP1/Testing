@@ -8,6 +8,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+
 namespace AssemblyCSharp
 {
     public class Section2
@@ -22,6 +25,13 @@ namespace AssemblyCSharp
         public Chunk2 chunk;
         public SectionGO sectionGO;
 
+        private List<Vector3> vertices = new List<Vector3> ();
+        private List<int> triangles = new List<int> ();
+        private List<Vector2> uvs = new List<Vector2> ();
+        private List<Vector3> colliderVertices = new List<Vector3> ();
+        private List<int> colliderTriangles = new List<int> ();
+        private List<Color> colors = new List<Color> ();
+
         public Section2(int y, Chunk2 cnk)
         {
             this.posY = y;
@@ -30,13 +40,54 @@ namespace AssemblyCSharp
             lightData = new byte[4096];
             chunk = cnk;
         }
-
+       
         public Section2(int y, byte[] data)
         {
             this.posY = y;
             this.data = data;
         }
 
+        public void SetMeshData(List<Vector3> verts, List<int> tri, List<Vector2> uv)
+        {
+            this.vertices = verts;
+            this.triangles = tri;
+            this.uvs = uv;
+        }
+
+        public void SetColliderData(List<Vector3> verts, List<int> tri)
+        {
+            this.colliderTriangles = tri;
+            this.colliderVertices = verts;
+        }
+
+        public void SetColorData(List<Color> color)
+        {
+            this.colors = color;
+        }
+
+        public void ClearGOTempData() 
+        {
+            this.vertices.Clear();
+            this.triangles.Clear();
+            this.uvs.Clear();
+            this.colliderTriangles.Clear();
+            this.colliderVertices.Clear();
+            this.colors.Clear();
+        }
+
+        public void r() 
+        {
+            System.DateTime startCreateGO = System.DateTime.Now;
+            GameObject newSectionGO = chunk.manager.world.CreateSectionGO(chunk, this);
+            StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
+            
+            this.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
+            this.sectionGO.world = chunk.manager.world;
+            this.sectionGO.SetMesh(uvs, vertices, triangles, colors);
+            this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
+            //sec.sectionGO.SetDaylight(daylight);
+        }
+        
         #region Block Access
 
         public void SetBlockId(int x, int y, int z, byte block) 

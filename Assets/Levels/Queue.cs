@@ -13,19 +13,23 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public static class SectionLoader
+    public static class ChunkLoader
     {
         private static PCQueue queue = new PCQueue(1);
 
-        public static void RequestSection (Section section) {
+        public static void RequestChunk (ChunkManager manager, int x, int z) {
 
             //Action test = PerlinWorldGenerator.CreateSection(section)
 
+            Chunk2 chunk = new Chunk2(manager, x, z);
+            manager.SetChunk(x, z, chunk);
+
             queue.EngueueItem(() =>
             {
-                if (!section.isLoaded)
-                    PerlinWorldGenerator.CreateSection(section);
-
+                PerlinWorldGenerator.CreateChunk(chunk);
+                chunk.isDataLoaded = true;
+                chunk.SpreadDaylight();
+                chunk.manager.renderer.RenderChunk(chunk);
             });
         }
     }

@@ -7,6 +7,8 @@ public class ModifyTerrain : MonoBehaviour {
 	World world;
 	GameObject cameraGO;
 
+    private int maxLoadDist = 55;
+    private int currentLoadDist = 50;
 	// Use this for initialization
 	void Start () {
 
@@ -53,10 +55,29 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
+        LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position);
 		//LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180, true);
 	}
 
+    private void LoadChunks(Vector2 playerPos)
+    {
+        bool moreToLoad = world.chunkManager.LoadChunkWithinDist((int)playerPos.x, (int)playerPos.y, currentLoadDist, 1);
+
+        if (!moreToLoad)
+        {
+            currentLoadDist += 5;
+            if (currentLoadDist > maxLoadDist)
+            {
+                currentLoadDist = maxLoadDist;
+            }
+        }
+    }
+
 	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
+
+
+        //start at current 
+
 
 
 		for(int x=0;x<world.chunks.GetLength(0);x++){

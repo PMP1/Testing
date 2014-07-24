@@ -25,7 +25,7 @@ namespace AssemblyCSharp
         public World world;
         //AbstractWorldGenerator worldGenerator;
 
-        ChunkRenderer renderer;
+        public ChunkRenderer renderer;
 
         public ChunkManager(World world)
         {
@@ -35,6 +35,36 @@ namespace AssemblyCSharp
             //worldGenerator = new PerlinWorldGenerator();
             //worldGenerator.init();
             //worldGenerator.setSeed(world.configSettings.Seed());
+        }
+
+        public bool LoadChunkWithinDist(int startChunkX, int startChunkZ, int blockDist, int maxLoad)
+        {
+            int currentLoad = 0;
+            int chunkx = startChunkX >> 4;
+            int chunkz = startChunkZ >> 4;
+            int chunkdist = blockDist >> 4;
+            int minX = chunkx - chunkdist;
+            int minZ = chunkz - chunkdist;
+            int maxX = chunkx + chunkdist;
+            int maxZ = chunkz + chunkdist;
+
+            for (int x = minX; x < maxX; x++)
+            {
+                for (int z = minZ; z < maxZ; z++)
+                {
+                    Chunk2 chunk = GetChunk(x, z);
+                    if (chunk == null) 
+                    {
+                        ChunkLoader.RequestChunk(this, x, z);
+                        //this.LoadChunk(x, z);
+                        currentLoad ++;
+                        if (currentLoad >= maxLoad) return true;
+                    }
+                    
+                }
+
+            }
+            return false;
         }
 
         public void LoadChunk(int x, int z) 
@@ -86,6 +116,11 @@ namespace AssemblyCSharp
             //TODO should I have the concept of an empty chunk?
             Chunk2 chunk = (Chunk2)chunkCollection [x + ":" + z];
             return chunk;
+        }
+
+        public void SetChunk(int x, int z, Chunk2 chunk)
+        {
+            chunkCollection.Add(x + ":" + z, chunk);
         }
 
         public int GetBlockId(int x, int y, int z)

@@ -120,21 +120,6 @@ public class Gui : MonoBehaviour {
         GUI.Label(new Rect(500, 90, 300, 20), StatsEngine.SectionGoCreate.ToString());
 
 
-        //GUI.Label(new Rect(300, 50, 300, 20), Time.realtimeSinceStartup.ToString());
-
-
-
-        GUI.Label(new Rect(300, 90, 200, 20), 
-				string.Concat(
-		           	"Load time: ", loadTime.ToString(),
-				   	" (",
-		           	loadTest.ToString(),
-					"%)"
-        ));
-
-
-        //GUI.Label(new Rect(10, 10, 100, 20), Time.timeSinceLevelLoad.ToString());
-
         GUI.Label(new Rect(10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());
 
         GUI.Label(new Rect(10, 50, 100, 20), "FPS:  " + time.fps.ToString());
