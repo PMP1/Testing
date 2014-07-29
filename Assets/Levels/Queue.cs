@@ -17,10 +17,8 @@ namespace AssemblyCSharp
     {
         private static PCQueue queue = new PCQueue(1);
 
-        public static void RequestChunk (ChunkManager manager, int x, int z) {
-
-            //Action test = PerlinWorldGenerator.CreateSection(section)
-
+        public static void RequestChunk (ChunkManager manager, int x, int z) 
+        {
             Chunk2 chunk = new Chunk2(manager, x, z);
             manager.SetChunk(x, z, chunk);
 
@@ -28,9 +26,30 @@ namespace AssemblyCSharp
             {
                 PerlinWorldGenerator.CreateChunk(chunk);
                 chunk.isDataLoaded = true;
-                chunk.SpreadDaylight();
+                //chunk.SpreadDaylight();
                 chunk.manager.renderer.RenderChunk(chunk);
             });
+
+            StatsEngine.QueueLength = queue.QueueLength();
+        }
+
+        public static void RequestChunkRegeneration (ChunkManager manager, Chunk2 chunk)
+        {
+            queue.EngueueItem(() =>
+                              {
+                //PerlinWorldGenerator.CreateChunk(chunk);
+                //chunk.isDataLoaded = true;
+                //chunk.SpreadDaylight();
+                chunk.manager.renderer.RenderChunk(chunk);
+            });
+
+            StatsEngine.QueueLength = queue.QueueLength();
+        }
+
+
+        public static void ShutDown()
+        {
+            queue.Shutdown(false);
         }
     }
 
@@ -48,6 +67,11 @@ namespace AssemblyCSharp
             {
                 (_workers[i]= new Thread(Consume)).Start();
             }
+        }
+
+        public int QueueLength()
+        {
+            return _itemQ.Count;
         }
 
         public void Shutdown (bool waitForWorkers)
@@ -79,14 +103,25 @@ namespace AssemblyCSharp
         {
             while (true)
             {
-                Action item;
-                lock(_locker)
+                try
                 {
-                    while(_itemQ.Count == 0) Monitor.Wait(_locker);
-                    item = _itemQ.Dequeue();
+                    Action item;
+                    lock(_locker)
+                    {
+                        while(_itemQ.Count == 0) 
+                        {
+                            Monitor.Wait(_locker);
+                        }
+                        item = _itemQ.Dequeue();
+                        StatsEngine.QueueLength = _itemQ.Count;
+                    }
+                    if (item == null) return;
+                    item();
                 }
-                if (item == null) return;
-                item();
+                catch (Exception ex)
+                {
+                    int ii = 0;
+                }
             }
         }
     }

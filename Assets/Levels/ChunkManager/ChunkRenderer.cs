@@ -73,14 +73,16 @@ namespace AssemblyCSharp
 
             if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
             {
-                neighboursLoaded = true;
+                chunk.isNeighboursLoaded = true;
             }
 
             for (int secY = firstSection; secY >= 0; secY--) 
             {
                 Section2 section = chunk.GetSection(secY);
                 RenderSection(section, chunk, daylightLevel);
+                section.RequiresGORedraw = true;
             }
+            chunkManager.requiresGOgeneration.Enqueue(chunk);
             chunk.isSectionsRendered = true;
         }
 

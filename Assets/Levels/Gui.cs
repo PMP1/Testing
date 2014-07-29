@@ -107,6 +107,7 @@ public class Gui : MonoBehaviour {
         GUI.Label(new Rect(300, 70, 300, 20), " - - Section Colllider : ");
         GUI.Label(new Rect(300, 80, 300, 20), " - - Section Smooth light: ");
         GUI.Label(new Rect(300, 90, 300, 20), " - - Section GO create : ");
+        GUI.Label(new Rect(300, 100, 300, 20), "QueueLength : ");
 
 
         GUI.Label(new Rect(500, 20, 300, 20), loadTime.ToString());
@@ -118,6 +119,7 @@ public class Gui : MonoBehaviour {
         GUI.Label(new Rect(500, 70, 300, 20), StatsEngine.SectionColliderGen.ToString());
         GUI.Label(new Rect(500, 80, 300, 20), StatsEngine.SectionSmoothLighting.ToString());
         GUI.Label(new Rect(500, 90, 300, 20), StatsEngine.SectionGoCreate.ToString());
+        GUI.Label(new Rect(500, 100, 300, 20), StatsEngine.QueueLength  .ToString());
 
 
         GUI.Label(new Rect(10, 30, 100, 20), "Tick: " + time.tick.ToString() + " Seconds: " + (time.tick / 10).ToString());

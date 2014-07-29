@@ -60,7 +60,13 @@ public class World : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		runningTime = System.DateTime.Now.Subtract (start);
+        chunkManager.RenderMissingGOs();
 	}
+
+    private void OnApplicationQuit()
+    {
+        ChunkLoader.ShutDown();
+    }
 
 	/// <summary>
 	/// Gnerates the Chunk for a given x, z

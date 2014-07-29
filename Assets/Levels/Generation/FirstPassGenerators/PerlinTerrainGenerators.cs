@@ -49,7 +49,7 @@ namespace AssemblyCSharp
 
         public void GenerateSection(Section section) 
         {
-            int sectionSize = section.sectionSize;
+            /*int sectionSize = section.sectionSize;
             int posX = section.sectionX;
             int posY = section.sectionY;
             int posZ = section.sectionZ;
@@ -121,7 +121,7 @@ namespace AssemblyCSharp
                     }
                 }
             }
-            setSectionStats(section);
+            setSectionStats(section);*/
         }
 
         public void GenerateChunk(Chunk2 chunk) 

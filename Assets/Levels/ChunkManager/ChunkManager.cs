@@ -17,9 +17,12 @@ namespace AssemblyCSharp
     public class ChunkManager
     {
         private Hashtable chunkCollection = new Hashtable();
-
+        //public List<Chunk2> requiresGOgeneration = new List<Chunk2>();
+        public Queue<Chunk2> requiresGOgeneration = new Queue<Chunk2>();
 
         private BlockLightUpdate[] collection = new BlockLightUpdate[32*32*32];
+
+        private System.Object thisLock = new System.Object();
 
         public GameObject worldGO;
         public World world;
@@ -69,23 +72,18 @@ namespace AssemblyCSharp
 
         public void LoadChunk(int x, int z) 
         {
-            Chunk2 chunk = new Chunk2(this, x, z);
-
             System.DateTime genStart = System.DateTime.Now;
 
+            Chunk2 chunk = new Chunk2(this, x, z);
             PerlinWorldGenerator.CreateChunk(chunk);
 
             chunkCollection.Add(x + ":" + z, chunk);
 
-            StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
-
-
             chunk.isDataLoaded = true;
-
-
-            //renderer.RenderChunk(chunk);
-
+            StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
         }
+
+       
 
         public void UnLoadChunk(int x, int z)
         {
@@ -109,6 +107,67 @@ namespace AssemblyCSharp
             StatsEngine.ChunkRenderTime += (float)System.DateTime.Now.Subtract(renStart).TotalSeconds;
         }
 
+
+        public void RenderMissingGOs()
+        {
+            //lock (thisLock)
+            {
+                Chunk2 chunk;
+                while (requiresGOgeneration.Count > 0)
+                {
+
+                    chunk = requiresGOgeneration.Dequeue();
+                    if (chunk == null) return;
+
+                    chunk.GenerateSecGO();
+
+                    //have we completed all the direct neighbours for any surrounding chunk?
+                    //if we have we need to re render to remove any artifacts
+                    if (DoChunksExist(chunk.xPosition - 1, chunk.zPosition, false))
+                    {
+                        Chunk2 cnk = GetChunk(chunk.xPosition - 1, chunk.zPosition);
+                        if (!cnk.isNeighboursLoaded)
+                        {
+                        cnk.isNeighboursLoaded = true;
+                        ChunkLoader.RequestChunkRegeneration(this, cnk);
+                        }
+                    }
+                    if (DoChunksExist(chunk.xPosition + 1, chunk.zPosition, false))
+                    {
+                        Chunk2 cnk = GetChunk(chunk.xPosition + 1, chunk.zPosition);
+                        if (!cnk.isNeighboursLoaded)
+                        {
+                            cnk.isNeighboursLoaded = true;
+                            ChunkLoader.RequestChunkRegeneration(this, cnk);
+                        }
+                    }
+                    if (DoChunksExist(chunk.xPosition, chunk.zPosition + 1, false))
+                    {
+                        Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition + 1);
+                        if (!cnk.isNeighboursLoaded)
+                        {
+                            cnk.isNeighboursLoaded = true;
+                            ChunkLoader.RequestChunkRegeneration(this, cnk);
+                        }
+                    }
+                    if (DoChunksExist(chunk.xPosition, chunk.zPosition - 1, false))
+                    {
+                        Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition - 1);
+                        if (!cnk.isNeighboursLoaded)
+                        {
+                            cnk.isNeighboursLoaded = true;
+                            ChunkLoader.RequestChunkRegeneration(this, cnk);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private void CheckNeighboursLoaded()
+        {
+
+        }
        
 
         public Chunk2 GetChunk(int x, int z)
@@ -187,6 +246,24 @@ namespace AssemblyCSharp
                         return false;
                 }
             }
+            return true;
+        }
+
+        public bool DoChunksExist(int chunkX, int chunkZ, bool includeDiagonal)
+        {
+            if (!DoesChunkExist(chunkX + 1, chunkZ)) return false;
+            if (!DoesChunkExist(chunkX - 1, chunkZ)) return false;
+            if (!DoesChunkExist(chunkX, chunkZ + 1)) return false;
+            if (!DoesChunkExist(chunkX, chunkZ - 1)) return false;
+
+            if (includeDiagonal)
+            {
+                if (!DoesChunkExist(chunkX + 1, chunkZ + 1)) return false;
+                if (!DoesChunkExist(chunkX - 1, chunkZ + 1)) return false;
+                if (!DoesChunkExist(chunkX + 1, chunkZ - 1)) return false;
+                if (!DoesChunkExist(chunkX - 1, chunkZ - 1)) return false;
+            }
+
             return true;
         }
 

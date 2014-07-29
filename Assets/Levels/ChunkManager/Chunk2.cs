@@ -36,12 +36,20 @@ namespace AssemblyCSharp
 
 
         public bool containsWater = false;
+        public bool isDataLoaded = false; //Set when data is fully loaded and basic daylightadded
 
-        public bool isDataLoaded = false;
-        public bool isDaylightCalculated = false;
-        public bool isLightCalculated = false;
-        public bool isSectionsGenerated = false;
-        public bool isSectionsRendered = false;
+        public bool isNeighboursLoaded = false; //when true should spread daylight
+
+
+        //public bool isDaylightCalculated = false;
+        //public bool isLightCalculated = false;
+        //public bool isSectionsGenerated = false; // 
+
+        //requires light spread
+        //basic generation?
+        //requires regeneration
+
+        public bool isSectionsRendered = false; // section completed loading and Go created
 
         //section = 4096
 
@@ -75,8 +83,7 @@ namespace AssemblyCSharp
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        //int xyz = x + 16 * (y + 256 * z);
-                        byte block = chunkData[x + 16 * (z + 16 * y)];//TODO CHECK THIS
+                        byte block = chunkData[x + 16 * (z + 16 * y)];
 
                         if (block != 0) {
 
@@ -92,8 +99,7 @@ namespace AssemblyCSharp
             }
 
             SetFirstSection();
-            GenerateDaylight(); //TODO remove this to milti threaded
-            //SpreadDaylight();
+            GenerateDaylight();
         }
 
         private void SetFirstSection()
@@ -114,6 +120,28 @@ namespace AssemblyCSharp
                 return null;
 
             return this.sections [y];
+        }
+
+        public void GenerateSecGO()
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                if (sections[i] != null)
+                {
+                    Section2 sec = sections[i];
+                    if (!sec.sectionGO) {
+                        sec.GenerateGO();
+                        sec.ClearGOTempData();
+                    }
+                    else 
+                    {
+                        sec.SetNewGOMesh();
+                        sec.SetNewGOCollider();
+                        sec.ClearGOTempData();
+                    }
+                }
+            }
+            this.isSectionsRendered = true;
         }
 
         /// <summary>
@@ -156,7 +184,7 @@ namespace AssemblyCSharp
         }
 
 
-        public bool hasNeighbours(int x, int y, int z, int blockDist)
+        public bool HasNeighbours(int x, int y, int z, int blockDist)
         {
             return manager.DoChunksExist(x, y, z, blockDist);
         }

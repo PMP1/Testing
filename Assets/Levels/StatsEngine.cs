@@ -52,7 +52,8 @@ namespace AssemblyCSharp
         public static float PrevChunkDaylightFill = 0;
 
 
-
+        public static int QueueLength = 0;
+        public static int RenderQueueLength = 0;
 
 
         public static void UpdateTime (float next)
