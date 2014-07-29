@@ -166,8 +166,9 @@ namespace AssemblyCSharp
                             //x + 16 * (z * 16 + y)
                             //16 + 16 *(256 + 16)
                             //16 + 16 * (512)
-                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Water;
+                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Dirt;
                             chunk.containsWater = true;
+                            firstBlockHeight = y;
                             continue;
                         }
                         
@@ -387,7 +388,7 @@ namespace AssemblyCSharp
 
 		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, Section section) {
 			
-			int posY = section.sectionY;
+			/*int posY = section.sectionY;
 			int globalY = posY + y;
 			int depth = globalY - firstBlock;
 			
@@ -397,14 +398,16 @@ namespace AssemblyCSharp
 			case BiomeType.Mountain:
 			case BiomeType.SeasonalForest:
 			case BiomeType.Woodland:
-				if (depth <= 3 && globalY >28 && globalY <=32) {
-					section.SetBlock(x, y, z, BlockType.Sand);
-				} else if (depth == 0 && globalY > 32 && globalY < 170) {
-					section.SetBlock(x, y, z, BlockType.Grass);
+                    if (depth <= 3 && globalY >28 && globalY <=32) 
+                    {
+					    section.SetBlock(x, y, z, (byte)BlockType.Sand);
+				    }
+                    else if (depth == 0 && globalY > 32 && globalY < 170) {
+                        section.SetBlock(x, y, z, (byte)BlockType.Grass);
 				} else if (depth == 0 && globalY >= 240) {
-					section.SetBlock(x, y, z, BlockType.Snow);
+                        section.SetBlock(x, y, z, (byte)BlockType.Snow);
 				} else {
-					section.SetBlock(x, y, z, BlockType.Stone);
+                        section.SetBlock(x, y, z, (byte)BlockType.Stone);
 				} 
 				break;
 			case BiomeType.Desert:
@@ -416,7 +419,7 @@ namespace AssemblyCSharp
 			default: 
 				section.SetBlock(x, y, z, BlockType.Snow);
 				break;
-			}
+			}*/
 		}
     }
 

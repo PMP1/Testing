@@ -34,13 +34,13 @@ namespace AssemblyCSharp
 			new Block (BlockType.Dirt,	0, 3, 16),
 			new Block (BlockType.Grass,0, 2, 16),
 			new Block (BlockType.Stone,0, 1, 16),
-			new Block (BlockType.Sand, 1, 3, 16),
-			new Block (BlockType.Snow, 3, 3, 16),
-			new Block (BlockType.Water, 0, 0, 16),
-			new Block (BlockType.Snow, 1, 2, 16),
-			new Block (BlockType.Snow, 1, 3, 16),
-			new Block (BlockType.Snow, 2, 0, 16),
-			new Block (BlockType.Snow, 2, 1, 16)
+			new Block (BlockType.Sand, 1, 2, 16),
+			new Block (BlockType.Snow, 0, 3, 16),
+			new Block (BlockType.Water, 0, 0, 16)
+			//new Block (BlockType.Snow, 1, 2, 16),
+			//new Block (BlockType.Snow, 1, 3, 16),
+			//new Block (BlockType.Snow, 2, 0, 16),
+			//new Block (BlockType.Snow, 2, 1, 16)
 		};
 
 		public static Block GetBlock(byte id) 
