@@ -51,18 +51,7 @@ namespace AssemblyCSharp
             generator.SetSeed(seed);
             firstPassGenerators.Add(generator);
         } 
-        
-        /// <summary>
-        /// Creates the chunk.
-        /// </summary>
-        /// <param name="chunk">Chunk.</param>
-        public static void CreateSection(Section section) {
-            foreach (IFirstPassGenerator generator in firstPassGenerators) {
-                generator.GenerateSection(section);
-            }
-        }
-
-        
+                
         /// <summary>
         /// Creates the chunk.
         /// </summary>

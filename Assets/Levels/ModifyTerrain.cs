@@ -21,7 +21,7 @@ public class ModifyTerrain : MonoBehaviour {
 
 
         //40 is the 1st test
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256, false); //needs to load at 256
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256); //needs to load at 256
 
         world.chunkManager.SpreadLightToAllChunks();
         world.chunkManager.RenderInnitialChunks();
@@ -72,7 +72,31 @@ public class ModifyTerrain : MonoBehaviour {
         }
     }
 
-	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
+    public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload)
+    {
+
+        int chunkX = (int)playerPos.x >> 4;
+        int chunkZ = (int)playerPos.z >> 4;
+        int chunkDist = (int)distToLoad >> 4;
+
+        for (int x = chunkX - chunkDist; x < chunkX + chunkDist; x++)
+        {
+            for (int z = chunkZ - chunkDist; z < chunkZ + chunkDist; z++)
+            {
+                float dist = Vector2.Distance(
+                    new Vector2(x*world.sectionSize, z*world.sectionSize),
+                    new Vector2(playerPos.x, playerPos.z));
+                                
+                if(dist<distToLoad)
+                {
+                    world.chunkManager.LoadChunk(x, z);
+                    StatsEngine.ChunksLoaded++; 
+                }
+            }
+        }
+    }
+
+	/*public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
 
 
         //start at current 
@@ -93,7 +117,7 @@ public class ModifyTerrain : MonoBehaviour {
 
 
                     //world.chunkRenderer.RenderChunk(world.chunkManager.GetChunk(x, z));
-					/*if(world.chunks[x,z]==null){
+					if(world.chunks[x,z]==null){
 						world.GenColumn(x,z, dist, useSectionLoader);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {
 							world.chunks[x - 1, z].update = true;
@@ -115,11 +139,11 @@ public class ModifyTerrain : MonoBehaviour {
 					if(world.chunks[x,z]!=null){
 						
 						world.UnloadColumn(x,z);
-					}*/
+					}
 				}
 			}
 		}
-	}
+	}*/
 
 	public void ReplaceBlockCenter(float range, byte block){
 		//Replaces the block directly in front of the player

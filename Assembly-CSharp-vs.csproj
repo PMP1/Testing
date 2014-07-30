@@ -49,7 +49,6 @@
      <Compile Include="Assets\Levels\BlockManagement\Block.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockGeometry.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockManager.cs" />
-     <Compile Include="Assets\Levels\Chunk.cs" />
      <Compile Include="Assets\Levels\ChunkManager\BlockLightUpdate.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Chunk2.cs" />
      <Compile Include="Assets\Levels\ChunkManager\ChunkCache.cs" />
@@ -70,11 +69,9 @@
      <Compile Include="Assets\Levels\Generation\Noise\PerlinNoise.cs" />
      <Compile Include="Assets\Levels\Generation\PerlinWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Gui.cs" />
-     <Compile Include="Assets\Levels\LightGenerator.cs" />
      <Compile Include="Assets\Levels\ModifyTerrain.cs" />
      <Compile Include="Assets\Levels\Noise.cs" />
      <Compile Include="Assets\Levels\Queue.cs" />
-     <Compile Include="Assets\Levels\Section.cs" />
      <Compile Include="Assets\Levels\SectionColliderGenerator.cs" />
      <Compile Include="Assets\Levels\StatsEngine.cs" />
      <Compile Include="Assets\Levels\TimeManager.cs" />

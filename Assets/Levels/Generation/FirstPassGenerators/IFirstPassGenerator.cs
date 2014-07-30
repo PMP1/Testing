@@ -16,13 +16,6 @@ namespace AssemblyCSharp
 	/// </summary>
 	public interface IFirstPassGenerator
 	{
-
-		/// <summary>
-		/// Generates a single section.
-		/// </summary>
-		/// <param name="section">Section.</param>
-		void GenerateSection(Section section);
-
         void GenerateChunk(Chunk2 chunk);
 		
 		void SetBiomeGenerator(IBiomeGenerator generator);
