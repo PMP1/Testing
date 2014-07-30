@@ -70,7 +70,6 @@
      <Compile Include="Assets\Levels\Generation\PerlinWorldGenerator.cs" />
      <Compile Include="Assets\Levels\Gui.cs" />
      <Compile Include="Assets\Levels\ModifyTerrain.cs" />
-     <Compile Include="Assets\Levels\Noise.cs" />
      <Compile Include="Assets\Levels\Queue.cs" />
      <Compile Include="Assets\Levels\SectionColliderGenerator.cs" />
      <Compile Include="Assets\Levels\StatsEngine.cs" />

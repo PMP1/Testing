@@ -101,16 +101,27 @@ public class TimeManager : MonoBehaviour {
 		byte currentLight = previousDayLight;
 		int dayTick = tick % (ticksInAnHour * hoursInADay);
 
-		//daybreak
-		if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
-			float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)((perc * 15));
-		}
-		//sunset
-		if (dayTick > 18 * ticksInAnHour && dayTick <= 19 * ticksInAnHour) {
-			float perc = ((float)dayTick - (18 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)(15 - (perc * 15));
-		}
+        /*//daybreak
+        if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
+            float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)((perc * 15));
+        }
+        //sunset
+        if (dayTick > 18 * ticksInAnHour && dayTick <= 19 * ticksInAnHour) {
+            float perc = ((float)dayTick - (18 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)(15 - (perc * 15));
+        }*/
+
+        //daybreak
+        if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
+            float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)((perc * 15));
+        }
+        //sunset
+        if (dayTick > 22 * ticksInAnHour && dayTick <= 23 * ticksInAnHour) {
+            float perc = ((float)dayTick - (22 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)(15 - (perc * 15));
+        }
 
 		if (previousDayLight != currentLight) {
 			UpdateLight();

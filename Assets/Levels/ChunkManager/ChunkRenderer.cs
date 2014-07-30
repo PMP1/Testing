@@ -243,7 +243,7 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //sw
-                        if (chunkSouthWest == null)
+                        if (chunkSouthWest == null || !chunkSouthWest.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
@@ -251,7 +251,7 @@ namespace AssemblyCSharp
                     else if (z >= 16)
                     {
                         //nw
-                        if (chunkNorthWest == null)
+                        if (chunkNorthWest == null  || !chunkNorthWest.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
@@ -259,7 +259,7 @@ namespace AssemblyCSharp
                     else 
                     {
                         //w
-                        if (chunkWest == null)
+                        if (chunkWest == null  || !chunkWest.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkWest.GetDaylightValue(x + 16, y, z);
@@ -270,7 +270,7 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //se
-                        if (chunkSouthEast == null)
+                        if (chunkSouthEast == null || !chunkSouthEast.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
@@ -278,7 +278,7 @@ namespace AssemblyCSharp
                     else if (z >= 16)
                     {
                         //ne
-                        if (chunkNorthEast == null)
+                        if (chunkNorthEast == null || !chunkNorthEast.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
@@ -286,7 +286,7 @@ namespace AssemblyCSharp
                     else 
                     {
                         //e
-                        if (chunkEast == null)
+                        if (chunkEast == null || !chunkEast.isDataLoaded)
                             value = 15;
                         else 
                             value = chunkEast.GetDaylightValue(x - 16, y, z);
