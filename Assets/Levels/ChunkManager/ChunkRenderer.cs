@@ -82,7 +82,13 @@ namespace AssemblyCSharp
                 RenderSection(section, chunk, daylightLevel);
                 section.RequiresGORedraw = true;
             }
+
+            if (chunk.xPosition == 8 && chunk.zPosition == 10)
+            {
+                int ii = 0;
+            }
             chunkManager.requiresGOgeneration.Enqueue(chunk);
+
             chunk.isSectionsRendered = true;
         }
 
@@ -101,15 +107,6 @@ namespace AssemblyCSharp
                 sec.SetMeshData(newVertices, newTriangles, newUV);
                 sec.SetColorData(newColor);
                 sec.SetColliderData(newColliderVertices, newColliderTriangles);
-                //System.DateTime startCreateGO = System.DateTime.Now;
-                //GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
-                //StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
-
-                //sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
-                //sec.sectionGO.world = world;
-                //sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
-                //sec.sectionGO.SetCollider(newColliderVertices, newColliderTriangles);
-                //sec.sectionGO.SetDaylight(daylight);
             }
             newUV.Clear();
             newVertices.Clear();

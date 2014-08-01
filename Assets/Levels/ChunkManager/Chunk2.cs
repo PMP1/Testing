@@ -35,15 +35,18 @@ namespace AssemblyCSharp
         bool[] daylightColumnUpdates;
 
 
+
         public bool containsWater = false;
         public bool isDataLoaded = false; //Set when data is fully loaded and basic daylightadded
 
         public bool isNeighboursLoaded = false; //when true should spread daylight
 
-
+        public bool isLightingUpdateRequired = true;
         //public bool isDaylightCalculated = false;
         //public bool isLightCalculated = false;
         //public bool isSectionsGenerated = false; // 
+
+        public bool isQueuedForReRender = false;
 
         //requires light spread
         //basic generation?
@@ -160,6 +163,24 @@ namespace AssemblyCSharp
             this.biomeMap[ x + 16 * z] = biome;
         }
 
+        public void SetBlockId(int x, int y, int z, byte id)
+        {
+            int secY = y / 16;
+            if (sections.Length < secY)
+                return;
+            
+            Section2 sec = this.sections [secY];
+            
+            if (sec == null)
+            {
+                return;
+            } else
+            {
+                int secYPos = y - (secY * 16); //TODO check this for speed issues
+                sec.SetBlockId(x, secYPos, z, id);
+            }
+        }
+
         public byte GetBlockId(int x, int y, int z)
         {
             int secY = y / 16;
@@ -258,39 +279,53 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SpreadDaylight()
+        public void SpreadDaylight_tick()
         {
-            for (int x = 0; x < 16; x++)
+            if (isLightingUpdateRequired)
             {
-                for (int z = 0; z < 16; z++)
+                if (SpreadDaylight())
                 {
-                    byte c = GetHeightMap(x, z);
-                    byte n = z < 15 ? GetHeightMap(x, z + 1) : c;
-                    byte e = x < 15 ? GetHeightMap(x + 1, z) : c;
-                    byte s = z > 0 ? GetHeightMap(x, z - 1) : c;
-                    byte w = x < 0 ? GetHeightMap(x - 1, z) : c;
-
-                    //need to get the heighest neighbour
-                    if (n < e) n = e;
-                    if (n < s) n = s;
-                    if (n < w) n = w;
-
-                    if (c != n )
-                    {
-                        int ii = 0;
-                    }
-
-
-                    for (int y = c; y < n; y++)
-                    {
-                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z, 15);
-                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z + 1, 15);
-                        manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z - 1, 15);
-                        manager.UpdateLightBlock((this.xPosition * 16) + x + 1, y, (this.zPosition * 16) + z, 15);
-                        manager.UpdateLightBlock((this.xPosition * 16) + x - 1, y, (this.zPosition * 16) + z, 15);
-                    }
+                    ChunkLoader.RequestLightRegeneration(manager, this);
                 }
             }
+        }
+
+        public bool SpreadDaylight()
+        {
+            if (manager.DoChunksExist(this.xPosition << 4, 0, this.zPosition << 4, 16))
+            {
+                for (int x = 0; x < 16; x++)
+                {
+                    for (int z = 0; z < 16; z++)
+                    {
+                        byte c = GetHeightMap(x, z);
+                        byte n = z < 15 ? GetHeightMap(x, z + 1) : c;
+                        byte e = x < 15 ? GetHeightMap(x + 1, z) : c;
+                        byte s = z > 0 ? GetHeightMap(x, z - 1) : c;
+                        byte w = x < 0 ? GetHeightMap(x - 1, z) : c;
+
+                        //need to get the heighest neighbour
+                        if (n < e)
+                            n = e;
+                        if (n < s)
+                            n = s;
+                        if (n < w)
+                            n = w;
+
+                        for (int y = c; y < n; y++)
+                        {
+                            manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z, 15);
+                            manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z + 1, 15);
+                            manager.UpdateLightBlock((this.xPosition * 16) + x, y, (this.zPosition * 16) + z - 1, 15);
+                            manager.UpdateLightBlock((this.xPosition * 16) + x + 1, y, (this.zPosition * 16) + z, 15);
+                            manager.UpdateLightBlock((this.xPosition * 16) + x - 1, y, (this.zPosition * 16) + z, 15);
+                        }
+                    }
+                }
+                isLightingUpdateRequired = false;
+                return true;
+            }
+            return false;
         }
 
 
@@ -309,6 +344,8 @@ namespace AssemblyCSharp
                 }
             }
         }
+
+
 
         #endregion
     }

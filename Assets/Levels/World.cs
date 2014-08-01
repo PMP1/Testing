@@ -29,6 +29,8 @@ public class World : MonoBehaviour {
 	public System.TimeSpan startupTime;
 	public System.TimeSpan runningTime;
 	private System.DateTime start;
+
+    private Vector3 playerpos;
 	// Use this for initialization
 
     public ChunkManager chunkManager;
@@ -41,10 +43,6 @@ public class World : MonoBehaviour {
 		//Sytem starting
 		start = System.DateTime.Now;
         this.SectionCollider = new SectionColliderGenerator ();
-
-
-		//chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
-		//                               Mathf.FloorToInt(worldZ/sectionSize)];
 		                               
 		configSettings = new WorldConfig("PMP");
 		
@@ -59,6 +57,7 @@ public class World : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        playerpos = GameObject.FindGameObjectWithTag("Player").transform.position;
 		runningTime = System.DateTime.Now.Subtract (start);
         chunkManager.RenderMissingGOs();
 	}
@@ -74,11 +73,16 @@ public class World : MonoBehaviour {
 	}
 
     public GameObject CreateSectionGO(Chunk2 chunk, Section2 sec) {
-        GameObject go =  Instantiate(sectionGO, 
+        GameObject go = Instantiate(sectionGO, 
                            new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
                                      new Quaternion(0, 0, 0, 0)) as GameObject;
 
-        //go.world = gameObject.GetComponent("World") as World;
         return go;
+    }
+
+
+    public Vector3 GetPlayerPos() 
+    {
+        return playerpos;
     }
 }

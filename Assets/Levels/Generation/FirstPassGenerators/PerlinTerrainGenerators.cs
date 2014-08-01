@@ -90,9 +90,15 @@ namespace AssemblyCSharp
                             //x + 16 * (z * 16 + y)
                             //16 + 16 *(256 + 16)
                             //16 + 16 * (512)
-                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Dirt;
+                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Water;
                             chunk.containsWater = true;
-                            firstBlockHeight = y;
+
+                            //temp - removewhen we do water better
+                            if (firstBlockHeight == -1)
+                            {
+                                firstBlockHeight = y;
+                                chunk.SetHeightMap(x, z, (byte)(y + 1));
+                            }
                             continue;
                         }
                         
@@ -109,7 +115,7 @@ namespace AssemblyCSharp
                                 if (firstBlockHeight == -1)
                                 {
                                     firstBlockHeight = y;
-                                    chunk.SetHeightMap(x, z, (byte)y);
+                                    chunk.SetHeightMap(x, z, (byte)(y + 1));
                                 }
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else
@@ -128,7 +134,7 @@ namespace AssemblyCSharp
                                 if (firstBlockHeight == -1)
                                 {
                                     firstBlockHeight = y;
-                                    chunk.SetHeightMap(x, z, (byte)y);
+                                    chunk.SetHeightMap(x, z, (byte)(y + 1));
                                 }
                                 SetBlock(x, y, z, firstBlockHeight, type, data);
                             } else

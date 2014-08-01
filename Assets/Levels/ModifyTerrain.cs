@@ -7,8 +7,8 @@ public class ModifyTerrain : MonoBehaviour {
 	World world;
 	GameObject cameraGO;
 
-    private int maxLoadDist = 64;
-    private int currentLoadDist = 50;
+    private int maxLoadDist = 50;
+    private int currentLoadDist = 10;
 	// Use this for initialization
 	void Start () {
 
@@ -26,19 +26,6 @@ public class ModifyTerrain : MonoBehaviour {
         world.chunkManager.SpreadLightToAllChunks();
         world.chunkManager.RenderInnitialChunks();
 
-
-
-		//Need to call an inittial set of chunk updates here so that the lighting is rendered
-		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
-			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
-				if (world.chunks[x, z])
-					world.chunks[x, z].DoUpdate();
-			}
-		}*/
-
-
-		//this will then give us a true start up time
-		//
 		//update chunks internal light
 		//then update light from other chunks? good idea phil!!
 		world.startupTime = System.DateTime.Now.Subtract (start);
@@ -55,7 +42,7 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-        LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position);
+        if (world.time.tick > 300) LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position);
 	}
 
     private void LoadChunks(Vector3 playerPos)
@@ -237,7 +224,7 @@ public class ModifyTerrain : MonoBehaviour {
 	
 	public void UpdateChunkAt(int x, int y, int z, byte block){
 		//Updates the chunk containing this block
-		/*int updateX= Mathf.FloorToInt( x/world.sectionSize);
+		int updateX= Mathf.FloorToInt( x/world.sectionSize);
 		int updateY= Mathf.FloorToInt( y/world.sectionSize);
 		int updateZ= Mathf.FloorToInt( z/world.sectionSize);
 
@@ -245,11 +232,13 @@ public class ModifyTerrain : MonoBehaviour {
 		int blockPosZ = z % world.sectionSize;
         int sectionY = y / world.sectionSize;
         int sectionPosY = y % world.sectionSize;
-		world.chunks [updateX, updateZ].sections[sectionY].data[blockPosX,sectionPosY,blockPosZ] = block;
+
+        world.chunkManager.SetBlockId(x, y, z, block);
+		//world.chunks [updateX, updateZ].sections[sectionY].data[blockPosX,sectionPosY,blockPosZ] = block;
 
 		print("Updating: " + updateX + ", " + updateY + ", " + updateZ);
 
-		world.chunks[updateX, updateZ].update=true;
+		/*world.chunks[updateX, updateZ].update=true;
         world.chunks [updateX, updateY].updateHeightMap = true;
 
 		if(x-(world.sectionSize*updateX)==0 && updateX!=0){

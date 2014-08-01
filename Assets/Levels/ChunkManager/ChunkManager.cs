@@ -117,7 +117,17 @@ namespace AssemblyCSharp
                 {
 
                     chunk = requiresGOgeneration.Dequeue();
-                    if (chunk == null) return;
+
+
+                    if (chunk == null) 
+                    {
+                        return;
+                    }
+
+                    if (chunk.xPosition == 8 && chunk.zPosition == 10)
+                    {
+                        int ii = 0;
+                    }
 
                     chunk.GenerateSecGO();
 
@@ -125,17 +135,28 @@ namespace AssemblyCSharp
                     //if we have we need to re render to remove any artifacts
                     if (DoChunksExist(chunk.xPosition - 1, chunk.zPosition, false))
                     {
-                        Chunk2 cnk = GetChunk(chunk.xPosition - 1, chunk.zPosition);
-                        if (!cnk.isNeighboursLoaded)
+
+                        if (chunk.xPosition - 1 == 8 && chunk.zPosition == 10)
                         {
-                        cnk.isNeighboursLoaded = true;
-                        ChunkLoader.RequestChunkRegeneration(this, cnk);
+                            int ii = 0;
+                        }
+
+                        Chunk2 cnk = GetChunk(chunk.xPosition - 1, chunk.zPosition);
+                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
+                        {
+                            cnk.isNeighboursLoaded = true;
+                            ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
                     }
                     if (DoChunksExist(chunk.xPosition + 1, chunk.zPosition, false))
                     {
+                        if (chunk.xPosition + 1 == 8 && chunk.zPosition == 10)
+                        {
+                            int ii = 0;
+                        }
+
                         Chunk2 cnk = GetChunk(chunk.xPosition + 1, chunk.zPosition);
-                        if (!cnk.isNeighboursLoaded)
+                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
@@ -143,8 +164,13 @@ namespace AssemblyCSharp
                     }
                     if (DoChunksExist(chunk.xPosition, chunk.zPosition + 1, false))
                     {
+                        if (chunk.xPosition == 8 && chunk.zPosition + 1 == 10)
+                        {
+                            int ii = 0;
+                        }
+
                         Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition + 1);
-                        if (!cnk.isNeighboursLoaded)
+                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
@@ -152,8 +178,13 @@ namespace AssemblyCSharp
                     }
                     if (DoChunksExist(chunk.xPosition, chunk.zPosition - 1, false))
                     {
+                        if (chunk.xPosition == 8 && chunk.zPosition - 1 == 10)
+                        {
+                            int ii = 0;
+                        }
+
                         Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition - 1);
-                        if (!cnk.isNeighboursLoaded)
+                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
@@ -182,6 +213,28 @@ namespace AssemblyCSharp
             chunkCollection.Add(x + ":" + z, chunk);
         }
 
+        public void SetBlockId(int x, int y, int z, byte id)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+                
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return;
+                }
+                chunk.SetBlockId(xSectionPos, y, zSectionPos, id);
+            }
+        }
+
         public int GetBlockId(int x, int y, int z)
         {
             if (y >= 256 || y < 0)
@@ -191,8 +244,6 @@ namespace AssemblyCSharp
             {
                 int xPos = x / 16;
                 int zPos = z / 16;
-                //int xSectionPos = x % 16;
-                //int zSectionPos = z % 16;
 
                 int xSectionPos = x - (xPos * 16);
                 int zSectionPos = z - (zPos * 16);
@@ -275,6 +326,34 @@ namespace AssemblyCSharp
         }
         #endregion
 
+        #region Random Tick
+
+        public void PerformTick() 
+        {
+            Vector3 pos =  world.GetPlayerPos();
+            int chunkX = (int)pos.x >> 4;
+            int chunkZ = (int)pos.z >> 4;
+
+            int xMax = chunkX + 4;
+            int zMax = chunkZ + 4;
+
+            for (int x = chunkX - 4; x < xMax; x++)
+            {
+                for (int z = chunkZ - 4; z < zMax; z++)
+                {
+                    Chunk2 chunk = GetChunk(x, z);
+
+                    if (chunk != null && chunk.isDataLoaded)
+                    {
+                        chunk.SpreadDaylight_tick();
+                    }
+                }
+            }
+        }
+
+        #endregion
+       
+
         #region Light
 
 
@@ -284,7 +363,10 @@ namespace AssemblyCSharp
             System.DateTime start = System.DateTime.Now;
             foreach (var key in chunkCollection.Keys)
             {
-                ((Chunk2)chunkCollection[key]).SpreadDaylight();
+                if (((Chunk2)chunkCollection[key]).SpreadDaylight())
+                {
+                    ((Chunk2)chunkCollection[key]).isNeighboursLoaded = true;
+                }
             }
             StatsEngine.ChunkSpreadLight += (float)System.DateTime.Now.Subtract(start).TotalSeconds;
 
@@ -353,7 +435,7 @@ namespace AssemblyCSharp
             int capacity = 0;
             int current = 0;
 
-            //if (DoChunksExist(x, y, x, 17))
+            //if (DoChunksExist(x, y, x, 16))
             {
 
                 collection [capacity++] = new BlockLightUpdate(x, y, z, level);
@@ -417,7 +499,7 @@ namespace AssemblyCSharp
                                 int diffY = Math.Abs(posY - y);
                                 int diffZ = Math.Abs(posZ - z); 
 
-                                if (diffX + diffY + diffZ < 18)
+                                if (diffX + diffY + diffZ < 17)
                                 {
                                     if (n < calcValue)
                                     {
@@ -462,12 +544,12 @@ namespace AssemblyCSharp
                 return 0;
             }
 
-            n--;
-            s--;
-            e--;
-            w--;
-            t--;
-            b--;
+            n-=2;
+            s-=2;
+            e-=2;
+            w-=2;
+            t-=2;
+            b-=2;
 
             if (n > level)
                 level = n;
