@@ -70,30 +70,30 @@ namespace AssemblyCSharp
                 case "Temperature":
                     temp = biomeGenerator.GetTemperatureAt(x, z);
                     return new Color(temp, temp * 0.2f, temp * 0.2f);
-                    break;
+                    //break;
                 case "Humidity":
                     hum = biomeGenerator.GetHumidityAt(x, z);
                     return new Color(hum * 0.2f, hum * 0.2f, hum);
-                    break;
+                    //break;
                 case "Terrain":
                     BiomeType biome = biomeGenerator.GetBiomeAt(x, z);
                     switch (biome) {
                         
                         case BiomeType.Desert:
                             return Color.yellow;
-                            break;
+                            //break;
                         case BiomeType.GrassLand:
                             return Color.green;
-                            break;
+                            //break;
                         case BiomeType.Tiaga:
                             return Color.white;
-                            break;
+                            //break;
                         case BiomeType.Mountain:
                             return Color.gray;
-                            break;
+                            //break;
                         default:
                             return new Color(0.2f,0.8f,0.2f);
-                            break;
+                            //break;
                     }
                     //return new Color(hum * 0.2f, hum * 0.2f, hum);
                     break;
@@ -103,22 +103,22 @@ namespace AssemblyCSharp
                         
                         case 1:
                             return Color.blue;
-                            break;
+                            //break;
                         case 2:
                             return Color.yellow;
-                            break;
+                            //break;
                         case 3:
                             return Color.gray;
-                            break;
+                            //break;
                         case 4:
                             return Color.green;
-                            break;
+                            //break;
                         default:
                             return new Color(0.2f,0.8f,0.2f);
-                            break;
+                            //break;
                     }
                     return new Color(height * 0.2f, height * 0.2f, height);
-                    break;
+                    //break;
                     
             }
             return Color.black;

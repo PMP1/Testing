@@ -127,6 +127,11 @@ namespace AssemblyCSharp
 
         public void GenerateSecGO()
         {
+
+            if (xPosition == 8 && zPosition == 10)
+            {
+                int ii = 0;
+            }
             for (int i = 0; i < 16; i++)
             {
                 if (sections[i] != null)
@@ -134,13 +139,14 @@ namespace AssemblyCSharp
                     Section2 sec = sections[i];
                     if (!sec.sectionGO) {
                         sec.GenerateGO();
-                        sec.ClearGOTempData();
+                        //sec.ClearGOTempData();
                     }
                     else 
                     {
-                        sec.SetNewGOMesh();
-                        sec.SetNewGOCollider();
-                        sec.ClearGOTempData();
+                        sec.updateMesh = true;
+                        //sec.SetNewGOMesh();
+                        //sec.SetNewGOCollider();
+                        //sec.ClearGOTempData();
                     }
                 }
             }

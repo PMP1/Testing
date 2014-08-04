@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 using System;
 using UnityEngine;
+using AssemblyCSharp;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -17,20 +18,21 @@ using System.Collections.Generic;
 public class SectionGO: MonoBehaviour
 {
     public World world; //ref to worldgameobject
+    public Section2 section; //ref to parent section
 
 
-    private bool updateDaylightLevel = false;
+    //private bool updateDaylightLevel = false;
 
 
-    private List<Vector3> newVertices = new List<Vector3> ();
-    private List<int> newTriangles = new List<int> ();
-    private List<Vector2> newUV = new List<Vector2> ();
-    private List<Vector3> newColliderVertices = new List<Vector3> ();
-    private List<int> newColliderTriangles = new List<int> ();
+    //private List<Vector3> newVertices = new List<Vector3> ();
+    //private List<int> newTriangles = new List<int> ();
+    //private List<Vector2> newUV = new List<Vector2> ();
+    //private List<Vector3> newColliderVertices = new List<Vector3> ();
+    //private List<int> newColliderTriangles = new List<int> ();
         
 
 
-    private List<Color> newColor = new List<Color> ();
+    //private List<Color> newColor = new List<Color> ();
     private float dayLightLevel = 16;
     private float tUnit = 0.25f;
 
@@ -39,7 +41,7 @@ public class SectionGO: MonoBehaviour
     //private int faceCount;
     private int colliderFaceCount;
 
-    private bool updateMesh = false;
+    //public bool updateMesh = false;
 
     public SectionGO()
     {
@@ -55,17 +57,17 @@ public class SectionGO: MonoBehaviour
     // Update is called once per frame
     void Update ()
     {
-        if (updateMesh)
+        if (section.updateMesh)
         {
             UpdateMesh();
-            updateMesh = false;
-            updateDaylightLevel = false;
+            section.updateMesh = false;
+            section.updateDayLight = false;
         }
 
-        if (updateDaylightLevel)
+        if (section.updateDayLight)
         {
             UpdateDayLight();
-            updateDaylightLevel = false;
+            section.updateDayLight = false;
         }
     }
     
@@ -74,7 +76,7 @@ public class SectionGO: MonoBehaviour
 
     }
 
-    public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles, List<Color> newColors)
+   /* public void SetMesh(List<Vector2> newUV, List<Vector3> newVertices, List<int> newTriangles, List<Color> newColors)
     {
         this.newUV = new List<Vector2>(newUV);
         this.newVertices = new List<Vector3>(newVertices);
@@ -87,12 +89,12 @@ public class SectionGO: MonoBehaviour
     {
         this.newColliderVertices = new List<Vector3>(newColliderVertices);
         this.newColliderTriangles = new List<int>(newColliderTriangles);
-    }
+    }*/
 
     public void SetDaylight(byte level) 
     {
         this.dayLightLevel = (float)level / 16f;
-        this.updateDaylightLevel = true;
+        this.section.updateDayLight = true;
     }
 
     private void UpdateDayLight()
@@ -103,11 +105,19 @@ public class SectionGO: MonoBehaviour
 
     private void UpdateMesh()
     {
+        if (section.chunk.xPosition == 8 && section.chunk.zPosition == 10)
+        {
+            if (section.posY >= 11)
+            {
+                int ii = 0;
+            }
+        }
+        
         mesh.Clear();
-        mesh.vertices = newVertices.ToArray();
-        mesh.uv = newUV.ToArray();
-        mesh.colors = newColor.ToArray();
-        mesh.triangles = newTriangles.ToArray();
+        mesh.vertices = section.vertices.ToArray();
+        mesh.uv = section.uvs.ToArray();
+        mesh.colors = section.colors.ToArray();
+        mesh.triangles = section.triangles.ToArray();
         mesh.Optimize();
         mesh.RecalculateNormals();
             
@@ -116,8 +126,8 @@ public class SectionGO: MonoBehaviour
 
         Mesh newMesh = new Mesh();
 
-        newMesh.vertices  = newColliderVertices.ToArray();
-        newMesh.triangles = newColliderTriangles.ToArray();
+        newMesh.vertices  = section.colliderVertices.ToArray();
+        newMesh.triangles = section.colliderTriangles.ToArray();
         newMesh.RecalculateBounds();
         col.sharedMesh = newMesh;
         colliderFaceCount = 0;
@@ -125,13 +135,13 @@ public class SectionGO: MonoBehaviour
         //GenerateDayLight();
         renderer.material.SetFloat ("_Sun", this.dayLightLevel);
             
-        newVertices.Clear();
-        newUV.Clear();
-        newColor.Clear();
-        newTriangles.Clear();
+        section.vertices.Clear();
+        section.uvs.Clear();
+        section.colors.Clear();
+        section.triangles.Clear();
 
-        newColliderVertices.Clear ();
-        newColliderTriangles.Clear ();
+        section.colliderTriangles.Clear ();
+        section.colliderVertices.Clear ();
 
     }
 

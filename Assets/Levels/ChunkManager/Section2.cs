@@ -27,12 +27,17 @@ namespace AssemblyCSharp
 
         public bool RequiresGORedraw = false;
 
-        private List<Vector3> vertices = new List<Vector3> ();
-        private List<int> triangles = new List<int> ();
-        private List<Vector2> uvs = new List<Vector2> ();
-        private List<Vector3> colliderVertices = new List<Vector3> ();
-        private List<int> colliderTriangles = new List<int> ();
-        private List<Color> colors = new List<Color> ();
+        public bool updateMesh = false; //rebuild all
+        public bool updateDayLight = false; //update daylight level
+        public bool updateLight = false; //update colours
+
+
+        public List<Vector3> vertices = new List<Vector3> ();
+        public List<int> triangles = new List<int> ();
+        public List<Vector2> uvs = new List<Vector2> ();
+        public List<Vector3> colliderVertices = new List<Vector3> ();
+        public List<int> colliderTriangles = new List<int> ();
+        public List<Color> colors = new List<Color> ();
 
         public Section2(int y, Chunk2 cnk)
         {
@@ -67,7 +72,7 @@ namespace AssemblyCSharp
             this.colors = new List<Color>(color);
         }
 
-        public void ClearGOTempData() 
+        /*public void ClearGOTempData() 
         {
             this.vertices.Clear();
             this.triangles.Clear();
@@ -75,7 +80,7 @@ namespace AssemblyCSharp
             this.colliderTriangles.Clear();
             this.colliderVertices.Clear();
             this.colors.Clear();
-        }
+        }*/
 
         public void GenerateGO() 
         {
@@ -85,15 +90,19 @@ namespace AssemblyCSharp
             
             this.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
             this.sectionGO.world = chunk.manager.world;
-            this.sectionGO.SetMesh(uvs, vertices, triangles, colors);
-            this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
+            this.sectionGO.section = this;
+            //this.sectionGO.updateMesh = true;
+            //this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
             this.sectionGO.SetDaylight(chunk.manager.world.time.GetDaylightLevel());
             this.sectionGO.name = chunk.xPosition.ToString() + ":" + chunk.zPosition.ToString();
+
+            this.updateMesh = true;
+
 
             StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
         }
 
-        public void SetNewGOMesh()
+        /*public void SetNewGOMesh()
         {
             this.sectionGO.SetMesh(uvs, vertices, triangles, colors);
         }
@@ -101,7 +110,9 @@ namespace AssemblyCSharp
         public void SetNewGOCollider()
         {
             this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
-        }
+        }*/
+
+
         
         #region Block Access
 
@@ -158,6 +169,8 @@ namespace AssemblyCSharp
         }
 
         #endregion
+
+
     }
 }
 

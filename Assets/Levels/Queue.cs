@@ -35,14 +35,19 @@ namespace AssemblyCSharp
 
         public static void RequestChunkRegeneration (ChunkManager manager, Chunk2 chunk)
         {
+            if (chunk.xPosition == 8 && chunk.zPosition == 10)
+            {
+                int ii = 0;
+            }
+            
             queue.EngueueItem(() =>
             {
-
 
                 if (chunk.xPosition == 8 && chunk.zPosition == 10)
                 {
                     int ii = 0;
                 }
+
 
                 //PerlinWorldGenerator.CreateChunk(chunk);
                 //chunk.isDataLoaded = true;
@@ -63,9 +68,14 @@ namespace AssemblyCSharp
 
         public static void RequestLightRegeneration (ChunkManager manager, Chunk2 chunk)
         {
-            queue.EngueueItem(() =>
-                              {
+            //need to stop dupes entering here
+            if (chunk.xPosition == 8 && chunk.zPosition == 10)
+            {
+                int ii = 0;
+            }
 
+            queue.EngueueItem(() =>
+            {
                 if (chunk.xPosition == 8 && chunk.zPosition == 10)
                 {
                     int ii = 0;

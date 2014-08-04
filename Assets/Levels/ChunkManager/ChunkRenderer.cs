@@ -325,12 +325,12 @@ namespace AssemblyCSharp
 
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
-            int chunkx = chunk.xPosition;
-            int chunkz = chunk.zPosition;
+            //int chunkx = chunk.xPosition;
+            //int chunkz = chunk.zPosition;
 
-            int posx;
+            //int posx;
             int posy;
-            int posz;
+            //int posz;
 
 
             for (int x = 0; x < 16; x++)
@@ -339,9 +339,9 @@ namespace AssemblyCSharp
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        posx = x + (chunkx * 16);
+                        //posx = x + (chunkx * 16);
                         posy = y + (section.posY * 16);
-                        posz = z + (chunkz * 16);
+                        //posz = z + (chunkz * 16);
 
                         byte id = section.GetBlockId(x, y, z);
 

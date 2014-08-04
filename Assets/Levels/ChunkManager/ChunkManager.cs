@@ -145,6 +145,7 @@ namespace AssemblyCSharp
                         if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
+                            cnk.isLightingUpdateRequired = false;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
                     }
@@ -159,6 +160,7 @@ namespace AssemblyCSharp
                         if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
+                            cnk.isLightingUpdateRequired = false;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
                     }
@@ -173,6 +175,7 @@ namespace AssemblyCSharp
                         if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
+                            cnk.isLightingUpdateRequired = false;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
                     }
@@ -187,6 +190,7 @@ namespace AssemblyCSharp
                         if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
                         {
                             cnk.isNeighboursLoaded = true;
+                            cnk.isLightingUpdateRequired = false;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
                     }
@@ -343,7 +347,7 @@ namespace AssemblyCSharp
                 {
                     Chunk2 chunk = GetChunk(x, z);
 
-                    if (chunk != null && chunk.isDataLoaded)
+                    if (chunk != null && chunk.isDataLoaded && chunk.isNeighboursLoaded)
                     {
                         chunk.SpreadDaylight_tick();
                     }
