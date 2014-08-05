@@ -7,7 +7,7 @@ public class ModifyTerrain : MonoBehaviour {
 	World world;
 	GameObject cameraGO;
 
-    private int maxLoadDist = 50;
+    private int maxLoadDist = 125;
     private int currentLoadDist = 10;
 	// Use this for initialization
 	void Start () {
@@ -21,10 +21,10 @@ public class ModifyTerrain : MonoBehaviour {
 
 
         //40 is the 1st test
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256); //needs to load at 256
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,80,256); //needs to load at 256
 
-        world.chunkManager.SpreadLightToAllChunks();
-        world.chunkManager.RenderInnitialChunks();
+        //world.chunkManager.SpreadLightToAllChunks();
+        //world.chunkManager.RenderInnitialChunks();
 
 		//update chunks internal light
 		//then update light from other chunks? good idea phil!!
@@ -47,7 +47,7 @@ public class ModifyTerrain : MonoBehaviour {
 
     private void LoadChunks(Vector3 playerPos)
     {
-        bool moreToLoad = world.chunkManager.LoadChunkWithinDist((int)playerPos.x, (int)playerPos.z, currentLoadDist, 1);
+        bool moreToLoad = world.chunkManager.LoadChunkWithinDist((int)playerPos.x, (int)playerPos.z, currentLoadDist, 5);
 
         if (!moreToLoad)
         {
@@ -56,6 +56,9 @@ public class ModifyTerrain : MonoBehaviour {
             {
                 currentLoadDist = maxLoadDist;
             }
+        } else
+        {
+            currentLoadDist -= 3;
         }
     }
 
@@ -81,6 +84,9 @@ public class ModifyTerrain : MonoBehaviour {
                 }
             }
         }
+
+        world.chunkManager.PerformTick(false); // more 1 - 3
+
     }
 
 	/*public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){

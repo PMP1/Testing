@@ -34,15 +34,15 @@ namespace AssemblyCSharp
         private bool smoothLighting = true;
 
 
-        private Chunk2 centerChunk;
-        private Chunk2 chunkNorth;
-        private Chunk2 chunkNorthEast;
-        private Chunk2 chunkEast;
-        private Chunk2 chunkSouthEast;
-        private Chunk2 chunkSouth;
-        private Chunk2 chunkSouthWest;
-        private Chunk2 chunkWest;
-        private Chunk2 chunkNorthWest;
+        private Chunk2 chunk;
+        //private Chunk2 chunkNorth;
+        //private Chunk2 chunkNorthEast;
+        //private Chunk2 chunkEast;
+        //private Chunk2 chunkSouthEast;
+        //private Chunk2 chunkSouth;
+        //private Chunk2 chunkSouthWest;
+        //private Chunk2 chunkWest;
+        //private Chunk2 chunkNorthWest;
         private bool neighboursLoaded = false; 
 
 
@@ -61,20 +61,20 @@ namespace AssemblyCSharp
             int firstSection = chunk.firstSection;
             byte daylightLevel = world.time.GetDaylightLevel();
 
-            centerChunk = chunk;
-            chunkNorth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition + 1);
-            chunkNorthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
-            chunkEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition);
-            chunkSouthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
-            chunkSouth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition - 1);
-            chunkSouthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
-            chunkWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition);
-            chunkNorthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
+            this.chunk = chunk;
+            //chunkNorth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition + 1);
+            //chunkNorthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
+            //chunkEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition);
+            //chunkSouthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
+            //chunkSouth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition - 1);
+            //chunkSouthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
+            //chunkWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition);
+            //chunkNorthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
 
-            if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
-            {
-                chunk.isNeighboursLoaded = true;
-            }
+            //if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
+            //{
+            //    chunk.isNeighboursLoaded = true;
+            //}
 
             for (int secY = firstSection; secY >= 0; secY--) 
             {
@@ -141,26 +141,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //sw
-                        if (chunkSouthWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouthWest.GetBlockId(x + 16, y, z + 16);
+                        //if (chunkSouthWest == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkSouthWest.GetBlockId(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //nw
-                        if (chunkNorthWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorthWest.GetBlockId(x + 16, y, z - 16);
+                        //if (chunkNorthWest == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorthWest.GetBlockId(x + 16, y, z - 16);
                     }
                     else 
                     {
                         //w
-                        if (chunkWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkWest.GetBlockId(x + 16, y, z);
+                        //if (chunkWest == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkWest.GetBlockId(x + 16, y, z);
                     }
                 } 
                 else if (x >= 16)
@@ -168,26 +168,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //se
-                        if (chunkSouthEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouthEast.GetBlockId(x - 16, y, z + 16);
+                        //if (chunkSouthEast == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkSouthEast.GetBlockId(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //ne
-                        if (chunkNorthEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorthEast.GetBlockId(x - 16, y, z - 16);
+                        //if (chunkNorthEast == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorthEast.GetBlockId(x - 16, y, z - 16);
                     }
                     else 
                     {
                         //e
-                        if (chunkEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkEast.GetBlockId(x - 16, y, z);
+                        //if (chunkEast == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkEast.GetBlockId(x - 16, y, z);
                     }
                 }
                 else
@@ -196,18 +196,18 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //s
-                        if (chunkSouth == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouth.GetBlockId(x, y, z + 16);
+                        //if (chunkSouth == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkSouth.GetBlockId(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //n
-                        if (chunkNorth == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorth.GetBlockId(x, y, z - 16);
+                        //if (chunkNorth == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorth.GetBlockId(x, y, z - 16);
                     }
                     else 
                     {
@@ -215,7 +215,7 @@ namespace AssemblyCSharp
                         //if (centerChunk == null)
                         //    blockId = 3;
                         //else 
-                        blockId = centerChunk.GetBlockId(x, y, z);
+                        blockId = chunk.GetBlockId(x, y, z);
                     }
                 }
                 
@@ -240,26 +240,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //sw
-                        if (chunkSouthWest == null || !chunkSouthWest.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
+                        //if (chunkSouthWest == null || !chunkSouthWest.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //nw
-                        if (chunkNorthWest == null  || !chunkNorthWest.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
+                        //if (chunkNorthWest == null  || !chunkNorthWest.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
                     }
                     else 
                     {
                         //w
-                        if (chunkWest == null  || !chunkWest.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkWest.GetDaylightValue(x + 16, y, z);
+                        //if (chunkWest == null  || !chunkWest.isDataLoaded)
+                         //   value = 15;
+                        //else 
+                        value = chunk.ChunkWest.GetDaylightValue(x + 16, y, z);
                     }
                 } 
                 else if (x >= 16)
@@ -267,26 +267,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //se
-                        if (chunkSouthEast == null || !chunkSouthEast.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
+                        //if (chunkSouthEast == null || !chunkSouthEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //ne
-                        if (chunkNorthEast == null || !chunkNorthEast.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
+                        //if (chunkNorthEast == null || !chunkNorthEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
                     }
                     else 
                     {
                         //e
-                        if (chunkEast == null || !chunkEast.isDataLoaded)
-                            value = 15;
-                        else 
-                            value = chunkEast.GetDaylightValue(x - 16, y, z);
+                        //if (chunkEast == null || !chunkEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkEast.GetDaylightValue(x - 16, y, z);
                     }
                 }
                 else
@@ -295,18 +295,18 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //s
-                        if (chunkSouth == null)
-                            value = 15;
-                        else 
-                            value = chunkSouth.GetDaylightValue(x, y, z + 16);
+                        //if (chunkSouth == null)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouth.GetDaylightValue(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //n
-                        if (chunkNorth == null)
-                            value = 15;
-                        else 
-                            value = chunkNorth.GetDaylightValue(x, y, z - 16);
+                        //if (chunkNorth == null)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorth.GetDaylightValue(x, y, z - 16);
                     }
                     else 
                     {
@@ -314,7 +314,7 @@ namespace AssemblyCSharp
                         //if (centerChunk == null)
                         //    blockId = 3;
                         //else 
-                        value = centerChunk.GetDaylightValue(x, y, z);
+                        value = chunk.GetDaylightValue(x, y, z);
                     }
                 }
                 

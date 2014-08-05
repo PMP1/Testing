@@ -58,7 +58,8 @@ namespace AssemblyCSharp
                     Chunk2 chunk = GetChunk(x, z);
                     if (chunk == null) 
                     {
-                        ChunkLoader.RequestChunk(this, x, z);
+                        LoadChunk(x, z);
+                        //ChunkLoader.RequestChunk(this, x, z);
                         //this.LoadChunk(x, z);
                         currentLoad ++;
                         if (currentLoad >= maxLoad) return true;
@@ -75,9 +76,69 @@ namespace AssemblyCSharp
             System.DateTime genStart = System.DateTime.Now;
 
             Chunk2 chunk = new Chunk2(this, x, z);
-            PerlinWorldGenerator.CreateChunk(chunk);
-
             chunkCollection.Add(x + ":" + z, chunk);
+
+            chunk.pendingStatus = 1;
+
+            Chunk2 n = GetChunk(chunk.xPosition, chunk.zPosition + 1);
+            Chunk2 ne = GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
+            Chunk2 e = GetChunk(chunk.xPosition + 1, chunk.zPosition);
+            Chunk2 se = GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
+            Chunk2 s = GetChunk(chunk.xPosition, chunk.zPosition - 1);
+            Chunk2 sw = GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
+            Chunk2 w = GetChunk(chunk.xPosition - 1, chunk.zPosition);
+            Chunk2 nw = GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
+
+            if (n != null)
+            {
+                chunk.ChunkNorth = n;
+                n.ChunkSouth = chunk;
+            }
+
+            if (ne != null)
+            {
+                chunk.ChunkNorthEast = ne;
+                ne.ChunkSouthWest = chunk;
+            }
+
+            if (e != null)
+            {
+                chunk.ChunkEast = e;
+                e.ChunkWest = chunk;
+            }
+
+            if (se != null)
+            {
+                chunk.ChunkSouthEast = se;
+                se.ChunkNorthWest = chunk;
+            }
+
+            if (s != null)
+            {
+                chunk.ChunkSouth = s;
+                s.ChunkNorth = chunk;
+            }
+
+            if (sw != null)
+            {
+                chunk.ChunkSouthWest = sw;
+                sw.ChunkNorthEast = chunk;
+            }
+
+            if (w != null)
+            {
+                chunk.ChunkWest = w;
+                w.ChunkEast = chunk;
+            }
+
+            if (nw != null)
+            {
+                chunk.ChunkNorthWest = nw;
+                nw.ChunkSouthEast = chunk;
+            }
+
+            PerlinWorldGenerator.CreateChunk(chunk);
+            chunk.status = 1;
 
             chunk.isDataLoaded = true;
             StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
@@ -93,6 +154,12 @@ namespace AssemblyCSharp
 
 
         public void SaveChunk(int x, int z)
+        {
+
+        }
+
+
+        public void UpdateStatus()
         {
 
         }
@@ -133,7 +200,7 @@ namespace AssemblyCSharp
 
                     //have we completed all the direct neighbours for any surrounding chunk?
                     //if we have we need to re render to remove any artifacts
-                    if (DoChunksExist(chunk.xPosition - 1, chunk.zPosition, false))
+                    /*if (DoChunksExist(chunk.xPosition - 1, chunk.zPosition, false))
                     {
 
                         if (chunk.xPosition - 1 == 8 && chunk.zPosition == 10)
@@ -193,7 +260,7 @@ namespace AssemblyCSharp
                             cnk.isLightingUpdateRequired = false;
                             ChunkLoader.RequestChunkRegeneration(this, cnk);
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -203,6 +270,38 @@ namespace AssemblyCSharp
         {
 
         }
+
+        #region Random Tick
+        
+        public void PerformTick(bool useQueue) 
+        {
+            Vector3 pos =  world.GetPlayerPos();
+            int chunkX = (int)pos.x >> 4;
+            int chunkZ = (int)pos.z >> 4;
+            
+            int xMax = chunkX + 4;
+            int zMax = chunkZ + 4;
+            
+            for (int x = chunkX - 4; x < xMax; x++)
+            {
+                for (int z = chunkZ - 4; z < zMax; z++)
+                {
+                    Chunk2 chunk = GetChunk(x, z);
+
+                    if (chunk != null)
+                    {
+                        chunk.CheckStatusUpdate(useQueue);
+                    }
+
+                    //if (chunk != null && chunk.isDataLoaded && chunk.isNeighboursLoaded)
+                    //{
+                    //    chunk.SpreadDaylight_tick();
+                    //}
+                }
+            }
+        }
+        
+        #endregion
        
 
         public Chunk2 GetChunk(int x, int z)
@@ -330,32 +429,7 @@ namespace AssemblyCSharp
         }
         #endregion
 
-        #region Random Tick
 
-        public void PerformTick() 
-        {
-            Vector3 pos =  world.GetPlayerPos();
-            int chunkX = (int)pos.x >> 4;
-            int chunkZ = (int)pos.z >> 4;
-
-            int xMax = chunkX + 4;
-            int zMax = chunkZ + 4;
-
-            for (int x = chunkX - 4; x < xMax; x++)
-            {
-                for (int z = chunkZ - 4; z < zMax; z++)
-                {
-                    Chunk2 chunk = GetChunk(x, z);
-
-                    if (chunk != null && chunk.isDataLoaded && chunk.isNeighboursLoaded)
-                    {
-                        chunk.SpreadDaylight_tick();
-                    }
-                }
-            }
-        }
-
-        #endregion
        
 
         #region Light

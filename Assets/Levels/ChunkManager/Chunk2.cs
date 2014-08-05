@@ -37,6 +37,20 @@ namespace AssemblyCSharp
 
 
         public bool containsWater = false;
+
+
+        public Chunk2 ChunkNorth;
+        public Chunk2 ChunkNorthEast;
+        public Chunk2 ChunkEast;
+        public Chunk2 ChunkSouthEast;
+        public Chunk2 ChunkSouth;
+        public Chunk2 ChunkSouthWest;
+        public Chunk2 ChunkWest;
+        public Chunk2 ChunkNorthWest;
+
+        public int status = 0; //0=created, 1=dataloaded, 2=lightingupdated, 3=rendered
+        public int pendingStatus = 0;
+
         public bool isDataLoaded = false; //Set when data is fully loaded and basic daylightadded
 
         public bool isNeighboursLoaded = false; //when true should spread daylight
@@ -125,6 +139,32 @@ namespace AssemblyCSharp
             return this.sections [y];
         }
 
+
+        public void CheckStatusUpdate(bool useQueue)
+        {
+            if (status == 0)
+                return;
+
+            if (status == 3 && pendingStatus == 3)
+                return;
+
+            if (status == 1 && pendingStatus == 1 && NeightboursLoaded())
+            {
+                pendingStatus = 2;
+                status = 2;
+            }
+
+            if (status == 2 && pendingStatus == 2 && NeightboursLoaded())
+            {
+                pendingStatus = 3;
+                manager.renderer.RenderChunk(this);
+                //ChunkLoader.RenderChunk(this);
+                return;
+            }
+        }
+
+
+
         public void GenerateSecGO()
         {
 
@@ -208,6 +248,28 @@ namespace AssemblyCSharp
         public byte GetHeightMap(int x, int z)
         {
             return this.heightMap [x + 16 * z];
+        }
+
+        public bool NeightboursLoaded()
+        {
+            if (ChunkNorth == null)
+                return false;
+            if (ChunkNorthEast == null)
+                return false;
+            if (ChunkEast == null)
+                return false;
+            if (ChunkSouthEast == null)
+                return false;
+            if (ChunkSouth == null)
+                return false;
+            if (ChunkSouthWest == null)
+                return false;
+            if (ChunkWest == null)
+                return false;
+            if (ChunkNorthWest == null)
+                return false;
+
+            return true;
         }
 
 

@@ -94,7 +94,7 @@ public class TimeManager : MonoBehaviour {
 			//tick = 0;
 		}
 
-        world.chunkManager.PerformTick();
+        world.chunkManager.PerformTick(true);
     }
 	
 	

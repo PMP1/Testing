@@ -17,7 +17,31 @@ namespace AssemblyCSharp
     {
         private static PCQueue queue = new PCQueue(1);
 
-        public static void RequestChunk (ChunkManager manager, int x, int z) 
+
+        public static void GenerateData(Chunk2 chunk)
+        {
+            // status 0 to 1
+        }
+
+        /// <summary>
+        /// Move from status 1 to 2 (data generated to light generated
+        /// </summary>
+        /// <param name="chunk">Chunk.</param>
+        public static void GenerateLight(Chunk2 chunk)
+        {
+
+        }
+
+        public static void RenderChunk(Chunk2 chunk)
+        {
+            queue.EngueueItem(() =>
+            {
+                chunk.manager.renderer.RenderChunk(chunk);
+                chunk.status = 3;
+            });
+        }
+
+        /*public static void RequestChunk (ChunkManager manager, int x, int z) 
         {
             Chunk2 chunk = new Chunk2(manager, x, z);
             manager.SetChunk(x, z, chunk);
@@ -64,7 +88,7 @@ namespace AssemblyCSharp
             });
             
             StatsEngine.QueueLength = queue.QueueLength();
-        }
+        }*/
 
         public static void RequestLightRegeneration (ChunkManager manager, Chunk2 chunk)
         {

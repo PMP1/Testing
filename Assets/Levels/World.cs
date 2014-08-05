@@ -46,6 +46,8 @@ public class World : MonoBehaviour {
 		                               
 		configSettings = new WorldConfig("PMP");
 		
+        playerpos = GameObject.FindGameObjectWithTag("Player").transform.position;
+
         PerlinWorldGenerator.Init();
         PerlinWorldGenerator.SetSeed(configSettings.Seed);
 
