@@ -79,13 +79,14 @@ public class ModifyTerrain : MonoBehaviour {
                                 
                 if(dist<distToLoad)
                 {
-                    world.chunkManager.LoadChunk(x, z);
+                    world.chunkManager.LoadChunk(x, z, false);
                     StatsEngine.ChunksLoaded++; 
                 }
             }
         }
 
-        world.chunkManager.PerformTick(false); // more 1 - 3
+        world.chunkManager.PerformTick(false); // more 1 - 2
+        world.chunkManager.PerformTick(false); // more 2 - 3
 
     }
 

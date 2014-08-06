@@ -21,6 +21,11 @@ namespace AssemblyCSharp
         public static void GenerateData(Chunk2 chunk)
         {
             // status 0 to 1
+            queue.EngueueItem(() =>
+            {
+                PerlinWorldGenerator.CreateChunk(chunk);
+                chunk.status = 1;
+            });
         }
 
         /// <summary>
@@ -29,7 +34,11 @@ namespace AssemblyCSharp
         /// <param name="chunk">Chunk.</param>
         public static void GenerateLight(Chunk2 chunk)
         {
-
+            queue.EngueueItem(() =>
+            {
+                chunk.SpreadDaylight();
+                chunk.status = 2;
+            });
         }
 
         public static void RenderChunk(Chunk2 chunk)
@@ -90,7 +99,7 @@ namespace AssemblyCSharp
             StatsEngine.QueueLength = queue.QueueLength();
         }*/
 
-        public static void RequestLightRegeneration (ChunkManager manager, Chunk2 chunk)
+        /*public static void RequestLightRegeneration (ChunkManager manager, Chunk2 chunk)
         {
             //need to stop dupes entering here
             if (chunk.xPosition == 8 && chunk.zPosition == 10)
@@ -111,7 +120,7 @@ namespace AssemblyCSharp
             });
             
             StatsEngine.QueueLength = queue.QueueLength();
-        }
+        }*/
 
 
         public static void ShutDown()

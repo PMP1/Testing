@@ -20,9 +20,7 @@ namespace AssemblyCSharp
         //public List<Chunk2> requiresGOgeneration = new List<Chunk2>();
         public Queue<Chunk2> requiresGOgeneration = new Queue<Chunk2>();
 
-        private BlockLightUpdate[] collection = new BlockLightUpdate[32*32*32];
-
-        private System.Object thisLock = new System.Object();
+                private System.Object thisLock = new System.Object();
 
         public GameObject worldGO;
         public World world;
@@ -58,7 +56,7 @@ namespace AssemblyCSharp
                     Chunk2 chunk = GetChunk(x, z);
                     if (chunk == null) 
                     {
-                        LoadChunk(x, z);
+                        LoadChunk(x, z, true);
                         //ChunkLoader.RequestChunk(this, x, z);
                         //this.LoadChunk(x, z);
                         currentLoad ++;
@@ -71,7 +69,7 @@ namespace AssemblyCSharp
             return false;
         }
 
-        public void LoadChunk(int x, int z) 
+        public void LoadChunk(int x, int z, bool useQueue) 
         {
             System.DateTime genStart = System.DateTime.Now;
 
@@ -137,8 +135,17 @@ namespace AssemblyCSharp
                 nw.ChunkSouthEast = chunk;
             }
 
-            PerlinWorldGenerator.CreateChunk(chunk);
-            chunk.status = 1;
+
+            if (useQueue)
+            {
+                ChunkLoader.GenerateData(chunk);
+            } else
+            {
+                PerlinWorldGenerator.CreateChunk(chunk);
+                chunk.status = 1;
+            }
+
+
 
             chunk.isDataLoaded = true;
             StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
@@ -182,85 +189,14 @@ namespace AssemblyCSharp
                 Chunk2 chunk;
                 while (requiresGOgeneration.Count > 0)
                 {
-
                     chunk = requiresGOgeneration.Dequeue();
-
 
                     if (chunk == null) 
                     {
                         return;
                     }
 
-                    if (chunk.xPosition == 8 && chunk.zPosition == 10)
-                    {
-                        int ii = 0;
-                    }
-
                     chunk.GenerateSecGO();
-
-                    //have we completed all the direct neighbours for any surrounding chunk?
-                    //if we have we need to re render to remove any artifacts
-                    /*if (DoChunksExist(chunk.xPosition - 1, chunk.zPosition, false))
-                    {
-
-                        if (chunk.xPosition - 1 == 8 && chunk.zPosition == 10)
-                        {
-                            int ii = 0;
-                        }
-
-                        Chunk2 cnk = GetChunk(chunk.xPosition - 1, chunk.zPosition);
-                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
-                        {
-                            cnk.isNeighboursLoaded = true;
-                            cnk.isLightingUpdateRequired = false;
-                            ChunkLoader.RequestChunkRegeneration(this, cnk);
-                        }
-                    }
-                    if (DoChunksExist(chunk.xPosition + 1, chunk.zPosition, false))
-                    {
-                        if (chunk.xPosition + 1 == 8 && chunk.zPosition == 10)
-                        {
-                            int ii = 0;
-                        }
-
-                        Chunk2 cnk = GetChunk(chunk.xPosition + 1, chunk.zPosition);
-                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
-                        {
-                            cnk.isNeighboursLoaded = true;
-                            cnk.isLightingUpdateRequired = false;
-                            ChunkLoader.RequestChunkRegeneration(this, cnk);
-                        }
-                    }
-                    if (DoChunksExist(chunk.xPosition, chunk.zPosition + 1, false))
-                    {
-                        if (chunk.xPosition == 8 && chunk.zPosition + 1 == 10)
-                        {
-                            int ii = 0;
-                        }
-
-                        Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition + 1);
-                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
-                        {
-                            cnk.isNeighboursLoaded = true;
-                            cnk.isLightingUpdateRequired = false;
-                            ChunkLoader.RequestChunkRegeneration(this, cnk);
-                        }
-                    }
-                    if (DoChunksExist(chunk.xPosition, chunk.zPosition - 1, false))
-                    {
-                        if (chunk.xPosition == 8 && chunk.zPosition - 1 == 10)
-                        {
-                            int ii = 0;
-                        }
-
-                        Chunk2 cnk = GetChunk(chunk.xPosition, chunk.zPosition - 1);
-                        if (!cnk.isNeighboursLoaded && !cnk.isQueuedForReRender)
-                        {
-                            cnk.isNeighboursLoaded = true;
-                            cnk.isLightingUpdateRequired = false;
-                            ChunkLoader.RequestChunkRegeneration(this, cnk);
-                        }
-                    }*/
                 }
             }
         }
@@ -435,7 +371,7 @@ namespace AssemblyCSharp
         #region Light
 
 
-        public void SpreadLightToAllChunks()
+        /*public void SpreadLightToAllChunks()
         {
 
             System.DateTime start = System.DateTime.Now;
@@ -448,7 +384,7 @@ namespace AssemblyCSharp
             }
             StatsEngine.ChunkSpreadLight += (float)System.DateTime.Now.Subtract(start).TotalSeconds;
 
-        }
+        }*/
 
         public int GetLightValue(int x, int y, int z)
         {
@@ -503,147 +439,6 @@ namespace AssemblyCSharp
             }
         }
 
-        public void UpdateLightBlock(int x, int y, int z, byte level)
-        {
-
-            ChunkCache cache = new ChunkCache(x, z, 17, this);
-            //origin x, y, z
-            //current x, y, z
-            //current level
-            int capacity = 0;
-            int current = 0;
-
-            //if (DoChunksExist(x, y, x, 16))
-            {
-
-                collection [capacity++] = new BlockLightUpdate(x, y, z, level);
-
-                while (capacity > current)
-                {
-                    int n = 0;
-                    int s = 0;
-                    int t = 0;
-                    int b = 0;
-                    int e = 0;
-                    int w = 0;
-                    bool neightboursLoaded = false;
-
-                    BlockLightUpdate block = collection [current++];
-
-                    int posX = block.posX;
-                    int posY = block.posY;
-                    int posZ = block.posZ;
-
-                    int savedValue = cache.GetLightValue(posX,posY,posZ);
-
-                    int calcValue = 0;
-
-                    if (cache.FacesTheSky(posX, posY, posZ))
-                    {
-                        calcValue = 15;
-                    } else
-                    {
-                        n = cache.GetLightValue(posX, posY, posZ + 1);
-                        s = cache.GetLightValue(posX, posY, posZ - 1);
-                        t = cache.GetLightValue(posX, posY + 1, posZ);
-                        b = cache.GetLightValue(posX, posY - 1, posZ);
-                        e = cache.GetLightValue(posX + 1, posY, posZ);
-                        w = cache.GetLightValue(posX - 1, posY, posZ);
-
-                        neightboursLoaded = true;
-                        calcValue = CalcLightValue(posX, posY, posZ, n, s, e, w, t, b);
-                    }
-
-                    if (calcValue != savedValue)
-                    {
-                        cache.SetLightValue(posX, posY, posZ, calcValue);
-
-                        if (capacity < 32762) 
-                        {
-                            if (calcValue > savedValue)
-                            {
-                                if (!neightboursLoaded)
-                                {
-                                    n = cache.GetLightValue(posX, posY, posZ + 1);
-                                    s = cache.GetLightValue(posX, posY, posZ - 1);
-                                    t = cache.GetLightValue(posX, posY + 1, posZ);
-                                    b = cache.GetLightValue(posX, posY - 1, posZ);
-                                    e = cache.GetLightValue(posX + 1, posY, posZ);
-                                    w = cache.GetLightValue(posX - 1, posY, posZ);
-                                }
-
-                                //calc distance from staret if (
-                                int diffX = Math.Abs(posX - x);
-                                int diffY = Math.Abs(posY - y);
-                                int diffZ = Math.Abs(posZ - z); 
-
-                                if (diffX + diffY + diffZ < 17)
-                                {
-                                    if (n < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ + 1, calcValue);
-                                    }
-                                    if (s < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ - 1, calcValue);
-                                    }
-                                    if (e < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX + 1, posY, posZ, calcValue);
-                                    }
-                                    if (w < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX - 1, posY, posZ, calcValue);
-                                    }
-                                    if (t < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY + 1, posZ, calcValue);
-                                    }
-                                    if (b < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY - 1, posZ, calcValue);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private int CalcLightValue(int x, int y, int z, int n, int s, int e, int w, int t, int b)
-        {
-            int level = 0;
-
-            int opacity = GetBlock(x, y, z).LightOpacity;
-
-            if (opacity >= 15)
-            {
-                return 0;
-            }
-
-            n-=2;
-            s-=2;
-            e-=2;
-            w-=2;
-            t-=2;
-            b-=2;
-
-            if (n > level)
-                level = n;
-            if (s > level)
-                level = s;
-            if (t > level)
-                level = t;
-            if (b > level)
-                level = b;
-            if (e > level)
-                level = e;
-            if (w > level)
-                level = w;
-
-            return level;
-        }
 
         #endregion
     }
