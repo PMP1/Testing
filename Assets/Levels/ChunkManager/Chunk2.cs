@@ -145,13 +145,18 @@ namespace AssemblyCSharp
 
         public void CheckStatusUpdate(bool useQueue)
         {
+            /* Status 0 = not loaded
+             * Status 1 = data generated
+             * Status 2 = Light generated
+             * Status 3 = rendered */
+
             if (status == 0)
                 return;
 
             if (status == 3 && pendingStatus == 3)
                 return;
 
-            if (status == 1 && pendingStatus == 1 && NeightboursLoaded())
+            if (status == 1 && pendingStatus == 1 && NeightboursMinStatus(1))
             {
                 pendingStatus = 2;
                 //status = 2;
@@ -164,7 +169,7 @@ namespace AssemblyCSharp
                 }
             }
 
-            if (status == 2 && pendingStatus == 2 && NeightboursLoaded())
+            if (status == 2 && pendingStatus == 2 && NeightboursMinStatus(2))
             {
                 pendingStatus = 3;
                 if (useQueue)
@@ -265,23 +270,34 @@ namespace AssemblyCSharp
             return this.heightMap [x + 16 * z];
         }
 
-        public bool NeightboursLoaded()
+        public int PosGetHeightMap(int posx, int posz)
         {
-            if (ChunkNorth == null)
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
+            
+            Chunk2 chunk = GetChunk(chunkX, chunkZ);    
+            return (int)chunk.GetHeightMap(x, z);
+        }
+
+        public bool NeightboursMinStatus(int status)
+        {
+            if (ChunkNorth == null || ChunkNorth.status < status)
                 return false;
-            if (ChunkNorthEast == null)
+            if (ChunkNorthEast == null || ChunkNorthEast.status < status)
                 return false;
-            if (ChunkEast == null)
+            if (ChunkEast == null || ChunkEast.status < status)
                 return false;
-            if (ChunkSouthEast == null)
+            if (ChunkSouthEast == null || ChunkSouthEast.status < status)
                 return false;
-            if (ChunkSouth == null)
+            if (ChunkSouth == null || ChunkSouth.status < status)
                 return false;
-            if (ChunkSouthWest == null)
+            if (ChunkSouthWest == null || ChunkSouthWest.status < status)
                 return false;
-            if (ChunkWest == null)
+            if (ChunkWest == null || ChunkWest.status < status)
                 return false;
-            if (ChunkNorthWest == null)
+            if (ChunkNorthWest == null || ChunkNorthWest.status < status)
                 return false;
 
             return true;
@@ -375,17 +391,27 @@ namespace AssemblyCSharp
 
         public bool SpreadDaylight()
         {
-            if (manager.DoChunksExist(this.xPosition << 4, 0, this.zPosition << 4, 16))
+            //if (manager.DoChunksExist(this.xPosition << 4, 0, this.zPosition << 4, 16))
             {
+                int chunkX = xPosition << 4;
+                int chunkZ = zPosition << 4;
+
+
+
+
                 for (int x = 0; x < 16; x++)
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        byte c = GetHeightMap(x, z);
-                        byte n = z < 15 ? GetHeightMap(x, z + 1) : c;
-                        byte e = x < 15 ? GetHeightMap(x + 1, z) : c;
-                        byte s = z > 0 ? GetHeightMap(x, z - 1) : c;
-                        byte w = x < 0 ? GetHeightMap(x - 1, z) : c;
+
+                        int posx = xPosition * 16 + x;
+                        int posz = zPosition * 16 + z;
+
+                        int c = PosGetHeightMap(posx, posz);
+                        int n = PosGetHeightMap(posx, posz + 1);
+                        int e = PosGetHeightMap(posx + 1, posz);
+                        int s = PosGetHeightMap(posx, posz - 1);
+                        int w = PosGetHeightMap(posx - 1, posz);
 
                         //need to get the heighest neighbour
                         if (n < e)
@@ -397,6 +423,11 @@ namespace AssemblyCSharp
 
                         for (int y = c; y < n; y++)
                         {
+                            if (xPosition == 9 && zPosition == 8 && x == 0  && z == 0 && y == 208)
+                            {
+                                var i = 0;
+                            }
+
                             UpdateLightBlock(x, y, z, 15);
                             UpdateLightBlock(x, y, z + 1, 15);
                             UpdateLightBlock(x, y, z - 1, 15);
@@ -430,6 +461,11 @@ namespace AssemblyCSharp
 
         public int GetChunkLight(int chunkX, int y, int chunkZ)
         {
+            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y == 208)
+            {
+                var i = 0;
+            }
+
             int secY = y >> 4;
             if (sections.Length < secY)
                 return 0;
@@ -448,6 +484,12 @@ namespace AssemblyCSharp
 
         public void SetChunkLight(int chunkX, int y, int chunkZ, int value)
         {
+
+            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y == 208)
+            {
+                var i = 0;
+            }
+
             int secY = y >> 4;
             if (sections.Length < secY)
                 return;
@@ -460,7 +502,7 @@ namespace AssemblyCSharp
             } else
             {
                 int secYPos = y - (secY * 16); //TODO check this for speed issues
-                sec.SetDaylightData(chunkX, secYPos, chunkZ, value);
+                sec.SetDatlightData(chunkX, secYPos, chunkZ, value);
             }
         }
 
@@ -508,29 +550,96 @@ namespace AssemblyCSharp
         }
 
 
-        private int GetLight(int chunkX, int chunkY, int chunkZ)
+        private int PosGetLight(int posx, int y, int posz)
         {
-            if (chunkY >= 256)
-                return 15;
-
-            if (chunkY <= 0)
+            if (y >= 256)
                 return 0;
+            
+            if (y <= 0)
+                return 0;
+            
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
+            
+            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+
+            return chunk.GetChunkLight(x, y, z);
+        }
+
+        private void PosSetLight(int posx, int y, int posz, int level)
+        {
+
+            if (y >= 256)
+                return;
+            
+            if (y <= 0)
+                return;
+            
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
+            
+            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+
+            chunk.SetChunkLight(x, y, z, level);
+        }
+
+        
+        private bool FacesTheSky(int x, int y, int z)
+        {
+            int height = GetHeightMap(x, z);
+
+            if (y >= height)
+                return true;
+            else 
+                return false;
+        }
+
+        private bool PosFacesTheSky(int posx, int y, int posz)
+        {
+            if (y >= 256)
+                return true;
+            
+            if (y <= 0)
+                return false;
+
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
+
+            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+              
+            return chunk.FacesTheSky(x, y, z);
+
+        }
+
+        private Block GetBlock(int chunkX, int y, int chunkZ)
+        {
+            int blockId = GetBlockId(chunkX, y, chunkZ);
+            return BlockManager.GetBlock(blockId);
+        }
+
+        private Block PosGetBlock(int posx, int y, int posz)
+        {
+            if (y >= 256 || y <= 0)
+                return null;
+
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
 
             Chunk2 chunk = GetChunk(chunkX, chunkZ);
 
-            int x = (xPosition << 4) + chunkX;
-            int z = (zPosition << 4) + chunkZ;
-
-            return chunk.GetChunkLight(x - (chunk.xPosition * 16), chunkY, z);
+            return chunk.GetBlock(x, y, z);
         }
 
         public void UpdateLightBlock(int x, int y, int z, byte level)
         {
-            
-            //ChunkCache cache = new ChunkCache(x, z, 17, this);
-            //origin x, y, z
-            //current x, y, z
-            //current level
             int capacity = 0;
             int current = 0;
             
@@ -538,7 +647,12 @@ namespace AssemblyCSharp
             {
                 
                 collection [capacity++] = new BlockLightUpdate(x, y, z, level);
-                
+
+                if (xPosition == 8 && zPosition == 11 && x == 0 && y == 204 && z == 4)
+                {
+                    var i = 0;
+                }
+
                 while (capacity > current)
                 {
                     int n = 0;
@@ -555,23 +669,28 @@ namespace AssemblyCSharp
                     int posY = block.posY;
                     int posZ = block.posZ;
 
-                    int savedValue = GetLight(posX,posY,posZ);
+                    int savedValue = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16));
 
+
+                    if (xPosition == 9 && zPosition == 8 && posX == 0  && posZ == 0 && posY == 208)
+                    {
+                        var i = 0;
+                    }
                     //int savedValue = cache.GetLightValue(posX,posY,posZ);
                     
                     int calcValue = 0;
                     
-                    if (cache.FacesTheSky(posX, posY, posZ))
+                    if (PosFacesTheSky(posX + (xPosition * 16), posY, posZ + (zPosition * 16)))
                     {
                         calcValue = 15;
                     } else
                     {
-                        n = GetLight(posX, posY, posZ + 1);
-                        s = GetLight(posX, posY, posZ - 1);
-                        t = GetLight(posX, posY + 1, posZ);
-                        b = GetLight(posX, posY - 1, posZ);
-                        e = GetLight(posX + 1, posY, posZ);
-                        w = GetLight(posX - 1, posY, posZ);
+                        n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
+                        s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
+                        t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
+                        b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
+                        e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
+                        w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
 
 
                         neightboursLoaded = true;
@@ -580,7 +699,7 @@ namespace AssemblyCSharp
                     
                     if (calcValue != savedValue)
                     {
-                        cache.SetLightValue(posX, posY, posZ, calcValue);
+                        PosSetLight(posX + xPosition * 16, posY, posZ + zPosition * 16, calcValue);
                         
                         if (capacity < 32762) 
                         {
@@ -588,12 +707,13 @@ namespace AssemblyCSharp
                             {
                                 if (!neightboursLoaded)
                                 {
-                                    n = GetLight(posX, posY, posZ + 1);
-                                    s = GetLight(posX, posY, posZ - 1);
-                                    t = GetLight(posX, posY + 1, posZ);
-                                    b = GetLight(posX, posY - 1, posZ);
-                                    e = GetLight(posX + 1, posY, posZ);
-                                    w = GetLight(posX - 1, posY, posZ);
+                                    n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
+                                    s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
+                                    t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
+                                    b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
+                                    e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
+                                    w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
+
                                 }
                                 
                                 //calc distance from staret if (
@@ -639,8 +759,14 @@ namespace AssemblyCSharp
         {
             int level = 0;
             
-            int opacity = GetBlock(x, y, z).LightOpacity;
-            
+            int opacity = PosGetBlock(x + xPosition * 16, y, z + zPosition * 16).LightOpacity;
+
+            if (xPosition == 7 && x == 11 && zPosition == 11 && z == 12 && y == 209)
+            {
+                var i = 0;
+            }
+
+
             if (opacity >= 15)
             {
                 return 0;
@@ -669,40 +795,6 @@ namespace AssemblyCSharp
             return level;
         }
 
-        public bool FacesTheSky(int globalX, int globalY, int globalZ)
-        {
-            int chunkX = globalX >> 4;
-            int chunkZ = globalZ >> 4;
-            
-            int relChunkX = chunkX - _chunkX;
-            int relChunkZ = chunkZ - _chunkZ;
-            
-            int chunkposX = globalX - (chunkX * 16);
-            int chunkposZ = globalZ - (chunkZ * 16);
-            
-            Chunk2 chunk;
-            
-            try
-            {
-                chunk = GetChunk(relChunkX, relChunkZ);
-                if (chunk == null) 
-                {
-                    return true;
-                }
-                
-                byte height = chunk.GetHeightMap(chunkposX, chunkposZ);
-                
-                if ((int)height == globalY)
-                {
-                    return true; // is directly touched by sunlight
-                }
-            }
-            catch
-            {
-                return true;
-            }
-            return false;
-        }
         #endregion
     }
 }

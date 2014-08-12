@@ -43,12 +43,19 @@ namespace AssemblyCSharp
 			//new Block (BlockType.Snow, 2, 1, 16)
 		};
 
-		public static Block GetBlock(byte id) 
-		{
+        public static Block GetBlock(byte id) 
+        {
             if (id == null)
                 id = (byte)0;
-			return blockList [id];
-		}
+            return blockList [id];
+        }
+
+        public static Block GetBlock(int id) 
+        {
+            if (id == null)
+                id = (byte)0;
+            return blockList [id];
+        }
 
 		public static Vector2 GetTexture(byte id)
 		{
