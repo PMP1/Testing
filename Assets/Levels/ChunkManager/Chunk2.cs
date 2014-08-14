@@ -277,7 +277,7 @@ namespace AssemblyCSharp
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
             
-            Chunk2 chunk = GetChunk(chunkX, chunkZ);    
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
             return (int)chunk.GetHeightMap(x, z);
         }
 
@@ -461,7 +461,7 @@ namespace AssemblyCSharp
 
         public int GetChunkLight(int chunkX, int y, int chunkZ)
         {
-            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y == 208)
+            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y >=  192 && y <= 195)
             {
                 var i = 0;
             }
@@ -485,7 +485,7 @@ namespace AssemblyCSharp
         public void SetChunkLight(int chunkX, int y, int chunkZ, int value)
         {
 
-            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y == 208)
+            if (xPosition == 9 && zPosition == 8 && chunkX == 0  && chunkZ == 0 && y >=  192 && y <= 194)
             {
                 var i = 0;
             }
@@ -515,19 +515,19 @@ namespace AssemblyCSharp
                 if (chunkZ < 0) //south
                 {
                     return ChunkSouthWest;
-                } else if (chunkZ >= 16) //north
+                } else if (chunkZ >= 1) //north
                 {
                     return ChunkNorthWest;
                 } else //center
                 {
                     return ChunkWest;
                 }
-            } else if (chunkX >= 16) //east
+            } else if (chunkX >= 1) //east
             {
                 if (chunkZ < 0) //south
                 {
                     return ChunkSouthEast;
-                } else if (chunkZ >= 16) //north
+                } else if (chunkZ >= 1) //north
                 {
                     return ChunkNorthEast;
                 } else //center
@@ -539,7 +539,7 @@ namespace AssemblyCSharp
                 if (chunkZ < 0) //south
                 {
                     return ChunkSouth;
-                } else if (chunkZ >= 16) //north
+                } else if (chunkZ >= 1) //north
                 {
                     return ChunkNorth;
                 } else //center
@@ -563,7 +563,7 @@ namespace AssemblyCSharp
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
             
-            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
 
             return chunk.GetChunkLight(x, y, z);
         }
@@ -582,7 +582,7 @@ namespace AssemblyCSharp
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
             
-            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
 
             chunk.SetChunkLight(x, y, z, level);
         }
@@ -611,7 +611,7 @@ namespace AssemblyCSharp
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
 
-            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
               
             return chunk.FacesTheSky(x, y, z);
 
@@ -633,7 +633,7 @@ namespace AssemblyCSharp
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
 
-            Chunk2 chunk = GetChunk(chunkX, chunkZ);
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
 
             return chunk.GetBlock(x, y, z);
         }
@@ -642,111 +642,94 @@ namespace AssemblyCSharp
         {
             int capacity = 0;
             int current = 0;
-            
-            //if (DoChunksExist(x, y, x, 16))
+                       
+            collection [capacity++] = new BlockLightUpdate(x, y, z, level);
+
+            while (capacity > current)
             {
+                int n = 0;
+                int s = 0;
+                int t = 0;
+                int b = 0;
+                int e = 0;
+                int w = 0;
+                bool neightboursLoaded = false;
                 
-                collection [capacity++] = new BlockLightUpdate(x, y, z, level);
+                BlockLightUpdate block = collection [current++];
+                
+                int posX = block.posX;
+                int posY = block.posY;
+                int posZ = block.posZ;
 
-                if (xPosition == 8 && zPosition == 11 && x == 0 && y == 204 && z == 4)
+                int savedValue = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16));
+
+                int calcValue = 0;
+                
+                if (PosFacesTheSky(posX + (xPosition * 16), posY, posZ + (zPosition * 16)))
                 {
-                    var i = 0;
+                    calcValue = 15;
+                } else
+                {
+                    n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
+                    s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
+                    t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
+                    b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
+                    e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
+                    w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
+
+                    neightboursLoaded = true;
+                    calcValue = CalcLightValue(posX, posY, posZ, n, s, e, w, t, b);
                 }
-
-                while (capacity > current)
+                
+                if (calcValue != savedValue)
                 {
-                    int n = 0;
-                    int s = 0;
-                    int t = 0;
-                    int b = 0;
-                    int e = 0;
-                    int w = 0;
-                    bool neightboursLoaded = false;
+                    PosSetLight(posX + xPosition * 16, posY, posZ + zPosition * 16, calcValue);
                     
-                    BlockLightUpdate block = collection [current++];
-                    
-                    int posX = block.posX;
-                    int posY = block.posY;
-                    int posZ = block.posZ;
-
-                    int savedValue = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16));
-
-
-                    if (xPosition == 9 && zPosition == 8 && posX == 0  && posZ == 0 && posY == 208)
+                    if (capacity < 32762) 
                     {
-                        var i = 0;
-                    }
-                    //int savedValue = cache.GetLightValue(posX,posY,posZ);
-                    
-                    int calcValue = 0;
-                    
-                    if (PosFacesTheSky(posX + (xPosition * 16), posY, posZ + (zPosition * 16)))
-                    {
-                        calcValue = 15;
-                    } else
-                    {
-                        n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
-                        s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
-                        t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
-                        b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
-                        e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
-                        w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
-
-
-                        neightboursLoaded = true;
-                        calcValue = CalcLightValue(posX, posY, posZ, n, s, e, w, t, b);
-                    }
-                    
-                    if (calcValue != savedValue)
-                    {
-                        PosSetLight(posX + xPosition * 16, posY, posZ + zPosition * 16, calcValue);
-                        
-                        if (capacity < 32762) 
+                        if (calcValue > savedValue)
                         {
-                            if (calcValue > savedValue)
+                            if (!neightboursLoaded)
                             {
-                                if (!neightboursLoaded)
-                                {
-                                    n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
-                                    s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
-                                    t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
-                                    b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
-                                    e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
-                                    w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
+                                n = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) + 1);
+                                s = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16) - 1);
+                                t = PosGetLight(posX + (xPosition * 16), posY + 1, posZ + (zPosition * 16));
+                                b = PosGetLight(posX + (xPosition * 16), posY - 1, posZ + (zPosition * 16));
+                                e = PosGetLight(posX + (xPosition * 16) + 1, posY, posZ + (zPosition * 16));
+                                w = PosGetLight(posX + (xPosition * 16) - 1, posY, posZ + (zPosition * 16));
 
-                                }
-                                
-                                //calc distance from staret if (
-                                int diffX = Math.Abs(posX - x);
-                                int diffY = Math.Abs(posY - y);
-                                int diffZ = Math.Abs(posZ - z); 
-                                
-                                if (diffX + diffY + diffZ < 17)
+                            }
+                            
+                            //calc distance from staret if (
+                            int diffX = Math.Abs(posX - x);
+                            int diffY = Math.Abs(posY - y);
+                            int diffZ = Math.Abs(posZ - z); 
+                            
+                            if (diffX + diffY + diffZ < 17)
+                            {
+                                if (n < calcValue)
                                 {
-                                    if (n < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ + 1, calcValue);
-                                    }
-                                    if (s < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY, posZ - 1, calcValue);
-                                    }
-                                    if (e < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX + 1, posY, posZ, calcValue);
-                                    }
-                                    if (w < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX - 1, posY, posZ, calcValue);
-                                    }
-                                    if (t < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY + 1, posZ, calcValue);
-                                    }
-                                    if (b < calcValue)
-                                    {
-                                        collection [capacity++] = new BlockLightUpdate(posX, posY - 1, posZ, calcValue);
-                                    }
+                                    collection [capacity++] = new BlockLightUpdate(posX, posY, posZ + 1, calcValue);
+                                }
+                                if (s < calcValue)
+                                {
+                                    collection [capacity++] = new BlockLightUpdate(posX, posY, posZ - 1, calcValue);
+                                }
+                                if (e < calcValue)
+                                {
+                                    collection [capacity++] = new BlockLightUpdate(posX + 1, posY, posZ, calcValue);
+                                }
+                                if (w < calcValue)
+                                {
+                                    collection [capacity++] = new BlockLightUpdate(posX - 1, posY, posZ, calcValue);
+                                }
+                                if (t < calcValue)
+                                {
+                                    collection [capacity++] = new BlockLightUpdate(posX, posY + 1, posZ, calcValue);
+                                }
+                                if (b < calcValue)
+                                {
+                                    collection [capacity++] = new BlockLightUpdate(posX, posY - 1, posZ, calcValue);
                                 }
                             }
                         }
@@ -761,7 +744,7 @@ namespace AssemblyCSharp
             
             int opacity = PosGetBlock(x + xPosition * 16, y, z + zPosition * 16).LightOpacity;
 
-            if (xPosition == 7 && x == 11 && zPosition == 11 && z == 12 && y == 209)
+            if (xPosition == 9 && zPosition == 8 && x == 0  && z == 0 && y >= 192 && y <= 194)
             {
                 var i = 0;
             }

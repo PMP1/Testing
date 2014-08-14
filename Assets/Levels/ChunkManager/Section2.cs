@@ -94,7 +94,7 @@ namespace AssemblyCSharp
             //this.sectionGO.updateMesh = true;
             //this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
             this.sectionGO.SetDaylight(chunk.manager.world.time.GetDaylightLevel());
-            this.sectionGO.name = chunk.xPosition.ToString() + ":" + chunk.zPosition.ToString();
+            this.sectionGO.name = chunk.xPosition.ToString() + ":" + chunk.zPosition.ToString() + ":" + (this.posY << 4).ToString();
 
             this.updateMesh = true;
 
