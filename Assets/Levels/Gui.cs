@@ -20,37 +20,24 @@ public class Gui : MonoBehaviour {
 		world=worldGO.GetComponent("World") as World;
 		
 		print( PerlinWorldGenerator.GetTexturePixel("Temperature",0,0));
-		
+        Vector3 player = world.GetPlayerPos();
+
 		tempTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-                tempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Temperature",i*1,j*1));
+                tempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("TempHumid",i*2,j*2));
 			}
 		}
-		tempTexture.Apply();
+        tempTexture.SetPixel((int)player.x / 2, (int)player.z / 2, new Color(1f,1f,1f));
+        tempTexture.Apply();
 		
-		humidTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
+		heightTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-                humidTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Humidity",i*1,j*1));
+                heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Sea",i*32,j*32));
 			}
 		}
-		humidTexture.Apply();
-
-		terrainTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
-		for(int i = 0; i < 200; i++) {
-			for(int j = 0; j < 200; j++) {
-                terrainTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Terrain",i*1,j*1));
-			}
-		}
-		terrainTexture.Apply();
-		
-		heightTexture = new Texture2D(500, 500, TextureFormat.ARGB32, false);
-		for(int i = 0; i < 500; i++) {
-			for(int j = 0; j < 500; j++) {
-                heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Height",i*16,j*16));
-			}
-		}
+        heightTexture.SetPixel((int)player.x / 16, (int)player.z / 16, new Color(1f,1f,1f));
 		heightTexture.Apply();
 	}
 	
@@ -63,10 +50,10 @@ public class Gui : MonoBehaviour {
         //full day = 24 seconds
         //1 second = 1 tick
 
-        GUI.DrawTexture(new Rect(10, 10, 100, 100), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
-        GUI.DrawTexture(new Rect(10, 110, 100, 100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
-        GUI.DrawTexture(new Rect(10, 210, 100, 100), terrainTexture, ScaleMode.ScaleToFit, true, 1.0f);
-        GUI.DrawTexture(new Rect(10, 310, 100, 100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 10, 200, 200), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        //GUI.DrawTexture(new Rect(10, 110, 100, 100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 210, 200, 200), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        //GUI.DrawTexture(new Rect(10, 310, 100, 100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
 		
 		
         System.TimeSpan test = new System.TimeSpan();

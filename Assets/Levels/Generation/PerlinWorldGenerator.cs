@@ -66,7 +66,55 @@ namespace AssemblyCSharp
         public static Color GetTexturePixel(string layerName, int x, int z) {
             float hum =0;
             float temp = 0;
-            switch (layerName) {
+            switch (layerName) 
+            {
+                case "TempHumid":
+                    temp = biomeGenerator.GetTemperatureAt(x, z);
+                    hum = biomeGenerator.GetHumidityAt(x, z);
+
+                    if (temp < 0.2)
+                    {
+                        temp = 0f;
+                    }
+                    else if (temp < 0.4)
+                    {
+                        temp = 0.2f;
+                    }
+                    else if (temp < 0.6)
+                    {
+                        temp = 0.4f;
+                    }
+                    else if (temp < 0.8)
+                    {
+                        temp = 0.6f;
+                    }
+                    else
+                    {
+                        temp = 0.8f;
+                    }
+
+                    if (hum < 0.2)
+                    {
+                        hum = 0f;
+                    }
+                    else if (hum < 0.4)
+                    {
+                        hum = 0.2f;
+                    }
+                    else if (hum < 0.6)
+                    {
+                        hum = 0.4f;
+                    }
+                    else if (hum < 0.8)
+                    {
+                        hum = 0.6f;
+                    }
+                    else
+                    {
+                        hum = 0.8f;
+                    }
+
+                    return new Color(temp, 0f, hum);
                 case "Temperature":
                     temp = biomeGenerator.GetTemperatureAt(x, z);
                     return new Color(temp, temp * 0.2f, temp * 0.2f);
@@ -98,28 +146,15 @@ namespace AssemblyCSharp
                     //return new Color(hum * 0.2f, hum * 0.2f, hum);
                     break;
                 case "Height":
-                    int height = biomeGenerator.GetHeightBiomeAt(x, z);
-                    switch (height) {
-                        
-                        case 1:
-                            return Color.blue;
-                            //break;
-                        case 2:
-                            return Color.yellow;
-                            //break;
-                        case 3:
-                            return Color.gray;
-                            //break;
-                        case 4:
-                            return Color.green;
-                            //break;
-                        default:
-                            return new Color(0.2f,0.8f,0.2f);
-                            //break;
-                    }
+                    float height = biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
                     return new Color(height * 0.2f, height * 0.2f, height);
-                    //break;
-                    
+                case "Sea":
+                    float sea = biomeGenerator.GetSeaAt(x, z);
+                    if (sea > 0.7)
+                        return new Color(0.3f, 1, 0.3f);
+                    return new Color(sea * 0.2f, sea * 0.2f, sea);
+
+
             }
             return Color.black;
         }

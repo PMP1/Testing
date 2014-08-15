@@ -169,9 +169,6 @@ namespace AssemblyCSharp
 			int plateauArea = (int) (256 * 0.10);
 			float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
 			
-			if (x == 0 && z == 0) {
-				float test = (-y + (((32.0f + height * 32.0f))  + densityMountains * 512.0f + densityHills * 64.0f) * flatten);
-			}
 			return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
             //-256 + (((32 + 32)) + 0 + 
 		}
