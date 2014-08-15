@@ -93,6 +93,8 @@ public class TimeManager : MonoBehaviour {
 		if (tick > (ticksInAnHour * hoursInADay)) {
 			//tick = 0;
 		}
+
+        world.chunkManager.PerformTick(true);
     }
 	
 	
@@ -101,16 +103,16 @@ public class TimeManager : MonoBehaviour {
 		byte currentLight = previousDayLight;
 		int dayTick = tick % (ticksInAnHour * hoursInADay);
 
-		//daybreak
-		if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
-			float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)((perc * 15));
-		}
-		//sunset
-		if (dayTick > 18 * ticksInAnHour && dayTick <= 19 * ticksInAnHour) {
-			float perc = ((float)dayTick - (18 * ticksInAnHour))/ (float)ticksInAnHour;
-			currentLight = (byte)(15 - (perc * 15));
-		}
+        //daybreak
+        if (dayTick > 6 * ticksInAnHour && dayTick <= 7 * ticksInAnHour) {
+            float perc = ((float)dayTick - (6 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)((perc * 15));
+        }
+        //sunset
+        if (dayTick > 22 * ticksInAnHour && dayTick <= 23 * ticksInAnHour) {
+            float perc = ((float)dayTick - (22 * ticksInAnHour))/ (float)ticksInAnHour;
+            currentLight = (byte)(15 - (perc * 15));
+        }
 
 		if (previousDayLight != currentLight) {
 			UpdateLight();
@@ -121,13 +123,6 @@ public class TimeManager : MonoBehaviour {
 	private void UpdateLight() {
 
         world.chunkManager.UpdateDaylight(this.previousDayLight);
-
-		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
-			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
-				if (world.chunks[x, z])
-					world.chunks[x, z].changeDayLight = true;
-			}
-		}*/
 	}
 
 	public byte GetDaylightLevel() {

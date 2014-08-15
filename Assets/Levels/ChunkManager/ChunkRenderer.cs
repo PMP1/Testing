@@ -23,10 +23,8 @@ namespace AssemblyCSharp
         private List<Vector3> newVertices = new List<Vector3> ();
         private List<int> newTriangles = new List<int> ();
         private List<Vector2> newUV = new List<Vector2> ();
-        
         private List<Vector3> newColliderVertices = new List<Vector3> ();
         private List<int> newColliderTriangles = new List<int> ();
-        
         private List<Color> newColor = new List<Color> ();
         private float tUnit = 0.25f;
 
@@ -36,15 +34,15 @@ namespace AssemblyCSharp
         private bool smoothLighting = true;
 
 
-        private Chunk2 centerChunk;
-        private Chunk2 chunkNorth;
-        private Chunk2 chunkNorthEast;
-        private Chunk2 chunkEast;
-        private Chunk2 chunkSouthEast;
-        private Chunk2 chunkSouth;
-        private Chunk2 chunkSouthWest;
-        private Chunk2 chunkWest;
-        private Chunk2 chunkNorthWest;
+        private Chunk2 chunk;
+        //private Chunk2 chunkNorth;
+        //private Chunk2 chunkNorthEast;
+        //private Chunk2 chunkEast;
+        //private Chunk2 chunkSouthEast;
+        //private Chunk2 chunkSouth;
+        //private Chunk2 chunkSouthWest;
+        //private Chunk2 chunkWest;
+        //private Chunk2 chunkNorthWest;
         private bool neighboursLoaded = false; 
 
 
@@ -63,26 +61,35 @@ namespace AssemblyCSharp
             int firstSection = chunk.firstSection;
             byte daylightLevel = world.time.GetDaylightLevel();
 
-            centerChunk = chunk;
-            chunkNorth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition + 1);
-            chunkNorthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
-            chunkEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition);
-            chunkSouthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
-            chunkSouth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition - 1);
-            chunkSouthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
-            chunkWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition);
-            chunkNorthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
+            this.chunk = chunk;
+            //chunkNorth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition + 1);
+            //chunkNorthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
+            //chunkEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition);
+            //chunkSouthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
+            //chunkSouth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition - 1);
+            //chunkSouthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
+            //chunkWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition);
+            //chunkNorthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
 
-            if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
-            {
-                neighboursLoaded = true;
-            }
+            //if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
+            //{
+            //    chunk.isNeighboursLoaded = true;
+            //}
 
             for (int secY = firstSection; secY >= 0; secY--) 
             {
                 Section2 section = chunk.GetSection(secY);
                 RenderSection(section, chunk, daylightLevel);
+                section.RequiresGORedraw = true;
             }
+
+            if (chunk.xPosition == 8 && chunk.zPosition == 10)
+            {
+                int ii = 0;
+            }
+            chunkManager.requiresGOgeneration.Enqueue(chunk);
+
+            chunk.isSectionsRendered = true;
         }
 
         private void RenderSection(Section2 sec, Chunk2 chunk, byte daylight) 
@@ -97,15 +104,9 @@ namespace AssemblyCSharp
                 colliderGenerator.GenerateCollisionMatrix(sec, ref newColliderTriangles, ref newColliderVertices);
                 StatsEngine.SectionColliderGen += (float)System.DateTime.Now.Subtract(startCreateCollider).TotalSeconds;
 
-                System.DateTime startCreateGO = System.DateTime.Now;
-                GameObject newSectionGO = world.CreateSectionGO(chunk, sec);
-                StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
-
-                sec.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
-                sec.sectionGO.world = world;
-                sec.sectionGO.SetMesh(newUV, newVertices, newTriangles, newColor);
-                sec.sectionGO.SetCollider(newColliderVertices, newColliderTriangles);
-                sec.sectionGO.SetDaylight(daylight);
+                sec.SetMeshData(newVertices, newTriangles, newUV);
+                sec.SetColorData(newColor);
+                sec.SetColliderData(newColliderVertices, newColliderTriangles);
             }
             newUV.Clear();
             newVertices.Clear();
@@ -140,26 +141,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //sw
-                        if (chunkSouthWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouthWest.GetBlockId(x + 16, y, z + 16);
+                        //if (chunkSouthWest == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkSouthWest.GetBlockId(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //nw
-                        if (chunkNorthWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorthWest.GetBlockId(x + 16, y, z - 16);
+                        //if (chunkNorthWest == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorthWest.GetBlockId(x + 16, y, z - 16);
                     }
                     else 
                     {
                         //w
-                        if (chunkWest == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkWest.GetBlockId(x + 16, y, z);
+                        //if (chunkWest == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkWest.GetBlockId(x + 16, y, z);
                     }
                 } 
                 else if (x >= 16)
@@ -167,26 +168,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //se
-                        if (chunkSouthEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouthEast.GetBlockId(x - 16, y, z + 16);
+                        //if (chunkSouthEast == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkSouthEast.GetBlockId(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //ne
-                        if (chunkNorthEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorthEast.GetBlockId(x - 16, y, z - 16);
+                        //if (chunkNorthEast == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorthEast.GetBlockId(x - 16, y, z - 16);
                     }
                     else 
                     {
                         //e
-                        if (chunkEast == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkEast.GetBlockId(x - 16, y, z);
+                        //if (chunkEast == null)
+                        //    blockId = 3;
+                        //else 
+                            blockId = chunk.ChunkEast.GetBlockId(x - 16, y, z);
                     }
                 }
                 else
@@ -195,18 +196,18 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //s
-                        if (chunkSouth == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkSouth.GetBlockId(x, y, z + 16);
+                        //if (chunkSouth == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkSouth.GetBlockId(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //n
-                        if (chunkNorth == null)
-                            blockId = 3;
-                        else 
-                            blockId = chunkNorth.GetBlockId(x, y, z - 16);
+                        //if (chunkNorth == null)
+                        //    blockId = 3;
+                        //else 
+                        blockId = chunk.ChunkNorth.GetBlockId(x, y, z - 16);
                     }
                     else 
                     {
@@ -214,7 +215,7 @@ namespace AssemblyCSharp
                         //if (centerChunk == null)
                         //    blockId = 3;
                         //else 
-                        blockId = centerChunk.GetBlockId(x, y, z);
+                        blockId = chunk.GetBlockId(x, y, z);
                     }
                 }
                 
@@ -239,26 +240,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //sw
-                        if (chunkSouthWest == null)
-                            value = 15;
-                        else 
-                            value = chunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
+                        //if (chunkSouthWest == null || !chunkSouthWest.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //nw
-                        if (chunkNorthWest == null)
-                            value = 15;
-                        else 
-                            value = chunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
+                        //if (chunkNorthWest == null  || !chunkNorthWest.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
                     }
                     else 
                     {
                         //w
-                        if (chunkWest == null)
-                            value = 15;
-                        else 
-                            value = chunkWest.GetDaylightValue(x + 16, y, z);
+                        //if (chunkWest == null  || !chunkWest.isDataLoaded)
+                         //   value = 15;
+                        //else 
+                        value = chunk.ChunkWest.GetDaylightValue(x + 16, y, z);
                     }
                 } 
                 else if (x >= 16)
@@ -266,26 +267,26 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //se
-                        if (chunkSouthEast == null)
-                            value = 15;
-                        else 
-                            value = chunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
+                        //if (chunkSouthEast == null || !chunkSouthEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //ne
-                        if (chunkNorthEast == null)
-                            value = 15;
-                        else 
-                            value = chunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
+                        //if (chunkNorthEast == null || !chunkNorthEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
                     }
                     else 
                     {
                         //e
-                        if (chunkEast == null)
-                            value = 15;
-                        else 
-                            value = chunkEast.GetDaylightValue(x - 16, y, z);
+                        //if (chunkEast == null || !chunkEast.isDataLoaded)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkEast.GetDaylightValue(x - 16, y, z);
                     }
                 }
                 else
@@ -294,18 +295,18 @@ namespace AssemblyCSharp
                     if (z < 0) 
                     {
                         //s
-                        if (chunkSouth == null)
-                            value = 15;
-                        else 
-                            value = chunkSouth.GetDaylightValue(x, y, z + 16);
+                        //if (chunkSouth == null)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkSouth.GetDaylightValue(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
                         //n
-                        if (chunkNorth == null)
-                            value = 15;
-                        else 
-                            value = chunkNorth.GetDaylightValue(x, y, z - 16);
+                        //if (chunkNorth == null)
+                        //    value = 15;
+                        //else 
+                        value = chunk.ChunkNorth.GetDaylightValue(x, y, z - 16);
                     }
                     else 
                     {
@@ -313,7 +314,7 @@ namespace AssemblyCSharp
                         //if (centerChunk == null)
                         //    blockId = 3;
                         //else 
-                        value = centerChunk.GetDaylightValue(x, y, z);
+                        value = chunk.GetDaylightValue(x, y, z);
                     }
                 }
                 
@@ -324,12 +325,12 @@ namespace AssemblyCSharp
 
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
-            int chunkx = chunk.xPosition;
-            int chunkz = chunk.zPosition;
+            //int chunkx = chunk.xPosition;
+            //int chunkz = chunk.zPosition;
 
-            int posx;
+            //int posx;
             int posy;
-            int posz;
+            //int posz;
 
 
             for (int x = 0; x < 16; x++)
@@ -338,33 +339,15 @@ namespace AssemblyCSharp
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        posx = x + (chunkx * 16);
+                        //posx = x + (chunkx * 16);
                         posy = y + (section.posY * 16);
-                        posz = z + (chunkz * 16);
-
-                        //byte id = this.GetBlockId(x, posy, z);
+                        //posz = z + (chunkz * 16);
 
                         byte id = section.GetBlockId(x, y, z);
-                        //Block block = this.chunkManager.GetBlock(posx, posy, posz);
-
-                        //int t1 = (int)block.BlkType;
-                        //int t2 = (int)id;
-
-                        //if (t1 != t2) {
-                        //    var ii = 33;
-                        //}
 
                         if (id != (byte)0)//|| block.LightOpacity < 16)
                         {
-                            //Block block = this.chunkManager.GetBlock(posx, posy, posz);
                             Block block = BlockManager.GetBlock((byte)id);
-
-                            //Block blockT = this.chunkManager.GetBlock(posx, posy + 1, posz);
-                            //Block blockB = this.chunkManager.GetBlock(posx, posy - 1, posz);
-                            //Block blockN = this.chunkManager.GetBlock(posx, posy, posz + 1);
-                            //Block blockE = this.chunkManager.GetBlock(posx + 1, posy, posz);
-                            //Block blockS = this.chunkManager.GetBlock(posx, posy, posz - 1);
-                            //Block blockW = this.chunkManager.GetBlock(posx - 1, posy, posz);
 
                             Block blockT = this.GetBlock(x, posy + 1, z);
                             Block blockB = this.GetBlock(x, posy - 1, z);
@@ -386,6 +369,10 @@ namespace AssemblyCSharp
                             if ((int)blockB.BlkType == (int)BlockType.Air)
                             {
                                 CubeBot(x, y, z, block);
+                                startCreateSmoothLight = System.DateTime.Now;
+                                CubeBottomLight(x, posy, z, block);
+                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
+
                             }
                             if ((int)blockN.BlkType == (int)BlockType.Air)
                             {
@@ -432,9 +419,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-
-            //CubeLight(3, 3, 3, 3);
         }
 
         private void CubeNorth (int x, int y, int z, Block block)
@@ -446,9 +430,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            ///CubeNorthLight(x, y, z, block);
-            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeEast (int x, int y, int z, Block block)
@@ -460,8 +441,6 @@ namespace AssemblyCSharp
             
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            //CubeLight(0, 0, 0, 0);
         }
 
         
@@ -475,7 +454,6 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            //CubeLight(0, 0, 0, 0);
         }
 
 
@@ -489,8 +467,6 @@ namespace AssemblyCSharp
 
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
-
-            //CubeLight(0, 0, 0, 0);
         }
 
         private void CubeBot (int x, int y, int z, Block block)
@@ -504,7 +480,6 @@ namespace AssemblyCSharp
             Vector2 texturePos = block.Texture;
             Cube(texturePos);
 
-            CubeLight(15);
         }
 
         
@@ -513,23 +488,49 @@ namespace AssemblyCSharp
             if (smoothLighting)
             {
 
-                Block blockN = this.GetBlock(x, y + 1, z + 1);
-                Block blockNE = this.GetBlock(x + 1, y + 1, z + 1);
-                Block blockE = this.GetBlock(x + 1, y + 1, z);
-                Block blockSE = this.GetBlock(x + 1, y + 1, z - 1);
-                Block blockS = this.GetBlock(x, y + 1, z - 1);
-                Block blockSW = this.GetBlock(x - 1, y + 1, z - 1);
-                Block blockW = this.GetBlock(x - 1, y + 1, z);
-                Block blockNW = this.GetBlock(x - 1, y + 1, z + 1);
+                byte blockN = this.GetDaylightValue(x, y + 1, z + 1);
+                byte blockNE = this.GetDaylightValue(x + 1, y + 1, z + 1);
+                byte blockE = this.GetDaylightValue(x + 1, y + 1, z);
+                byte blockSE = this.GetDaylightValue(x + 1, y + 1, z - 1);
+                byte blockS = this.GetDaylightValue(x, y + 1, z - 1);
+                byte blockSW = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockW = this.GetDaylightValue(x - 1, y + 1, z);
+                byte blockNW = this.GetDaylightValue(x - 1, y + 1, z + 1);
+                byte blockC = this.GetDaylightValue(x, y + 1, z);
+                float c1 = GetAverageLight(blockN, blockW, blockNW, blockC);
+                float c2 = GetAverageLight(blockS, blockW, blockSW, blockC);
+                float c3 = GetAverageLight(blockS, blockE, blockSE, blockC);
+                float c4 = GetAverageLight(blockN, blockE, blockNE, blockC);
+                    
+                CubeLight(c1, c4, c3, c2);
+            } else
+            {
+                CubeLight(15);
+            }
+        }
 
-                byte light = this.GetDaylightValue(x, y + 1, z);
-            
-                int c1 = GetCornerLight(blockN, blockW, blockNW);
-                int c2 = GetCornerLight(blockS, blockW, blockSW);
-                int c3 = GetCornerLight(blockS, blockE, blockSE);
-                int c4 = GetCornerLight(blockN, blockE, blockNE);
+        
+        private void CubeBottomLight(int x, int y, int z, Block block) 
+        {
+            if (smoothLighting)
+            {
                 
-                CubeLight(c1, c4, c3, c2, light);
+                byte blockN  = this.GetDaylightValue(x, y - 1, z + 1);
+                byte blockNE = this.GetDaylightValue(x + 1, y - 1, z + 1);
+                byte blockE  = this.GetDaylightValue(x + 1, y - 1, z);
+                byte blockSE = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockS  = this.GetDaylightValue(x, y - 1, z - 1);
+                byte blockSW = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockW  = this.GetDaylightValue(x - 1, y - 1, z);
+                byte blockNW = this.GetDaylightValue(x - 1, y - 1, z + 1);
+                byte blockC = this.GetDaylightValue(x, y - 1, z);
+                
+                float c1 = GetAverageLight(blockN, blockW, blockNW, blockC);
+                float c2 = GetAverageLight(blockS, blockW, blockSW, blockC);
+                float c3 = GetAverageLight(blockS, blockE, blockSE, blockC);
+                float c4 = GetAverageLight(blockN, blockE, blockNE, blockC);
+                
+                CubeLight(c2, c3,c4, c1);
             } else
             {
                 CubeLight(15);
@@ -541,23 +542,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT  = this.GetBlock (x,   y+1, z+1); //top
-                Block blockTE = this.GetBlock (x+1, y+1, z+1); //top - east
-                Block blockE  = this.GetBlock (x+1, y,   z+1);
-                Block blockBE = this.GetBlock (x+1, y-1, z+1);
-                Block blockB  = this.GetBlock (x,   y-1, z+1);
-                Block blockBW = this.GetBlock (x-1, y-1, z+1);
-                Block blockW  = this.GetBlock (x-1, y,   z+1);
-                Block blockTW= this.GetBlock (x-1, y+1, z+1);
+                byte blockT  = this.GetDaylightValue(x,   y+1, z+1); //top
+                byte blockTE = this.GetDaylightValue(x+1, y+1, z+1); //top - east
+                byte blockE  = this.GetDaylightValue(x+1, y,   z+1);
+                byte blockBE = this.GetDaylightValue(x+1, y-1, z+1);
+                byte blockB  = this.GetDaylightValue(x,   y-1, z+1);
+                byte blockBW = this.GetDaylightValue(x-1, y-1, z+1);
+                byte blockW  = this.GetDaylightValue(x-1, y,   z+1);
+                byte blockTW = this.GetDaylightValue(x-1, y+1, z+1);
+                byte blockC  = this.GetDaylightValue(x,   y,   z+1);
 
-                int c1 = GetCornerLight(blockT, blockW, blockTW);
-                int c2 = GetCornerLight(blockB, blockW, blockBW);
-                int c3 = GetCornerLight(blockB, blockE, blockBE);
-                int c4 = GetCornerLight(blockT, blockE, blockTE);
+                float c1 = GetAverageLight(blockT, blockW, blockTW, blockC);
+                float c2 = GetAverageLight(blockB, blockW, blockBW, blockC);
+                float c3 = GetAverageLight(blockB, blockE, blockBE, blockC);
+                float c4 = GetAverageLight(blockT, blockE, blockTE, blockC);
 
-                byte light = this.GetDaylightValue(x, y, z + 1);
-
-                CubeLight(c3, c4, c1, c2, light);
+                CubeLight(c3, c4, c1, c2);
             } else
             {
                 CubeLight(15);
@@ -568,23 +568,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x + 1, y + 1, z); //top
-                Block blockTN = this.GetBlock(x + 1, y + 1, z + 1); //top - east
-                Block blockN = this.GetBlock(x + 1, y, z + 1);
-                Block blockBN = this.GetBlock(x + 1, y - 1, z + 1);
-                Block blockB = this.GetBlock(x + 1, y - 1, z);
-                Block blockBS = this.GetBlock(x + 1, y - 1, z - 1);
-                Block blockS = this.GetBlock(x + 1, y, z - 1);
-                Block blockTS = this.GetBlock(x + 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x + 1, y + 1, z); //top
+                byte blockTN = this.GetDaylightValue(x + 1, y + 1, z + 1); //top - east
+                byte blockN = this.GetDaylightValue(x + 1, y, z + 1);
+                byte blockBN = this.GetDaylightValue(x + 1, y - 1, z + 1);
+                byte blockB = this.GetDaylightValue(x + 1, y - 1, z);
+                byte blockBS = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockS = this.GetDaylightValue(x + 1, y, z - 1);
+                byte blockTS = this.GetDaylightValue(x + 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x + 1, y, z);
             
-                int c1 = GetCornerLight(blockT, blockN, blockTN);
-                int c2 = GetCornerLight(blockB, blockN, blockBN);
-                int c3 = GetCornerLight(blockB, blockS, blockBS);
-                int c4 = GetCornerLight(blockT, blockS, blockTS);
+                float c1 = GetAverageLight(blockT, blockN, blockTN, blockC);
+                float c2 = GetAverageLight(blockB, blockN, blockBN, blockC);
+                float c3 = GetAverageLight(blockB, blockS, blockBS, blockC);
+                float c4 = GetAverageLight(blockT, blockS, blockTS, blockC);
 
-                byte light = this.GetDaylightValue(x +1, y, z);
-
-                CubeLight(c3, c4, c1, c2, light);       
+                CubeLight(c3, c4, c1, c2);       
             } else
             {
                 CubeLight(15);
@@ -596,23 +595,22 @@ namespace AssemblyCSharp
         {
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x, y + 1, z - 1); //top
-                Block blockTE = this.GetBlock(x + 1, y + 1, z - 1); //top - east
-                Block blockE = this.GetBlock(x + 1, y, z - 1);
-                Block blockBE = this.GetBlock(x + 1, y - 1, z - 1);
-                Block blockB = this.GetBlock(x, y - 1, z - 1);
-                Block blockBW = this.GetBlock(x - 1, y - 1, z - 1);
-                Block blockW = this.GetBlock(x - 1, y, z - 1);
-                Block blockTW = this.GetBlock(x - 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x, y + 1, z - 1); //top
+                byte blockTE = this.GetDaylightValue(x + 1, y + 1, z - 1); //top - east
+                byte blockE = this.GetDaylightValue(x + 1, y, z - 1);
+                byte blockBE = this.GetDaylightValue(x + 1, y - 1, z - 1);
+                byte blockB = this.GetDaylightValue(x, y - 1, z - 1);
+                byte blockBW = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockW = this.GetDaylightValue(x - 1, y, z - 1);
+                byte blockTW = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x, y, z - 1);
             
-                int c1 = GetCornerLight(blockT, blockE, blockTE);
-                int c2 = GetCornerLight(blockB, blockE, blockBE);
-                int c3 = GetCornerLight(blockB, blockW, blockBW);
-                int c4 = GetCornerLight(blockT, blockW, blockTW);
+                float c1 = GetAverageLight(blockT, blockE, blockTE, blockC);
+                float c2 = GetAverageLight(blockB, blockE, blockBE, blockC);
+                float c3 = GetAverageLight(blockB, blockW, blockBW, blockC);
+                float c4 = GetAverageLight(blockT, blockW, blockTW, blockC);
 
-                byte light = this.GetDaylightValue(x, y, z - 1);
-
-                CubeLight(c3, c4, c1, c2, light);
+                CubeLight(c3, c4, c1, c2);
             } else
             {
                 CubeLight(15);
@@ -623,29 +621,37 @@ namespace AssemblyCSharp
         {   
             if (smoothLighting)
             {
-                Block blockT = this.GetBlock(x - 1, y + 1, z); //top
-                Block blockTN = this.GetBlock(x - 1, y + 1, z + 1); //top - north
-                Block blockN = this.GetBlock(x - 1, y, z + 1);
-                Block blockBN = this.GetBlock(x - 1, y - 1, z + 1);
-                Block blockB = this.GetBlock(x - 1, y - 1, z);
-                Block blockBS = this.GetBlock(x - 1, y - 1, z - 1);
-                Block blockS = this.GetBlock(x - 1, y, z - 1);
-                Block blockTS = this.GetBlock(x - 1, y + 1, z - 1);
+                byte blockT = this.GetDaylightValue(x - 1, y + 1, z); //top
+                byte blockTN = this.GetDaylightValue(x - 1, y + 1, z + 1); //top - north
+                byte blockN = this.GetDaylightValue(x - 1, y, z + 1);
+                byte blockBN = this.GetDaylightValue(x - 1, y - 1, z + 1);
+                byte blockB = this.GetDaylightValue(x - 1, y - 1, z);
+                byte blockBS = this.GetDaylightValue(x - 1, y - 1, z - 1);
+                byte blockS = this.GetDaylightValue(x - 1, y, z - 1);
+                byte blockTS = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                byte blockC = this.GetDaylightValue(x - 1, y, z);
                
-                int c1 = GetCornerLight(blockT, blockN, blockTN);
-                int c2 = GetCornerLight(blockB, blockN, blockBN);
-                int c3 = GetCornerLight(blockB, blockS, blockBS);
-                int c4 = GetCornerLight(blockT, blockS, blockTS);
+                float c1 = GetAverageLight(blockT, blockN, blockTN, blockC);
+                float c2 = GetAverageLight(blockB, blockN, blockBN, blockC);
+                float c3 = GetAverageLight(blockB, blockS, blockBS, blockC);
+                float c4 = GetAverageLight(blockT, blockS, blockTS, blockC);
 
-                byte light = this.GetDaylightValue(x - 1, y, z);
-
-                CubeLight(c2, c1, c4, c3, light);       
+                CubeLight(c2, c1, c4, c3);       
             } else
             {
                 CubeLight(15);
             }
         }
 
+
+        private float GetAverageLight(byte side1, byte side2, byte side3, byte side4)
+        {
+            if (side1 + side2 + side3 + side4 < 60)
+            {
+                int i = 0; 
+            }
+            return ((float)(side1 + side2 + side3 + side4)) / (16f * 4f);
+        }
 
         private int GetCornerLight(Block side1, Block side2, Block corner)
         {
@@ -668,6 +674,14 @@ namespace AssemblyCSharp
             newColor.Add(new Color(0f,0f,0f,level));
             newColor.Add(new Color(0f,0f,0f,level));
             newColor.Add(new Color(0f,0f,0f,level));
+        }
+
+        void CubeLight(float c1, float c2, float c3, float c4) {
+            
+            newColor.Add(new Color(0f,0f,0f,c1));
+            newColor.Add(new Color(0f,0f,0f,c2));
+            newColor.Add(new Color(0f,0f,0f,c3));
+            newColor.Add(new Color(0f,0f,0f,c4));
         }
 
         void CubeLight(int c1, int c2, int c3, int c4, byte light) {

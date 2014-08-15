@@ -7,6 +7,8 @@ public class ModifyTerrain : MonoBehaviour {
 	World world;
 	GameObject cameraGO;
 
+    private int maxLoadDist = 125;
+    private int currentLoadDist = 10;
 	// Use this for initialization
 	void Start () {
 
@@ -19,19 +21,11 @@ public class ModifyTerrain : MonoBehaviour {
 
 
         //40 is the 1st test
-		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,50,256, false); //needs to load at 256
-        world.chunkManager.RenderInnitialChunks();
-		//Need to call an inittial set of chunk updates here so that the lighting is rendered
-		/*for(int x = 0; x < world.chunks.GetLength(0); x++){ 
-			for(int z = 0; z < world.chunks.GetLength(1); z++){ 
-				if (world.chunks[x, z])
-					world.chunks[x, z].DoUpdate();
-			}
-		}*/
+		LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,80,256); //needs to load at 256
 
+        //world.chunkManager.SpreadLightToAllChunks();
+        //world.chunkManager.RenderInnitialChunks();
 
-		//this will then give us a true start up time
-		//
 		//update chunks internal light
 		//then update light from other chunks? good idea phil!!
 		world.startupTime = System.DateTime.Now.Subtract (start);
@@ -48,10 +42,67 @@ public class ModifyTerrain : MonoBehaviour {
 			AddBlockCursor(1);
 		}
 
-		//LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position,100,180, true);
+        if (world.time.tick > 300) LoadChunks(GameObject.FindGameObjectWithTag("Player").transform.position);
 	}
 
-	public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
+    private void LoadChunks(Vector3 playerPos)
+    {
+        bool moreToLoad = world.chunkManager.LoadChunkWithinDist((int)playerPos.x, (int)playerPos.z, currentLoadDist, 5);
+
+        if (!moreToLoad)
+        {
+            currentLoadDist += 5;
+            if (currentLoadDist > maxLoadDist)
+            {
+                currentLoadDist = maxLoadDist;
+            }
+        } else
+        {
+            currentLoadDist -= 3;
+        }
+    }
+
+    public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload)
+    {
+
+        int chunkX = (int)playerPos.x >> 4;
+        int chunkZ = (int)playerPos.z >> 4;
+        int chunkDist = (int)distToLoad >> 4;
+
+        for (int x = chunkX - chunkDist; x < chunkX + chunkDist; x++)
+        {
+            for (int z = chunkZ - chunkDist; z < chunkZ + chunkDist; z++)
+            {
+                float dist = Vector2.Distance(
+                    new Vector2(x*world.sectionSize, z*world.sectionSize),
+                    new Vector2(playerPos.x, playerPos.z));
+                                
+                if(dist<distToLoad)
+                {
+                    world.chunkManager.LoadChunk(x, z, false);
+                    StatsEngine.ChunksLoaded++; 
+                }
+            }
+        }
+        world.chunkManager.GetChunk(8, 11).SetBlockId(0, 203, 4, (byte)5);
+        
+        world.chunkManager.GetChunk(9, 8).SetBlockId(0, 192, 0, (byte)5);
+        world.chunkManager.GetChunk(9, 8).SetBlockId(0, 188, 0, (byte)5);
+        world.chunkManager.GetChunk(9, 8).SetBlockId(0, 186, 0, (byte)5);
+        world.chunkManager.GetChunk(9, 8).SetBlockId(0, 184, 0, (byte)5);
+        world.chunkManager.GetChunk(9, 8).SetBlockId(0, 182, 0, (byte)5);
+
+
+        world.chunkManager.PerformTick(false); // more 1 - 2
+        world.chunkManager.PerformTick(false); // more 2 - 3
+
+    }
+
+	/*public void LoadChunks(Vector3 playerPos, float distToLoad, float distToUnload, bool useSectionLoader){
+
+
+        //start at current 
+
 
 
 		for(int x=0;x<world.chunks.GetLength(0);x++){
@@ -68,7 +119,7 @@ public class ModifyTerrain : MonoBehaviour {
 
 
                     //world.chunkRenderer.RenderChunk(world.chunkManager.GetChunk(x, z));
-					/*if(world.chunks[x,z]==null){
+					if(world.chunks[x,z]==null){
 						world.GenColumn(x,z, dist, useSectionLoader);
 						if (x - 1 > 0 && world.chunks[x - 1, z]) {
 							world.chunks[x - 1, z].update = true;
@@ -90,11 +141,11 @@ public class ModifyTerrain : MonoBehaviour {
 					if(world.chunks[x,z]!=null){
 						
 						world.UnloadColumn(x,z);
-					}*/
+					}
 				}
 			}
 		}
-	}
+	}*/
 
 	public void ReplaceBlockCenter(float range, byte block){
 		//Replaces the block directly in front of the player
@@ -196,11 +247,13 @@ public class ModifyTerrain : MonoBehaviour {
 		int blockPosZ = z % world.sectionSize;
         int sectionY = y / world.sectionSize;
         int sectionPosY = y % world.sectionSize;
-		world.chunks [updateX, updateZ].sections[sectionY].data[blockPosX,sectionPosY,blockPosZ] = block;
+
+        world.chunkManager.SetBlockId(x, y, z, block);
+		//world.chunks [updateX, updateZ].sections[sectionY].data[blockPosX,sectionPosY,blockPosZ] = block;
 
 		print("Updating: " + updateX + ", " + updateY + ", " + updateZ);
 
-		world.chunks[updateX, updateZ].update=true;
+		/*world.chunks[updateX, updateZ].update=true;
         world.chunks [updateX, updateY].updateHeightMap = true;
 
 		if(x-(world.sectionSize*updateX)==0 && updateX!=0){
@@ -225,7 +278,7 @@ public class ModifyTerrain : MonoBehaviour {
 		
 		if(z-(world.sectionSize*updateZ)==15 && updateZ!=world.chunks.GetLength(1)-1){
 			world.chunks[updateX, updateZ+1].update=true;
-		}
+		}*/
 	}
 
 

@@ -51,22 +51,21 @@ namespace AssemblyCSharp
 				generator.GenerateChunk(chunk);
 			}
 		}
-
-		/// <summary>
-		/// Creates the chunk.
-		/// </summary>
-		/// <param name="chunk">Chunk.</param>
-		public static void CreateSection(Section section) {
-			foreach (IFirstPassGenerator generator in firstPassGenerators) {
-				generator.GenerateSection(section);
-			}
-		}
 		
 		//TODO add texture generation for debug
 		public static Color GetTexturePixel(string layerName, int x, int z) {
-			float hum =0;
+			float hum = 0;
 			float temp = 0;
-			switch (layerName) {
+			switch (layerName) 
+            {
+                case "TempHumid":
+                    temp = biomeGenerator.GetTemperatureAt(x, z);
+                    hum = biomeGenerator.GetHumidityAt(x, z);
+
+                    return new Color(temp, 0.5f, hum);
+
+
+
 				case "Temperature":
 					temp = biomeGenerator.GetTemperatureAt(x, z);
 					return new Color(temp, temp * 0.2f, temp * 0.2f);

@@ -16,13 +16,17 @@ namespace AssemblyCSharp
 {
     public class ChunkManager
     {
-        Hashtable chunkCollection = new Hashtable();
+        private Hashtable chunkCollection = new Hashtable();
+        //public List<Chunk2> requiresGOgeneration = new List<Chunk2>();
+        public Queue<Chunk2> requiresGOgeneration = new Queue<Chunk2>();
+
+                private System.Object thisLock = new System.Object();
 
         public GameObject worldGO;
         public World world;
         //AbstractWorldGenerator worldGenerator;
 
-        ChunkRenderer renderer;
+        public ChunkRenderer renderer;
 
         public ChunkManager(World world)
         {
@@ -34,25 +38,120 @@ namespace AssemblyCSharp
             //worldGenerator.setSeed(world.configSettings.Seed());
         }
 
-        public void LoadChunk(int x, int z) 
+        public bool LoadChunkWithinDist(int startChunkX, int startChunkZ, int blockDist, int maxLoad)
         {
-            Chunk2 chunk = new Chunk2(this, x, z);
+            int currentLoad = 0;
+            int chunkx = startChunkX >> 4;
+            int chunkz = startChunkZ >> 4;
+            int chunkdist = blockDist >> 4;
+            int minX = chunkx - chunkdist;
+            int minZ = chunkz - chunkdist;
+            int maxX = chunkx + chunkdist;
+            int maxZ = chunkz + chunkdist;
 
+            for (int x = minX; x < maxX; x++)
+            {
+                for (int z = minZ; z < maxZ; z++)
+                {
+                    Chunk2 chunk = GetChunk(x, z);
+                    if (chunk == null) 
+                    {
+                        LoadChunk(x, z, true);
+                        //ChunkLoader.RequestChunk(this, x, z);
+                        //this.LoadChunk(x, z);
+                        currentLoad ++;
+                        if (currentLoad >= maxLoad) return true;
+                    }
+                    
+                }
+
+            }
+            return false;
+        }
+
+        public void LoadChunk(int x, int z, bool useQueue) 
+        {
             System.DateTime genStart = System.DateTime.Now;
 
-            PerlinWorldGenerator.CreateChunk(chunk);
-
+            Chunk2 chunk = new Chunk2(this, x, z);
             chunkCollection.Add(x + ":" + z, chunk);
 
-            StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
+            chunk.pendingStatus = 1;
+
+            Chunk2 n = GetChunk(chunk.xPosition, chunk.zPosition + 1);
+            Chunk2 ne = GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
+            Chunk2 e = GetChunk(chunk.xPosition + 1, chunk.zPosition);
+            Chunk2 se = GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
+            Chunk2 s = GetChunk(chunk.xPosition, chunk.zPosition - 1);
+            Chunk2 sw = GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
+            Chunk2 w = GetChunk(chunk.xPosition - 1, chunk.zPosition);
+            Chunk2 nw = GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
+
+            if (n != null)
+            {
+                chunk.ChunkNorth = n;
+                n.ChunkSouth = chunk;
+            }
+
+            if (ne != null)
+            {
+                chunk.ChunkNorthEast = ne;
+                ne.ChunkSouthWest = chunk;
+            }
+
+            if (e != null)
+            {
+                chunk.ChunkEast = e;
+                e.ChunkWest = chunk;
+            }
+
+            if (se != null)
+            {
+                chunk.ChunkSouthEast = se;
+                se.ChunkNorthWest = chunk;
+            }
+
+            if (s != null)
+            {
+                chunk.ChunkSouth = s;
+                s.ChunkNorth = chunk;
+            }
+
+            if (sw != null)
+            {
+                chunk.ChunkSouthWest = sw;
+                sw.ChunkNorthEast = chunk;
+            }
+
+            if (w != null)
+            {
+                chunk.ChunkWest = w;
+                w.ChunkEast = chunk;
+            }
+
+            if (nw != null)
+            {
+                chunk.ChunkNorthWest = nw;
+                nw.ChunkSouthEast = chunk;
+            }
+
+
+            if (useQueue)
+            {
+                ChunkLoader.GenerateData(chunk);
+            } else
+            {
+                PerlinWorldGenerator.CreateChunk(chunk);
+                chunk.status = 1;
+            }
+
 
 
             chunk.isDataLoaded = true;
-
-
-            //renderer.RenderChunk(chunk);
-
+            StatsEngine.ChunkGenTime += (float)System.DateTime.Now.Subtract(genStart).TotalSeconds;
         }
+
+       
 
         public void UnLoadChunk(int x, int z)
         {
@@ -62,6 +161,12 @@ namespace AssemblyCSharp
 
 
         public void SaveChunk(int x, int z)
+        {
+
+        }
+
+
+        public void UpdateStatus()
         {
 
         }
@@ -76,6 +181,63 @@ namespace AssemblyCSharp
             StatsEngine.ChunkRenderTime += (float)System.DateTime.Now.Subtract(renStart).TotalSeconds;
         }
 
+
+        public void RenderMissingGOs()
+        {
+            //lock (thisLock)
+            {
+                Chunk2 chunk;
+                while (requiresGOgeneration.Count > 0)
+                {
+                    chunk = requiresGOgeneration.Dequeue();
+
+                    if (chunk == null) 
+                    {
+                        return;
+                    }
+
+                    chunk.GenerateSecGO();
+                }
+            }
+        }
+
+
+        private void CheckNeighboursLoaded()
+        {
+
+        }
+
+        #region Random Tick
+        
+        public void PerformTick(bool useQueue) 
+        {
+            Vector3 pos =  world.GetPlayerPos();
+            int chunkX = (int)pos.x >> 4;
+            int chunkZ = (int)pos.z >> 4;
+            
+            int xMax = chunkX + 4;
+            int zMax = chunkZ + 4;
+            
+            for (int x = chunkX - 4; x < xMax; x++)
+            {
+                for (int z = chunkZ - 4; z < zMax; z++)
+                {
+                    Chunk2 chunk = GetChunk(x, z);
+
+                    if (chunk != null)
+                    {
+                        chunk.CheckStatusUpdate(useQueue);
+                    }
+
+                    //if (chunk != null && chunk.isDataLoaded && chunk.isNeighboursLoaded)
+                    //{
+                    //    chunk.SpreadDaylight_tick();
+                    //}
+                }
+            }
+        }
+        
+        #endregion
        
 
         public Chunk2 GetChunk(int x, int z)
@@ -83,6 +245,33 @@ namespace AssemblyCSharp
             //TODO should I have the concept of an empty chunk?
             Chunk2 chunk = (Chunk2)chunkCollection [x + ":" + z];
             return chunk;
+        }
+
+        public void SetChunk(int x, int z, Chunk2 chunk)
+        {
+            chunkCollection.Add(x + ":" + z, chunk);
+        }
+
+        public void SetBlockId(int x, int y, int z, byte id)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+                
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return;
+                }
+                chunk.SetBlockId(xSectionPos, y, zSectionPos, id);
+            }
         }
 
         public int GetBlockId(int x, int y, int z)
@@ -94,8 +283,6 @@ namespace AssemblyCSharp
             {
                 int xPos = x / 16;
                 int zPos = z / 16;
-                //int xSectionPos = x % 16;
-                //int zSectionPos = z % 16;
 
                 int xSectionPos = x - (xPos * 16);
                 int zSectionPos = z - (zPos * 16);
@@ -136,6 +323,10 @@ namespace AssemblyCSharp
 
         public bool DoChunksExist(int minX, int maxX, int minY, int maxY, int minZ, int maxZ)
         {
+            minX /= 16;
+            maxX /= 16;
+            minZ /= 16;
+            maxZ /= 16;
 
             for (int x = minX; x <= maxX; x++)
             {
@@ -148,6 +339,24 @@ namespace AssemblyCSharp
             return true;
         }
 
+        public bool DoChunksExist(int chunkX, int chunkZ, bool includeDiagonal)
+        {
+            if (!DoesChunkExist(chunkX + 1, chunkZ)) return false;
+            if (!DoesChunkExist(chunkX - 1, chunkZ)) return false;
+            if (!DoesChunkExist(chunkX, chunkZ + 1)) return false;
+            if (!DoesChunkExist(chunkX, chunkZ - 1)) return false;
+
+            if (includeDiagonal)
+            {
+                if (!DoesChunkExist(chunkX + 1, chunkZ + 1)) return false;
+                if (!DoesChunkExist(chunkX - 1, chunkZ + 1)) return false;
+                if (!DoesChunkExist(chunkX + 1, chunkZ - 1)) return false;
+                if (!DoesChunkExist(chunkX - 1, chunkZ - 1)) return false;
+            }
+
+            return true;
+        }
+
         public bool DoesChunkExist(int x, int y)
         {
             if (chunkCollection.Contains(x + ":" + y))
@@ -156,18 +365,82 @@ namespace AssemblyCSharp
         }
         #endregion
 
+
+       
+
+        #region Light
+
+
+        /*public void SpreadLightToAllChunks()
+        {
+
+            System.DateTime start = System.DateTime.Now;
+            foreach (var key in chunkCollection.Keys)
+            {
+                if (((Chunk2)chunkCollection[key]).SpreadDaylight())
+                {
+                    ((Chunk2)chunkCollection[key]).isNeighboursLoaded = true;
+                }
+            }
+            StatsEngine.ChunkSpreadLight += (float)System.DateTime.Now.Subtract(start).TotalSeconds;
+
+        }*/
+
+        public int GetLightValue(int x, int y, int z)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return 15;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return 15;
+                    //throw new ArgumentNullException();
+                }
+                return (int)chunk.GetDaylightValue(xSectionPos, y, zSectionPos);
+            }
+        }
+
+        public void SetLightValue(int x, int y, int z, int level)
+        {
+            if (y >= 256 || y < 0)
+            {
+                return;
+            } else
+            {
+                int xPos = x / 16;
+                int zPos = z / 16;
+                
+                int xSectionPos = x - (xPos * 16);
+                int zSectionPos = z - (zPos * 16);
+                
+                Chunk2 chunk = this.GetChunk(xPos, zPos);
+                if (chunk == null) 
+                {
+                    return;
+                }
+                chunk.SetDaylightValue(xSectionPos, y, zSectionPos, (byte)level);
+            }
+        }
+
         public void UpdateDaylight(byte light)
         {
            foreach (var key in chunkCollection.Keys)
             {
                 ((Chunk2)chunkCollection[key]).UpdateDaylight(light);
             }
-
-           /* for (int i = 0; i < chunkCollection.Count(); i++)
-            {
-                chunkCollection.Keys
-            }*/
         }
+
+
+        #endregion
     }
 }
 

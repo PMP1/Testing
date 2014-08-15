@@ -12,7 +12,7 @@ public class World : MonoBehaviour {
 	public GameObject section;
     public GameObject sectionGO;
 	public GameObject chunk;
-	public Chunk[,] chunks; 
+	//public Chunk[,] chunks; 
 	public int sectionSize=16;
 
 	//scripts
@@ -29,6 +29,8 @@ public class World : MonoBehaviour {
 	public System.TimeSpan startupTime;
 	public System.TimeSpan runningTime;
 	private System.DateTime start;
+
+    private Vector3 playerpos;
 	// Use this for initialization
 
     public ChunkManager chunkManager;
@@ -41,13 +43,11 @@ public class World : MonoBehaviour {
 		//Sytem starting
 		start = System.DateTime.Now;
         this.SectionCollider = new SectionColliderGenerator ();
-
-
-		chunks = new Chunk[Mathf.FloorToInt(worldX/sectionSize),
-		                               Mathf.FloorToInt(worldZ/sectionSize)];
 		                               
 		configSettings = new WorldConfig("PMP");
 		
+        playerpos = GameObject.FindGameObjectWithTag("Player").transform.position;
+
         PerlinWorldGenerator.Init();
         PerlinWorldGenerator.SetSeed(configSettings.Seed);
 
@@ -59,46 +59,32 @@ public class World : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        playerpos = GameObject.FindGameObjectWithTag("Player").transform.position;
 		runningTime = System.DateTime.Now.Subtract (start);
+        chunkManager.RenderMissingGOs();
 	}
 
-	/// <summary>
-	/// Gnerates the Chunk for a given x, z
-	/// </summary>
-	/// <param name="x">The x coordinate.</param>
-	/// <param name="z">The z coordinate.</param>
-	/// <param name="dist">Dist.</param>
-	public void GenColumn(int x, int z, float dist, bool useSectionLoader){
-
-		GameObject newChunkColumn= Instantiate(chunk,new Vector3(x*sectionSize-0.5f,
-		                                                               0*sectionSize+0.5f,
-		                                                               z*sectionSize-0.5f),new Quaternion(0,0,0,0)) as GameObject;
-
-		chunks [x, z] = newChunkColumn.GetComponent("Chunk") as Chunk;
-		chunks [x, z].chunkX=x;
-		chunks [x, z].chunkZ=z;
-		chunks [x, z].worldY=worldY;
-		chunks [x, z].worldGO=gameObject;
-		chunks [x, z].world = gameObject.GetComponent ("World") as World;
-		//chunks [x, z].data = new byte[sectionSize,worldY,sectionSize];
-		chunks [x, z].heightMap = new int[sectionSize, sectionSize];
-		chunks [x, z].useCollisionMatrix = dist < 132 ? true : false;
-		//worldGenerator.CreateChunk(chunks [x, z]);
-        chunks [x, z].Init (useSectionLoader);
-
-	}
-	
+    private void OnApplicationQuit()
+    {
+        ChunkLoader.ShutDown();
+    }
+    	
 	public void UnloadColumn(int x, int z){
 
-		Object.Destroy(chunks [x, z].gameObject);
+		//Object.Destroy(chunks [x, z].gameObject);
 	}
 
     public GameObject CreateSectionGO(Chunk2 chunk, Section2 sec) {
-        GameObject go =  Instantiate(sectionGO, 
+        GameObject go = Instantiate(sectionGO, 
                            new Vector3(chunk.xPosition * 16f - 0.5f, sec.posY * 16f + 0.5f, chunk.zPosition * 16f - 0.5f), 
                                      new Quaternion(0, 0, 0, 0)) as GameObject;
 
-        //go.world = gameObject.GetComponent("World") as World;
         return go;
+    }
+
+
+    public Vector3 GetPlayerPos() 
+    {
+        return playerpos;
     }
 }

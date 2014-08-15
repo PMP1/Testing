@@ -16,7 +16,9 @@ namespace AssemblyCSharp
 
 		float GetTemperatureAt(int x, int z);
 		
-		float GetHeightAt(int x, int z);
+        float GetHeightAt(int x, int z);
+
+        float GetSeaAt(int x, int z);
 
 		//should we also care about base height?
 
