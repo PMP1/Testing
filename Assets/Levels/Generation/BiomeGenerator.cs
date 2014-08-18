@@ -24,7 +24,7 @@ namespace AssemblyCSharp
 			temperatureNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 1));
 			humidityNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 2));
             heightNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 3));
-            seaNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 4), 1);
+            seaNoise = new BrownianNoise3D(new PerlinNoise(seed.GetHashCode() + 4), 2);
 		}
 		
 		public float GetHumidityAt(int x, int z) {
@@ -51,17 +51,15 @@ namespace AssemblyCSharp
 
         public float GetSeaAt(int x, int z)
         {
-            //int absX = Math.Abs(x);
-            //int absZ = Math.Abs(z);
+            float cx = Mathf.Clamp((1600f - Math.Abs(x)) / 600f, 0, 2f);
+            float cz = Mathf.Clamp((1600f - Math.Abs(z)) / 200f, 0, 2f);
 
-            //float cX = Mathf.Clamp01(100f - absX / 20f);
-            //float cz = Mathf.Clamp01(100 - absZ / 20);
+            float flatten = Mathf.Clamp(cx + cz, 0, 2);
 
-            //float edge = Mathf.Clamp01(cX + cz);
-            float result = heightNoise.Noise(x * 0.001, 0, 0.001 * z);
-            //float result = Mathf.Clamp01(heightNoise.Noise(x * 0.001, 0, 0.001 * z));
-            return (float) Mathf.Clamp01((result + 1.0f) / 2.0f);
-            return result;
+            flatten = Math.Min(cx, cz);
+
+            float result = heightNoise.Noise(x * 0.003, 0, 0.003 * z);
+            return Mathf.Clamp01((result + 1.0f) / 2.0f) * flatten;
         }
 
 		

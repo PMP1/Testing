@@ -150,7 +150,9 @@ namespace AssemblyCSharp
                     return new Color(height * 0.2f, height * 0.2f, height);
                 case "Sea":
                     float sea = biomeGenerator.GetSeaAt(x, z);
-                    if (sea > 0.7)
+
+
+                    if (sea > 0.6)
                         return new Color(0.3f, 1, 0.3f);
                     return new Color(sea * 0.2f, sea * 0.2f, sea);
 

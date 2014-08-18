@@ -34,7 +34,7 @@ public class Gui : MonoBehaviour {
 		heightTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-                heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Sea",i*32,j*32));
+                heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Sea",-1600 + (i*16),-1600 + (j*16)));
 			}
 		}
         heightTexture.SetPixel((int)player.x / 16, (int)player.z / 16, new Color(1f,1f,1f));
