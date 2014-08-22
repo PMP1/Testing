@@ -14,7 +14,12 @@ public class Gui : MonoBehaviour {
 	private Texture2D tempTexture;
 	private Texture2D humidTexture;
 	private Texture2D terrainTexture;
-	private Texture2D heightTexture;
+    private Texture2D heightTexture;
+    private Texture2D miniHeightTexture;
+    private Texture2D seaTexture;
+
+    private Texture2D seaTempTexture;
+    private Texture2D biomeTypeTexture;
 
 	void Start () {
 		world=worldGO.GetComponent("World") as World;
@@ -25,20 +30,75 @@ public class Gui : MonoBehaviour {
 		tempTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
 		for(int i = 0; i < 200; i++) {
 			for(int j = 0; j < 200; j++) {
-                tempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("TempHumid",i*2,j*2));
+                tempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Humidity",-1600 + (i*16),-1600 + (j*16)));
 			}
 		}
-        tempTexture.SetPixel((int)player.x / 2, (int)player.z / 2, new Color(1f,1f,1f));
+        tempTexture.SetPixel(-1600 + ((int)player.x / 16), -1600 + ((int)player.z / 16), new Color(1f,1f,1f));
         tempTexture.Apply();
 		
-		heightTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
-		for(int i = 0; i < 200; i++) {
-			for(int j = 0; j < 200; j++) {
+        seaTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
+        for(int i = 0; i < 200; i++) {
+            for(int j = 0; j < 200; j++) {
+                seaTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Temperature",-1600 + (i*16),-1600 + (j*16)));
+            }
+        }
+
+        seaTexture.Apply();
+
+        heightTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
+        for(int i = 0; i < 200; i++) {
+            for(int j = 0; j < 200; j++) {
                 heightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Sea",-1600 + (i*16),-1600 + (j*16)));
-			}
-		}
-        heightTexture.SetPixel((int)player.x / 16, (int)player.z / 16, new Color(1f,1f,1f));
-		heightTexture.Apply();
+            }
+        }
+        //heightTexture.SetPixel(-1600 + ((int)player.x / 16), -1600 + ((int)player.z / 16), new Color(1f,1f,1f));
+        heightTexture.SetPixel(100 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        heightTexture.SetPixel(101 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        heightTexture.SetPixel( 99 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        heightTexture.SetPixel(100 + ((int)player.x / 16), 101 + ((int)player.z / 16), new Color(1f,0f,0f));
+        heightTexture.SetPixel(100 + ((int)player.x / 16), 99 + ((int)player.z / 16), new Color(1f,0f,0f));
+        heightTexture.Apply();
+
+
+        miniHeightTexture = new Texture2D(100, 100, TextureFormat.ARGB32, false);
+        for(int i = 0; i < 100; i++) {
+            for(int j = 0; j < 100; j++) {
+                miniHeightTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("Sea",((int)player.x - 50) + (i),((int)player.z - 50) + (j)));
+            }
+        }
+        //heightTexture.SetPixel(-1600 + ((int)player.x / 16), -1600 + ((int)player.z / 16), new Color(1f,1f,1f));
+        miniHeightTexture.SetPixel(51, 50, new Color(1f,1f,1f));
+        miniHeightTexture.Apply();
+
+        
+        
+        seaTempTexture = new Texture2D(200, 200, TextureFormat.ARGB32, false);
+        for(int i = 0; i < 200; i++) {
+            for(int j = 0; j < 200; j++) {
+                seaTempTexture.SetPixel(i, j, PerlinWorldGenerator.GetTexturePixel("SeaTemp",-1600 + (i*16),-1600 + (j*16)));
+            }
+        }
+
+        //seaTempTexture.SetPixel(-1600 + ((int)player.x / 16), -1600 + ((int)player.z / 16), new Color(1f,1f,1f));
+        seaTempTexture.SetPixel(100 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        seaTempTexture.SetPixel(101 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        seaTempTexture.SetPixel( 99 + ((int)player.x / 16), 100 + ((int)player.z / 16), new Color(1f,0f,0f));
+        seaTempTexture.SetPixel(100 + ((int)player.x / 16), 101 + ((int)player.z / 16), new Color(1f,0f,0f));
+        seaTempTexture.SetPixel(100 + ((int)player.x / 16), 99 + ((int)player.z / 16), new Color(1f,0f,0f));
+
+        seaTempTexture.Apply();
+
+
+        BiomeType types = new BiomeType();
+        biomeTypeTexture = new Texture2D(100, 100, TextureFormat.ARGB32, false);
+        for(int i = 0; i < 100; i++) 
+        {
+            for(int j = 0; j < 100; j++) 
+            {
+                biomeTypeTexture.SetPixel(i, j, types.GetBiomeColor(types.GetBiome(i/10, j/10)));
+            }
+        }
+        biomeTypeTexture.Apply();
 	}
 	
 	// Update is called once per frame
@@ -50,11 +110,15 @@ public class Gui : MonoBehaviour {
         //full day = 24 seconds
         //1 second = 1 tick
 
-        GUI.DrawTexture(new Rect(10, 10, 200, 200), tempTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        GUI.DrawTexture(new Rect(10, 10, 200, 200), seaTempTexture, ScaleMode.ScaleToFit, true, 1.0f);
         //GUI.DrawTexture(new Rect(10, 110, 100, 100), humidTexture, ScaleMode.ScaleToFit, true, 1.0f);
         GUI.DrawTexture(new Rect(10, 210, 200, 200), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
-        //GUI.DrawTexture(new Rect(10, 310, 100, 100), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
-		
+        GUI.DrawTexture(new Rect(200, 10, 100, 100), miniHeightTexture, ScaleMode.ScaleToFit, true, 1.0f);
+
+        //GUI.DrawTexture(new Rect(210, 210, 200, 200), heightTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        //GUI.DrawTexture(new Rect(430, 100, 300, 300), seaTempTexture, ScaleMode.ScaleToFit, true, 1.0f);
+        //GUI.DrawTexture(new Rect(730, 100, 100, 100), biomeTypeTexture, ScaleMode.ScaleToFit, true, 1.0f);
+
 		
         System.TimeSpan test = new System.TimeSpan();
         int totalChunks = 0;
@@ -62,23 +126,6 @@ public class Gui : MonoBehaviour {
         int totalUpdate2 = 0;
         int totalUpdate3 = 0;
 		
-        /*for (int x=0; x<world.worldX/world.sectionSize; x++)
-        {
-            for (int z=0; z<world.worldZ/world.sectionSize; z++)
-            {
-                if (world.chunks [x, z])
-                {
-                    test.Add(world.chunks [x, z].updateTime);
-                    totalChunks ++;
-                    if (world.chunks [x, z].updateType == 1)
-                        totalUpdate1 ++;
-                    if (world.chunks [x, z].updateType == 2)
-                        totalUpdate2 ++;
-                    if (world.chunks [x, z].updateType == 3)
-                        totalUpdate3 ++;
-                }
-            }
-        }*/
 		
 
         int loadTime = (int)Time.realtimeSinceStartup - (int)Time.timeSinceLevelLoad;

@@ -16,6 +16,7 @@ namespace AssemblyCSharp
 	{
 		private string _seed;
 		private IBiomeGenerator _biomeGenerator;
+        private BiomeType _biomeType;
 
 		private int SAMPLE_RATE_XZ = 4;
 		private int SAMPLE_RATE_Y = 4;
@@ -27,7 +28,7 @@ namespace AssemblyCSharp
 
 		public PerlinTerrainGenerator ()
 		{
-
+            this._biomeType = new BiomeType();
 		}
 
 		public void SetSeed(String seed) {
@@ -75,7 +76,7 @@ namespace AssemblyCSharp
             {
                 for (int z = 0; z < sectionSize; z++)
                 {
-                    BiomeType type = this._biomeGenerator.GetBiomeAt(posX + x, posZ + z);
+                    BiomeType.Biome type = this._biomeGenerator.GetBiomeAt(posX + x, posZ + z);
                     chunk.SetBiomeMap(x, z, (byte)type);
 
                     int firstBlockHeight = -1;
@@ -83,7 +84,7 @@ namespace AssemblyCSharp
                     for (int y = heightY - 1; y >= 0; y--)
                     {
                             
-                        if (y <= 32)
+                        if (y <= 64)
                         {
                             //ocean
                             //row + Self.width * (col + Self.height * layer)
@@ -153,24 +154,72 @@ namespace AssemblyCSharp
 
 		private float CalculateDensity(int x, int y, int z) {
 
-			float height = CalcBaseTerrain(x, z);
-			//float ocean = calcOceanTerrain(x, z);
-			//float river = calcRiverTerrain(x, z);
-			
+            /* old code
+             * float height = CalcBaseTerrain(x, z);
+            float temp = this._biomeGenerator.GetTemperatureAt(x, z);
+            float humidity = this._biomeGenerator.GetHumidityAt(x, z) * temp;
+            Vector2 distanceToMountainBiome = new Vector2(temp - 0.25f, humidity - 0.35f);
+            
+            float mIntens = Mathf.Clamp01(1.0f - distanceToMountainBiome.magnitude * 3.0f);
+            float densityMountains = calcMountainDensity(x, y, z) * mIntens;
+            float densityHills = calcHillDensity(x, y, z) * (1.0f - mIntens);
+            
+            int plateauArea = (int) (256 * 0.10);
+            float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
+            
+            return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
+            */
+
+
+            float baseHeight = CalcBaseTerrain(x, z);
 			float temp = this._biomeGenerator.GetTemperatureAt(x, z);
-			float humidity = this._biomeGenerator.GetHumidityAt(x, z) * temp;
+			float humidity = this._biomeGenerator.GetHumidityAt(x, z);
+
+            float sea = this._biomeGenerator.GetSeaAt(x, z);
+            float height = this._biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
+
+            float cz1 = Mathf.Clamp((1600f - z) / 1200f, 0, 2f);
+            temp = Mathf.Clamp01(temp * cz1);
+            
+            //BiomeType type = new BiomeType();
+            BiomeType.Biome bio = this._biomeType.GetBiome((int)(temp * 10), (int)(humidity * 10));
+            BiomeType.BiomeHeight h = this._biomeType.GetBiomeHeight(height, sea);
+
+            float densityMountains = 0;
+            float densityHills = 0;
+
+
+            float densitySea = 0;
+            if (sea >= 0.6)
+                densitySea = 0.5f;
+            if (sea >= 0.7)
+                densitySea = 1f;
+
+            //if (h == BiomeType.BiomeHeight.Mountain)
+            densityMountains = calcMountainDensity(x, y, z) * height;
+
+            //if (h == BiomeType.BiomeHeight.Hills)
+            densityHills = calcHillDensity(x, y, z) * ( 1f - height);
+            
+            //Vector2 distanceToMountainBiome = new Vector2(temp - 0.25f, humidity - 0.35f);
 			
-			Vector2 distanceToMountainBiome = new Vector2(temp - 0.25f, humidity - 0.35f);
-			
-			float mIntens = Mathf.Clamp01(1.0f - distanceToMountainBiome.magnitude * 3.0f);
-			float densityMountains = calcMountainDensity(x, y, z) * mIntens;
-			float densityHills = calcHillDensity(x, y, z) * (1.0f - mIntens);
+
+
+			//float mIntens = Mathf.Clamp01(1.0f - distanceToMountainBiome.magnitude * 3.0f);
+			//float densityMountains = calcMountainDensity(x, y, z) * mIntens;
+			//float densityHills = calcHillDensity(x, y, z) * (1.0f - mIntens);
 			
 			int plateauArea = (int) (256 * 0.10);
 			float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
 			
-			return -y + (((32.0f + height * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten;
-            //-256 + (((32 + 32)) + 0 + 
+            if (x == 500 && z == 500)
+            {
+                float i = -y + ((((32.0f + baseHeight * 32.0f)) * densitySea + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) ; 
+
+            }
+
+
+			return -y + ((((32.0f + baseHeight * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) * densitySea; 
 		}
 
 		private float CalcBaseTerrain(int x, int z)
@@ -228,16 +277,16 @@ namespace AssemblyCSharp
             }
         }
 
-		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType biome, byte[] data) {
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data) {
 			
             int depth = y - firstBlock;
 			
             switch (biome)
             {	
-                case BiomeType.GrassLand:
-                case BiomeType.Mountain:
-                case BiomeType.SeasonalForest:
-                case BiomeType.Woodland:
+                case BiomeType.Biome.GrassLand:
+                case BiomeType.Biome.Mountain:
+                case BiomeType.Biome.SeasonalForest:
+                case BiomeType.Biome.Woodland:
                     if (depth <= 3 && y > 28 && y <= 32)
                     {
                         data [x + 16 * (z + 16 * y)] = (byte)BlockType.Sand;
@@ -252,10 +301,10 @@ namespace AssemblyCSharp
                         data [x + 16 * (z + 16 * y)] = (byte)BlockType.Stone;
                     } 
                     break;
-                case BiomeType.Desert:
+                case BiomeType.Biome.Desert:
                     data [x + 16 * (z + 16 * y)] = (byte)BlockType.Sand;
                     break;
-                case BiomeType.Tundra:
+                case BiomeType.Biome.Tundra:
                     data [x + 16 * (z + 16 * y)] = (byte)BlockType.Snow;
                     break;
                 default: 

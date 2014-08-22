@@ -105,7 +105,7 @@ namespace AssemblyCSharp
                     {
                         byte block = chunkData[x + 16 * (z + 16 * y)];
 
-                        if (block != 0) {
+                        //if (block != 0) {
 
                             int section = y / 16;
                             if (sections[section] == null) {
@@ -113,11 +113,14 @@ namespace AssemblyCSharp
                             }
 
                             sections[section].SetBlockId(x, y % 16, z, block);
-                        }
+                        //}
                     }
                 }
             }
-
+            if (xPosition == 7 && zPosition == 7)
+            {
+                int ii = 0;
+            }
             SetFirstSection();
             GenerateDaylight();
         }
@@ -363,12 +366,17 @@ namespace AssemblyCSharp
 
                     for (int y = (this.firstSection * sectionSize) + sectionSize - 1; y > 0; y --)
                     {
+                        try 
+                        {
                         lightLevel -= this.GetLightOpacity(x, y, z);
                         if (lightLevel > 0) {
                             Section2 sec = this.sections[y /16];
                             sec.SetDatlightData(x, y % 16, z, lightLevel);
                         } else {
                             break;
+                        }
+                        }catch {
+                            int ii = 0;
                         }
 
                     }

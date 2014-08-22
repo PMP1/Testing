@@ -28,24 +28,17 @@ namespace AssemblyCSharp
 		}
 		
 		public float GetHumidityAt(int x, int z) {
-			float result = humidityNoise.Noise(x * 0.005f, 0f, 0.005f * z);
+			float result = humidityNoise.Noise(x * 0.003f, 0f, 0.003f * z);
 			return (float) Mathf.Clamp((result + 1.0f) / 2.0f, 0, 1);
 		}
 		
 		public float GetTemperatureAt(int x, int z) {
-			float result = (float)temperatureNoise.Noise(x * 0.005, 0, 0.005 * z);
+			float result = (float)temperatureNoise.Noise(x * 0.001, 0, 0.005 * z);
 			return (float) Mathf.Clamp((result + 1.0f) / 2.0f, 0, 1);
 		}
 		
 		public float GetHeightAt(int x, int z) {
-			float result = heightNoise.Noise(x * 0.005, 0, 0.005 * z);
-			//return Mathf.Clamp01(result * 8f);
-
-            //need to clamp seas at xz +- 200
-            //int plateauArea = (int) (256 * 0.10);
-            //float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
-
-
+			float result = heightNoise.Noise(x * 0.003, 0, 0.003 * z);
             return Mathf.Clamp01(result);
 		}
 
@@ -79,23 +72,23 @@ namespace AssemblyCSharp
 			return 4;//plains*/
 		}
 		
-		public BiomeType GetBiomeAt(int x, int z) {
+		public BiomeType.Biome GetBiomeAt(int x, int z) {
 			float temp = GetTemperatureAt(x, z);
 			float humidity = GetHumidityAt(x, z) * temp;
 			
 			if (temp >= 0.5 && humidity < 0.3) {
-				return BiomeType.Desert;
+                return BiomeType.Biome.Desert;
 			} else if (humidity >= 0.3 && humidity <= 0.6 && temp >= 0.5) {
-				return BiomeType.GrassLand;
+                return BiomeType.Biome.GrassLand;
 			} else if (temp <= 0.3 && humidity > 0.5) {
-				return BiomeType.Tundra;
+                return BiomeType.Biome.Tundra;
 			} else if (humidity >= 0.2 && humidity <= 0.6 && temp < 0.5) {
-				return BiomeType.Mountain; //mountin shoudl really be based on height...
+                return BiomeType.Biome.Mountain; //mountin shoudl really be based on height...
 			}
 
 
 			
-			return BiomeType.SeasonalForest;
+            return BiomeType.Biome.SeasonalForest;
 		}
 	}
 }

@@ -8,9 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using UnityEngine;
+
 namespace AssemblyCSharp
 {
-		public enum BiomeType
+		/*public enum BiomeType
 		{
 			Ocean = 0,
 			TropicalForest = 1,
@@ -25,6 +27,137 @@ namespace AssemblyCSharp
 			Tiaga = 10,
 			Tundra = 11,
 			Mountain = 12
-		}
+		}*/
+
+    public class BiomeType
+    {
+        public enum Biome
+        {
+            Ocean = 0,//
+            TropicalForest = 1,
+            SeasonalForest = 2,//
+            Savana = 3,
+            Desert = 4,
+            RainForest = 5,
+            TemperateForest = 6,//
+            Woodland = 7,
+            GrassLand = 8,
+            ShrubLand = 9,
+            Tiaga = 10,
+            Tundra = 11,
+            Mountain = 12,//
+            Swamp = 13,
+            Ice = 14
+        }
+
+        public enum BiomeHeight
+        {
+            Sea = 0,
+            SeaLevel = 1,
+            Flat = 2,
+            Hills = 3,
+            Mountain = 4
+        }
+
+
+        // x: 0 = no rain, 7 = lots
+        // z: 0 = cold, 7 = hot
+        // 0-0.1, 
+        // 0.1-0.2
+        /* 0.2 - 0.3
+         * 0.3 - 0.4
+         * 0.4 - 0.5
+         * 0.5 - 0.6
+         * 0.6 - 0.7
+         * 0.7 - 0.8
+         * 0.8 - 0.9
+         * 0.9 - 1*/
+
+        private Color[] biomeColours = new Color[20];
+
+
+
+
+        private readonly Biome[,] data = new Biome[10, 10] {
+            {Biome.Ice,    Biome.Ice,       Biome.Tiaga,    Biome.Tiaga,        Biome.Swamp,     Biome.Swamp,      Biome.RainForest, Biome.RainForest, Biome.RainForest, Biome.RainForest},
+            {Biome.Ice,    Biome.Ice,       Biome.Tiaga,    Biome.Tiaga,        Biome.Swamp,     Biome.Swamp,      Biome.RainForest, Biome.RainForest, Biome.RainForest, Biome.RainForest},
+            {Biome.Ice,    Biome.Tundra,    Biome.Tiaga,    Biome.Woodland,     Biome.Woodland,  Biome.Woodland,   Biome.RainForest, Biome.RainForest, Biome.RainForest, Biome.RainForest},
+            {Biome.Tundra, Biome.Tundra,    Biome.Tiaga,    Biome.Woodland,     Biome.Woodland,  Biome.Woodland,   Biome.TropicalForest, Biome.TropicalForest, Biome.TropicalForest, Biome.TropicalForest},
+            {Biome.Tundra, Biome.Tundra,    Biome.Tiaga,    Biome.Woodland,     Biome.Woodland,  Biome.Woodland,   Biome.TropicalForest, Biome.TropicalForest, Biome.TropicalForest, Biome.TropicalForest},
+            {Biome.Tundra, Biome.Tundra,    Biome.Tiaga,    Biome.GrassLand,    Biome.GrassLand, Biome.GrassLand,  Biome.TropicalForest, Biome.Savana, Biome.Savana, Biome.Savana},
+            {Biome.Tundra, Biome.Tiaga,     Biome.Tiaga,    Biome.GrassLand,    Biome.GrassLand, Biome.GrassLand,  Biome.GrassLand, Biome.Savana, Biome.Savana, Biome.Savana},
+            {Biome.Tundra, Biome.Tiaga,     Biome.GrassLand,Biome.GrassLand,    Biome.ShrubLand, Biome.ShrubLand,  Biome.Savana, Biome.Savana, Biome.Savana, Biome.Desert},
+            {Biome.Tundra, Biome.ShrubLand, Biome.ShrubLand,Biome.ShrubLand,    Biome.ShrubLand, Biome.ShrubLand,  Biome.Savana, Biome.Desert, Biome.Desert, Biome.Desert},
+            {Biome.Tundra, Biome.Desert,    Biome.Desert,   Biome.Desert,       Biome.Desert,    Biome.Desert,     Biome.Desert, Biome.Desert, Biome.Desert, Biome.Desert}
+            };
+
+
+
+        public BiomeType() {
+
+            biomeColours [(int)Biome.Desert] = Color.yellow;
+            biomeColours [(int)Biome.GrassLand] = Color.green;
+            biomeColours [(int)Biome.RainForest] = new Color(0.5f, 0.8f, 0.6f);
+            biomeColours [(int)Biome.Savana] = new Color(1f, 0.5f, 0.5f);
+            biomeColours [(int)Biome.ShrubLand] = new Color(0.5f, 0.7f, 0.5f);
+            biomeColours [(int)Biome.Swamp] = new Color(0.7f, 0.7f, 0.3f);
+            biomeColours [(int)Biome.Tiaga] = new Color(0.8f, 0.9f, 0.8f);
+            biomeColours [(int)Biome.TropicalForest] = new Color(0.5f, 0.7f, 0.6f);
+            biomeColours [(int)Biome.Tundra] = new Color(1f, 1f, 1f);
+            biomeColours [(int)Biome.Woodland] = new Color(0.3f, 1f, 0.3f);
+            biomeColours [(int)Biome.Ice] = new Color(0.9f, 0.9f, 1f);
+        }
+
+        public BiomeHeight GetBiomeHeight(float height, float sea)
+        {
+            if (sea > 0.6)
+            {
+                if (height < 0.1 && sea < 0.7) 
+                {
+                    return BiomeHeight.SeaLevel;
+                }
+                
+                if (height > 0.2 && height < 0.4) {
+                    return BiomeHeight.Hills;
+                }
+                
+                if (height >= 0.4)
+                {
+                    return BiomeHeight.Mountain;
+                }
+                return BiomeHeight.Flat;
+            }
+            return BiomeHeight.Sea;
+        }
+
+        public Biome GetBiome(int temp, int humid)
+        {
+            if (temp >= 10)
+                temp = 9;
+            if (humid >= 10)
+                humid = 9;
+
+            try {
+                return data [9 - humid, temp];
+            } catch {
+                return Biome.Ice;
+            }
+        }
+
+        public Color GetBiomeColor(BiomeType.Biome type)
+        {
+            Color color;
+            if (biomeColours [(int)type] == null)
+            {
+                color = Color.black;
+            }
+            else
+            {
+                color = biomeColours [(int)type];
+            }
+            return color;
+        }
+
+    }
 }
 

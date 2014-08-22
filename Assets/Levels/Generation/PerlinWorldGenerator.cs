@@ -66,6 +66,9 @@ namespace AssemblyCSharp
         public static Color GetTexturePixel(string layerName, int x, int z) {
             float hum =0;
             float temp = 0;
+            float height = 0;
+            float sea = 0;
+
             switch (layerName) 
             {
                 case "TempHumid":
@@ -117,6 +120,11 @@ namespace AssemblyCSharp
                     return new Color(temp, 0f, hum);
                 case "Temperature":
                     temp = biomeGenerator.GetTemperatureAt(x, z);
+
+                    float cz = Mathf.Clamp((1600f - z) / 1200f, 0, 2f);
+
+                    temp = temp * cz;
+                    
                     return new Color(temp, temp * 0.2f, temp * 0.2f);
                     //break;
                 case "Humidity":
@@ -124,19 +132,20 @@ namespace AssemblyCSharp
                     return new Color(hum * 0.2f, hum * 0.2f, hum);
                     //break;
                 case "Terrain":
-                    BiomeType biome = biomeGenerator.GetBiomeAt(x, z);
-                    switch (biome) {
+                    BiomeType.Biome biome = biomeGenerator.GetBiomeAt(x, z);
+                    switch (biome) 
+                    {
                         
-                        case BiomeType.Desert:
+                        case BiomeType.Biome.Desert:
                             return Color.yellow;
                             //break;
-                        case BiomeType.GrassLand:
+                        case BiomeType.Biome.GrassLand:
                             return Color.green;
                             //break;
-                        case BiomeType.Tiaga:
+                        case BiomeType.Biome.Tiaga:
                             return Color.white;
                             //break;
-                        case BiomeType.Mountain:
+                        case BiomeType.Biome.Mountain:
                             return Color.gray;
                             //break;
                         default:
@@ -146,15 +155,80 @@ namespace AssemblyCSharp
                     //return new Color(hum * 0.2f, hum * 0.2f, hum);
                     break;
                 case "Height":
-                    float height = biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
+                    height = biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
                     return new Color(height * 0.2f, height * 0.2f, height);
                 case "Sea":
-                    float sea = biomeGenerator.GetSeaAt(x, z);
+                    sea = biomeGenerator.GetSeaAt(x, z);
+                    height = biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
+
+                    if (sea > 0.6)
+                    {
+                        if (height < 0.1 && sea < 0.7) {
+                            return Color.yellow;
+                        }
+
+                        if (height > 0.2 && height < 0.4) {
+                            return Color.grey;
+                        }
+
+                        if (height >= 0.4)
+                        {
+                            return Color.white;
+                        }
+                        return new Color(0.3f, 1, 0.3f);
+
+                    }
+                    return new Color(sea * 0.2f, sea * 0.2f, sea);
+                case "SeaTemp":
+                    if (x == 500 && z == 500)
+                    {
+                        int ii = 0;
+                    }
+
+                    sea = biomeGenerator.GetSeaAt(x, z);
+                    height = biomeGenerator.GetHeightBiomeAt(x, z) / 10f;
+                    temp = biomeGenerator.GetTemperatureAt(x, z);
+                    hum = biomeGenerator.GetHumidityAt(x, z);
+
+                    float cz1 = Mathf.Clamp((1600f - z) / 1200f, 0, 2f);
+                    
+                    temp = Mathf.Clamp01(temp * cz1);
+
+                    BiomeType type = new BiomeType();
+
+                    BiomeType.Biome bio = type.GetBiome((int)(temp * 10), (int)(hum * 10));
+
+                    BiomeType.BiomeHeight h = type.GetBiomeHeight(height, sea);
+
+
+                    if (h == BiomeType.BiomeHeight.Sea)
+                    {
+                        return new Color(sea * 0.2f, sea * 0.2f, sea);
+                    }
+                    else 
+                    {
+                        return type.GetBiomeColor(bio);
+                    }
 
 
                     if (sea > 0.6)
+                    {
+                        if (height < 0.1 && sea < 0.7) {
+                            return Color.yellow;
+                        }
+                        
+                        if (height > 0.2 && height < 0.4) {
+                            return Color.grey;
+                        }
+                        
+                        if (height >= 0.4)
+                        {
+                            return Color.white;
+                        }
                         return new Color(0.3f, 1, 0.3f);
-                    return new Color(sea * 0.2f, sea * 0.2f, sea);
+                        
+                    }
+
 
 
             }

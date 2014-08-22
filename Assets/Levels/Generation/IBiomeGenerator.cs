@@ -22,7 +22,7 @@ namespace AssemblyCSharp
 
 		//should we also care about base height?
 
-		BiomeType GetBiomeAt(int x, int z);
+		BiomeType.Biome GetBiomeAt(int x, int z);
 		
 		int GetHeightBiomeAt(int x, int z);
 	}

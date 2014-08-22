@@ -75,24 +75,24 @@ namespace AssemblyCSharp
 					return new Color(hum * 0.2f, hum * 0.2f, hum);
 					break;
 			case "Terrain":
-				BiomeType biome = biomeGenerator.GetBiomeAt(x, z);
+				BiomeType.Biome biome = biomeGenerator.GetBiomeAt(x, z);
 				switch (biome) {
 					
-				case BiomeType.Desert:
+				case BiomeType.Biome.Desert:
 					return Color.yellow;
-					break;
-				case BiomeType.GrassLand:
-					return Color.green;
-					break;
-				case BiomeType.Tiaga:
+					//break;
+				case BiomeType.Biome.GrassLand:
+				    return Color.green;
+					//break;
+                        case BiomeType.Biome.Tiaga:
 					return Color.white;
-					break;
-				case BiomeType.Mountain:
+					//break;
+                        case BiomeType.Biome.Mountain:
 					return Color.gray;
-					break;
+					//break;
 				default:
 					return new Color(0.2f,0.8f,0.2f);
-					break;
+					//break;
 				}
 				//return new Color(hum * 0.2f, hum * 0.2f, hum);
 				break;
