@@ -83,8 +83,18 @@ namespace AssemblyCSharp
                     
                     for (int y = heightY - 1; y >= 0; y--)
                     {
+
+                        if (y <= 1) {
+                            data [x + 16 * (z + 16 * y)] = (byte)BlockType.Stone;
+                            if (firstBlockHeight == -1)
+                            {
+                                firstBlockHeight = y;
+                                chunk.SetHeightMap(x, z, (byte)(y + 1));
+                            }
+                            continue;
+                        }
                             
-                        if (y <= 64)
+                        if (y <= 32)
                         {
                             //ocean
                             //row + Self.width * (col + Self.height * layer)
@@ -95,12 +105,12 @@ namespace AssemblyCSharp
                             chunk.containsWater = true;
 
                             //temp - removewhen we do water better
-                            if (firstBlockHeight == -1)
+                           /* if (firstBlockHeight == -1)
                             {
                                 firstBlockHeight = y;
                                 chunk.SetHeightMap(x, z, (byte)(y + 1));
                             }
-                            continue;
+                            continue;*/
                         }
                         
                         float dens = densityMap [x, y, z];
@@ -195,6 +205,13 @@ namespace AssemblyCSharp
             if (sea >= 0.7)
                 densitySea = 1f;
 
+            if (sea >= 0.5 && sea <= 0.7)
+            {
+                densitySea = (sea - 0.2f) * 5f;
+
+            }
+            densitySea = Mathf.Clamp01(densitySea);
+
             //if (h == BiomeType.BiomeHeight.Mountain)
             densityMountains = calcMountainDensity(x, y, z) * height;
 
@@ -214,7 +231,7 @@ namespace AssemblyCSharp
 			
             if (x == 500 && z == 500)
             {
-                float i = -y + ((((32.0f + baseHeight * 32.0f)) * densitySea + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) ; 
+                float i = -y + 32f + ((((0f + baseHeight * 32.0f)) * densitySea + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) ; 
 
             }
 
