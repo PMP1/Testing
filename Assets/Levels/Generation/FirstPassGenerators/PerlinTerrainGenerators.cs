@@ -199,24 +199,49 @@ namespace AssemblyCSharp
             float densityHills = 0;
 
 
-            float densitySea = 0;
-            if (sea >= 0.6)
-                densitySea = 0.5f;
-            if (sea >= 0.7)
-                densitySea = 1f;
+            float densitySea = 1;
 
-            if (sea >= 0.5 && sea <= 0.7)
+            /*if (sea < 0.6) 
+                densitySea = sea - 0.2f;
+
+            if (height <= 0.2)
             {
-                densitySea = (sea - 0.2f) * 5f;
-
-            }
+                if (sea < 0.7) 
+                    densitySea = (sea - 0.2f) * 2;
+            }*/
+           
             densitySea = Mathf.Clamp01(densitySea);
+            densitySea = 1;
+            //height = 0;
 
+
+            if (sea <= 0.6)
+            {
+                if (height <= 0.2)
+                {
+            //        height = 0;
+                }
+                else 
+                {
+                    densitySea = 0;
+                }
+            } 
+
+            if (sea <= 0.6)
+            {
+                densitySea = Mathf.Clamp01(((sea - 0.2f) * 2));
+            }
+
+            //if (sea < 0.6)
+            //    densitySea = 0;
+
+
+            baseHeight = baseHeight * height;
             //if (h == BiomeType.BiomeHeight.Mountain)
-            densityMountains = calcMountainDensity(x, y, z) * height;
+            densityMountains = calcMountainDensity(x, y, z) * Mathf.Clamp01(height - 0.3f);
 
             //if (h == BiomeType.BiomeHeight.Hills)
-            densityHills = calcHillDensity(x, y, z) * ( 1f - height);
+            densityHills = calcHillDensity(x, y, z) * Mathf.Clamp01(height - 0.3f); //( 1f - height);
             
             //Vector2 distanceToMountainBiome = new Vector2(temp - 0.25f, humidity - 0.35f);
 			
@@ -229,14 +254,11 @@ namespace AssemblyCSharp
 			int plateauArea = (int) (256 * 0.10);
 			float flatten = Mathf.Clamp01(((256 - 16) - y) / plateauArea);
 			
-            if (x == 500 && z == 500)
-            {
-                float i = -y + 32f + ((((0f + baseHeight * 32.0f)) * densitySea + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) ; 
-
-            }
 
 
-			return -y + ((((32.0f + baseHeight * 32.0f))  + densityMountains * 1024.0f + densityHills * 128.0f) * flatten) * densitySea; 
+            //return -y 
+            //return -y + (32.0f + baseHeight * 32.0f) * densitySea;
+            return -y + ((((32.0f + baseHeight * 256.0f)) * densitySea + densityMountains * 1024.0f + densityHills * 1024.0f) * flatten) * densitySea; 
 		}
 
 		private float CalcBaseTerrain(int x, int z)
