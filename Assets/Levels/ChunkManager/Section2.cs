@@ -17,6 +17,7 @@ namespace AssemblyCSharp
     {
 
         byte[] data;
+        byte[] geoData;
         byte[] daylightData;
         byte[] lightData;
 
@@ -43,6 +44,7 @@ namespace AssemblyCSharp
         {
             this.posY = y;
             data = new byte[4096];
+            geoData = new byte[4096];
             daylightData = new byte[4096];
             lightData = new byte[4096];
             chunk = cnk;
@@ -72,27 +74,14 @@ namespace AssemblyCSharp
             this.colors = new List<Color>(color);
         }
 
-        /*public void ClearGOTempData() 
-        {
-            this.vertices.Clear();
-            this.triangles.Clear();
-            this.uvs.Clear();
-            this.colliderTriangles.Clear();
-            this.colliderVertices.Clear();
-            this.colors.Clear();
-        }*/
-
         public void GenerateGO() 
         {
             System.DateTime startCreateGO = System.DateTime.Now;
             GameObject newSectionGO = chunk.manager.world.CreateSectionGO(chunk, this);
 
-            
             this.sectionGO = newSectionGO.GetComponent("SectionGO") as SectionGO;
             this.sectionGO.world = chunk.manager.world;
             this.sectionGO.section = this;
-            //this.sectionGO.updateMesh = true;
-            //this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
             this.sectionGO.SetDaylight(chunk.manager.world.time.GetDaylightLevel());
             this.sectionGO.name = chunk.xPosition.ToString() + ":" + chunk.zPosition.ToString() + ":" + (this.posY << 4).ToString();
 
@@ -101,17 +90,6 @@ namespace AssemblyCSharp
 
             StatsEngine.SectionGoCreate += (float)System.DateTime.Now.Subtract(startCreateGO).TotalSeconds;
         }
-
-        /*public void SetNewGOMesh()
-        {
-            this.sectionGO.SetMesh(uvs, vertices, triangles, colors);
-        }
-
-        public void SetNewGOCollider()
-        {
-            this.sectionGO.SetCollider(colliderVertices, colliderTriangles);
-        }*/
-
 
         
         #region Block Access
@@ -145,12 +123,50 @@ namespace AssemblyCSharp
             return this.data[xyz];
         }
 
+        /// <summary>
+        /// Sets the block geometry data
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <param name="z">The z coordinate.</param>
+        /// <param name="block">Block.</param>
+        public void SetGeoBlockId(int x, int y, int z, byte geo) 
+        {
+            this.SetGeoBlockId(y << 8 | z << 4 | x, geo);
+        }
+        
+        public void SetGeoBlockId(int xyz, byte geo)
+        {
+            try
+            {
+                this.geoData [xyz] = geo;
+                //this may be a good place to check to see if an update is needed?
+            } catch
+            {
+                int i = 0;
+                
+            }
+        }
+
+                
+        public byte GetGeoBlockId(int x, int y, int z)
+        {
+            return this.GetGeoBlockId(y << 8 | z << 4 | x);
+        }
+
+        
+        public byte GetGeoBlockId(int xyz)
+        {
+            return this.geoData [xyz];
+        }
+
+
         #endregion
 
         #region Light Access
         public void SetDatlightData(int x, int  y, int z, int level) 
         {
-            this.SetDaylightData(x + 16 * (z + 16 * y), level);
+            this.SetDaylightData(y << 8 | z << 4 | x, level);
         }
 
         public void SetDaylightData(int xyz, int level)
@@ -160,7 +176,7 @@ namespace AssemblyCSharp
 
         public byte GetDaylightValue(int x, int y, int z)
         {
-            return this.GetDaylightValue(x + 16 * (z + 16 * y));
+            return this.GetDaylightValue(y << 8 | z << 4 | x);
         }
 
         private byte GetDaylightValue(int xyz)

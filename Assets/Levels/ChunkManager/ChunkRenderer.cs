@@ -35,14 +35,6 @@ namespace AssemblyCSharp
 
 
         private Chunk2 chunk;
-        //private Chunk2 chunkNorth;
-        //private Chunk2 chunkNorthEast;
-        //private Chunk2 chunkEast;
-        //private Chunk2 chunkSouthEast;
-        //private Chunk2 chunkSouth;
-        //private Chunk2 chunkSouthWest;
-        //private Chunk2 chunkWest;
-        //private Chunk2 chunkNorthWest;
         private bool neighboursLoaded = false; 
 
 
@@ -53,28 +45,14 @@ namespace AssemblyCSharp
             this.world = world;
             this.colliderGenerator = new SectionColliderGenerator(this);
         }
-
-
-        
+                
         public void RenderChunk(Chunk2 chunk) 
         {
             int firstSection = chunk.firstSection;
             byte daylightLevel = world.time.GetDaylightLevel();
 
             this.chunk = chunk;
-            //chunkNorth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition + 1);
-            //chunkNorthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition + 1);
-            //chunkEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition);
-            //chunkSouthEast = chunkManager.GetChunk(chunk.xPosition + 1, chunk.zPosition - 1);
-            //chunkSouth = chunkManager.GetChunk(chunk.xPosition, chunk.zPosition - 1);
-            //chunkSouthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition - 1);
-            //chunkWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition);
-            //chunkNorthWest = chunkManager.GetChunk(chunk.xPosition - 1, chunk.zPosition + 1);
 
-            //if (chunkEast != null && chunkWest != null && chunkNorth != null && chunkSouth != null)
-            //{
-            //    chunk.isNeighboursLoaded = true;
-            //}
 
             for (int secY = firstSection; secY >= 0; secY--) 
             {
@@ -116,8 +94,6 @@ namespace AssemblyCSharp
 
             newColliderTriangles.Clear();
             newColliderVertices.Clear();
-
-
         }
 
         private Block GetBlock(int x, int y, int z)
@@ -140,54 +116,30 @@ namespace AssemblyCSharp
                 {
                     if (z < 0) 
                     {
-                        //sw
-                        //if (chunkSouthWest == null)
-                        //    blockId = 3;
-                        //else 
-                            blockId = chunk.ChunkSouthWest.GetBlockId(x + 16, y, z + 16);
+                        blockId = chunk.ChunkSouthWest.GetBlockId(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
-                    {
-                        //nw
-                        //if (chunkNorthWest == null)
-                        //    blockId = 3;
-                        //else 
+                    { 
                         blockId = chunk.ChunkNorthWest.GetBlockId(x + 16, y, z - 16);
                     }
                     else 
                     {
-                        //w
-                        //if (chunkWest == null)
-                        //    blockId = 3;
-                        //else 
-                            blockId = chunk.ChunkWest.GetBlockId(x + 16, y, z);
+                        blockId = chunk.ChunkWest.GetBlockId(x + 16, y, z);
                     }
                 } 
                 else if (x >= 16)
                 {
                     if (z < 0) 
                     {
-                        //se
-                        //if (chunkSouthEast == null)
-                        //    blockId = 3;
-                        //else 
                         blockId = chunk.ChunkSouthEast.GetBlockId(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
-                        //ne
-                        //if (chunkNorthEast == null)
-                        //    blockId = 3;
-                        //else 
                         blockId = chunk.ChunkNorthEast.GetBlockId(x - 16, y, z - 16);
                     }
                     else 
                     {
-                        //e
-                        //if (chunkEast == null)
-                        //    blockId = 3;
-                        //else 
-                            blockId = chunk.ChunkEast.GetBlockId(x - 16, y, z);
+                        blockId = chunk.ChunkEast.GetBlockId(x - 16, y, z);
                     }
                 }
                 else
@@ -195,31 +147,17 @@ namespace AssemblyCSharp
                     //center
                     if (z < 0) 
                     {
-                        //s
-                        //if (chunkSouth == null)
-                        //    blockId = 3;
-                        //else 
                         blockId = chunk.ChunkSouth.GetBlockId(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
-                        //n
-                        //if (chunkNorth == null)
-                        //    blockId = 3;
-                        //else 
                         blockId = chunk.ChunkNorth.GetBlockId(x, y, z - 16);
                     }
                     else 
                     {
-                        //c
-                        //if (centerChunk == null)
-                        //    blockId = 3;
-                        //else 
                         blockId = chunk.GetBlockId(x, y, z);
                     }
                 }
-                
-                
                 return blockId;
             }
         }
@@ -234,31 +172,18 @@ namespace AssemblyCSharp
                 return (byte)15;
             } else
             {
-                
                 if (x < 0) 
                 {
                     if (z < 0) 
                     {
-                        //sw
-                        //if (chunkSouthWest == null || !chunkSouthWest.isDataLoaded)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkSouthWest.GetDaylightValue(x + 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
-                        //nw
-                        //if (chunkNorthWest == null  || !chunkNorthWest.isDataLoaded)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkNorthWest.GetDaylightValue(x + 16, y, z - 16);
                     }
                     else 
                     {
-                        //w
-                        //if (chunkWest == null  || !chunkWest.isDataLoaded)
-                         //   value = 15;
-                        //else 
                         value = chunk.ChunkWest.GetDaylightValue(x + 16, y, z);
                     }
                 } 
@@ -266,26 +191,14 @@ namespace AssemblyCSharp
                 {
                     if (z < 0) 
                     {
-                        //se
-                        //if (chunkSouthEast == null || !chunkSouthEast.isDataLoaded)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkSouthEast.GetDaylightValue(x - 16, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
-                        //ne
-                        //if (chunkNorthEast == null || !chunkNorthEast.isDataLoaded)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkNorthEast.GetDaylightValue(x - 16, y, z - 16);
                     }
                     else 
                     {
-                        //e
-                        //if (chunkEast == null || !chunkEast.isDataLoaded)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkEast.GetDaylightValue(x - 16, y, z);
                     }
                 }
@@ -294,26 +207,14 @@ namespace AssemblyCSharp
                     //center
                     if (z < 0) 
                     {
-                        //s
-                        //if (chunkSouth == null)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkSouth.GetDaylightValue(x, y, z + 16);
                     } 
                     else if (z >= 16)
                     {
-                        //n
-                        //if (chunkNorth == null)
-                        //    value = 15;
-                        //else 
                         value = chunk.ChunkNorth.GetDaylightValue(x, y, z - 16);
                     }
                     else 
                     {
-                        //c
-                        //if (centerChunk == null)
-                        //    blockId = 3;
-                        //else 
                         value = chunk.GetDaylightValue(x, y, z);
                     }
                 }
@@ -325,13 +226,7 @@ namespace AssemblyCSharp
 
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
-            //int chunkx = chunk.xPosition;
-            //int chunkz = chunk.zPosition;
-
-            //int posx;
             int posy;
-            //int posz;
-
 
             for (int x = 0; x < 16; x++)
             {
@@ -359,48 +254,35 @@ namespace AssemblyCSharp
                             System.DateTime startCreateSmoothLight;
                             double currentlighting = 0;
 
-                            if ((int)blockT.BlkType == (int)BlockType.Air) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
+                            if (blockT.BlkType == BlockType.Air) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
                             {
                                 CubeTop(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeTopLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
                             }
-                            if ((int)blockB.BlkType == (int)BlockType.Air)
+                            if (blockB.BlkType == BlockType.Air)
                             {
                                 CubeBot(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeBottomLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
-
                             }
-                            if ((int)blockN.BlkType == (int)BlockType.Air)
+                            if (blockN.BlkType == BlockType.Air)
                             {
                                 CubeNorth(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeNorthLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
                             }
-                            if ((int)blockE.BlkType == (int)BlockType.Air)
+                            if (blockE.BlkType == BlockType.Air)
                             {
                                 CubeEast(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeEastLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
                             }
-                            if ((int)blockS.BlkType == (int)BlockType.Air)
+                            if (blockS.BlkType == BlockType.Air)
                             {
                                 CubeSouth(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeSouthLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
                             }
-                            if ((int)blockW.BlkType == (int)BlockType.Air)
+                            if (blockW.BlkType == BlockType.Air)
                             {
                                 CubeWest(x, y, z, block);
-                                startCreateSmoothLight = System.DateTime.Now;
                                 CubeWestLight(x, posy, z, block);
-                                currentlighting += System.DateTime.Now.Subtract(startCreateSmoothLight).TotalSeconds;
                             }
 
                             StatsEngine.SectionSmoothLighting += (float)currentlighting;

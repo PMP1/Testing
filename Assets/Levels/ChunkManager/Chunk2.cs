@@ -92,7 +92,7 @@ namespace AssemblyCSharp
         }
 
 
-        public void SetData(byte[] chunkData)
+        public void SetData(byte[] chunkData, byte[] geometryData)
         {
             int height = chunkData.Length / 256; //one slice of 16*16 data
 
@@ -103,17 +103,17 @@ namespace AssemblyCSharp
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        byte block = chunkData[x + 16 * (z + 16 * y)];
+                        //byte block = chunkData[x + 16 * (z + 16 * y)];
+                        byte block = chunkData[y << 8 | z << 4 | x];
+                        byte geo = geometryData[y << 8 | z << 4 | x];
 
-                        //if (block != 0) {
+                        int section = y >> 4;
+                        if (sections[section] == null) {
+                            sections[section] = new Section2(section, this);
+                        }
 
-                            int section = y / 16;
-                            if (sections[section] == null) {
-                                sections[section] = new Section2(section, this);
-                            }
-
-                            sections[section].SetBlockId(x, y % 16, z, block);
-                        //}
+                        sections[section].SetBlockId(x, y & 15, z, block);
+                        sections[section].SetBlockId(x, y & 15, z, block);
                     }
                 }
             }

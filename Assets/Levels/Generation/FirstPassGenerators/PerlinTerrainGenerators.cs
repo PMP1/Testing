@@ -202,7 +202,7 @@ namespace AssemblyCSharp
                 }
             }
 
-            chunk.SetData(data);
+            chunk.SetData(data, geometryData);
         }
 
 
