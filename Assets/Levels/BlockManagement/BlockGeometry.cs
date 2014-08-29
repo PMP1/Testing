@@ -24,6 +24,11 @@ namespace AssemblyCSharp
 		CubeThreeHalfSlop = 11
 	}
 
+    public enum BlockPosition {
+        Bottom = 0,
+        Top = 1
+    }
+
 	public enum BlockRotation {
 		North, //default
 		East,
