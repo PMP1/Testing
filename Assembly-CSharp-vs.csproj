@@ -49,6 +49,9 @@
      <Compile Include="Assets\Levels\BlockManagement\Block.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockGeometry.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockManager.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\BlockRenderer.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\GeoCube.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\IBlockType.cs" />
      <Compile Include="Assets\Levels\ChunkManager\BlockLightUpdate.cs" />
      <Compile Include="Assets\Levels\ChunkManager\Chunk2.cs" />
      <Compile Include="Assets\Levels\ChunkManager\ChunkManager.cs" />

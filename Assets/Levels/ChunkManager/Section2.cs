@@ -96,7 +96,7 @@ namespace AssemblyCSharp
 
         public void SetBlockId(int x, int y, int z, byte block) 
         {
-            this.SetBlockId(x + 16 * (z + 16 * y), block);
+            this.SetBlockId(y << 8 | z << 4 | x, block);
         }
 
         public void SetBlockId(int xyz, byte block)
@@ -115,7 +115,7 @@ namespace AssemblyCSharp
 
         public byte GetBlockId(int x, int y, int z)
         {
-            return this.GetBlockId(x + 16 * (z + 16 * y));
+            return this.GetBlockId(y << 8 | z << 4 | x);
         }
 
         public byte GetBlockId(int xyz)

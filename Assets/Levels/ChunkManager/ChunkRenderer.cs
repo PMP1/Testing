@@ -227,6 +227,8 @@ namespace AssemblyCSharp
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
             int posy;
+            GeoCube cube = new GeoCube();
+
 
             for (int x = 0; x < 16; x++)
             {
@@ -239,6 +241,8 @@ namespace AssemblyCSharp
                         //posz = z + (chunkz * 16);
 
                         byte id = section.GetBlockId(x, y, z);
+                        byte geo = section.GetGeoBlockId(x, y, z);
+
 
                         if (id != (byte)0)//|| block.LightOpacity < 16)
                         {
@@ -253,6 +257,43 @@ namespace AssemblyCSharp
 
                             System.DateTime startCreateSmoothLight;
                             double currentlighting = 0;
+
+
+                            // t b n e s w
+                            int[] neighboutX = {0,  0, 0, 1,  0, -1};
+                            int[] neighboutY = {1, -1, 0, 0,  0,  0};
+                            int[] neighboutZ = {0,  0, 1, 0, -1,  0};
+
+                            int[] cubeX = {0,  0, 0, 1,  1,  0};
+                            int[] cubeY = {1, -1, 1, 0, -1, -1};
+                            int[] cubeZ = {0,  0, 1, 0,  0,  1};
+
+
+
+                            for (int i = 4; i < 6; i++)
+                            {
+                                Block b = this.GetBlock(x + neighboutX[i], posy + neighboutY[i], z + neighboutZ[i]);
+                                if (b.BlkType == BlockType.Air)
+                                {
+                                    newVertices.Add(new Vector3(x,            y + cubeY[i], z + cubeZ[i]));
+                                    newVertices.Add(new Vector3(x,            y           , z + cubeZ[i]));
+                                    newVertices.Add(new Vector3(x + cubeX[i], y           , z));
+                                    newVertices.Add(new Vector3(x + cubeX[i], y + cubeY[i], z));
+
+                                    newVertices.Add(new Vector3(x + 1, y - 1, z + 1));
+                                    newVertices.Add(new Vector3(x + 1, y, z + 1));
+                                    newVertices.Add(new Vector3(x, y, z + 1));
+                                    newVertices.Add(new Vector3(x, y - 1, z + 1));
+
+
+                                    Vector2 texturePos = block.Texture;
+                                    Cube(texturePos);
+
+                                    if (i == 4) CubeSouthLight(x, posy, z, block);
+                                    if (i == 5) CubeWestLight(x, posy, z, block);
+                                }
+                            }
+
 
                             if (blockT.BlkType == BlockType.Air) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
                             {
@@ -276,13 +317,13 @@ namespace AssemblyCSharp
                             }
                             if (blockS.BlkType == BlockType.Air)
                             {
-                                CubeSouth(x, y, z, block);
-                                CubeSouthLight(x, posy, z, block);
+                                //CubeSouth(x, y, z, block);
+                                //CubeSouthLight(x, posy, z, block);
                             }
                             if (blockW.BlkType == BlockType.Air)
                             {
-                                CubeWest(x, y, z, block);
-                                CubeWestLight(x, posy, z, block);
+                                //CubeWest(x, y, z, block);
+                                //CubeWestLight(x, posy, z, block);
                             }
 
                             StatsEngine.SectionSmoothLighting += (float)currentlighting;
@@ -291,6 +332,12 @@ namespace AssemblyCSharp
                 }
             }
         }
+
+        /*  1   2
+         *    
+         *  4   3
+         */
+
 
         private void CubeTop (int x, int y, int z, Block block)
         {
@@ -325,7 +372,12 @@ namespace AssemblyCSharp
             Cube(texturePos);
         }
 
-        
+
+        /* 2   3
+         * 
+         * 1   4
+         */
+
         private void CubeSouth (int x, int y, int z, Block block)
         {
             newVertices.Add(new Vector3(x, y - 1, z));
@@ -528,25 +580,9 @@ namespace AssemblyCSharp
 
         private float GetAverageLight(byte side1, byte side2, byte side3, byte side4)
         {
-            if (side1 + side2 + side3 + side4 < 60)
-            {
-                int i = 0; 
-            }
-            return ((float)(side1 + side2 + side3 + side4)) / (16f * 4f);
+            return ((float)(side1 + side2 + side3 + side4)) / 64f;//(16f * 4f);
         }
 
-        private int GetCornerLight(Block side1, Block side2, Block corner)
-        {
-            if ((int)side1.BlkType != 0 && (int)side2.BlkType != 0)
-            {
-                return 4;
-            }
-
-            int hasSide1 = (int)side1.BlkType != 0 ? 1 : 0;
-            int hasSide2 = (int)side2.BlkType != 0 ? 1 : 0;
-            int hasCorner = (int)corner.BlkType != 0 ? 1 : 0;
-            return 1 + (hasSide1 + hasSide2 + hasCorner);
-        }
 
         void CubeLight(int defaultLevel) {
 
@@ -564,14 +600,6 @@ namespace AssemblyCSharp
             newColor.Add(new Color(0f,0f,0f,c2));
             newColor.Add(new Color(0f,0f,0f,c3));
             newColor.Add(new Color(0f,0f,0f,c4));
-        }
-
-        void CubeLight(int c1, int c2, int c3, int c4, byte light) {
-            
-            newColor.Add(new Color(0f,0f,0f,light/(c1*15f)));
-            newColor.Add(new Color(0f,0f,0f,light/(c2*15f)));
-            newColor.Add(new Color(0f,0f,0f,light/(c3*15f)));
-            newColor.Add(new Color(0f,0f,0f,light/(c4*15f)));
         }
 
         void Cube (Vector2 texturePos)
