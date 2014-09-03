@@ -248,29 +248,137 @@ namespace AssemblyCSharp
                         {
                             Block block = BlockManager.GetBlock((byte)id);
 
-                            Block blockT = this.GetBlock(x, posy + 1, z);
-                            Block blockB = this.GetBlock(x, posy - 1, z);
-                            Block blockN = this.GetBlock(x, posy, z + 1);
-                            Block blockE = this.GetBlock(x + 1, posy, z);
-                            Block blockS = this.GetBlock(x, posy, z - 1);
-                            Block blockW = this.GetBlock(x - 1, posy, z);
+                            int blockT = this.GetBlockId(x, posy + 1, z);
+                            int blockB = this.GetBlockId(x, posy - 1, z);
+                            int blockN = this.GetBlockId(x, posy, z + 1);
+                            int blockE = this.GetBlockId(x + 1, posy, z);
+                            int blockS = this.GetBlockId(x, posy, z - 1);
+                            int blockW = this.GetBlockId(x - 1, posy, z);
 
                             System.DateTime startCreateSmoothLight;
                             double currentlighting = 0;
 
 
                             // t b n e s w
-                            int[] neighboutX = {0,  0, 0, 1,  0, -1};
-                            int[] neighboutY = {1, -1, 0, 0,  0,  0};
-                            int[] neighboutZ = {0,  0, 1, 0, -1,  0};
+                            int[] neighboutX = {0,  0, 1,  0, -1, 0};
+                            int[] neighboutY = {1,  0, 0,  0,  0, -1};
+                            int[] neighboutZ = {0,  1, 0, -1,  0, 0};
+
+                            int[] neighbourX2 = {{0, 0, 0, 1, 1, 1,-1,-1,-1},  0, 1,  0, -1, 0};
+                            int[] neighbourY2 = {{1, 1, 1, 1, 1, 1, 1, 1, 1},  0, 0,  0,  0, -1};
+                            int[] neighbourZ2 = {{0, 1,-1, 0, 1,-1, 0, 1,-1},  1, 0, -1,  0, 0};
+
+
+                            //int[] face = {0, 1, 2, 3, 4, 5, 6} 
 
                             int[] cubeX = {0,  0, 0, 1,  1,  0};
                             int[] cubeY = {1, -1, 1, 0, -1, -1};
                             int[] cubeZ = {0,  0, 1, 0,  0,  1};
 
 
+                            /* e =100, 110, 111, 101   - 1__
+                             * s =000, 010, 110, 100   - __0
+                             * w =001, 011, 010, 000   - 0__
+                             * n =101, 111, 011, 001   - __1
+                             * 
+                             * 
+                             * 
+                             * 
+                             */
 
-                            for (int i = 4; i < 6; i++)
+                            //                0, 1, 2, 3, 4, 5, 6, 7
+
+                            //  7 - 6 
+                            //  | 4 + 5
+                            //  3 + 2 |
+                            //    0 - 1
+                            //                0, 1, 2, 3, 4, 5, 6, 7
+                            int[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
+                            int[] y_points = {0, 0, 0, 0, 1, 1, 1, 1};
+                            int[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
+
+                            int [,] faces = {
+                                {4, 7, 6, 5}, //top
+                                {2, 6, 7, 3}, //north
+                                {1, 5, 6, 2},
+                                {0, 4, 5, 1},
+                                {3, 7, 4, 0},
+                                {2, 1, 0, 3}};
+
+
+                            for (int i = 0; i < 6; i++)
+                            {
+                                int b = this.GetBlockId(x + neighboutX[i], posy + neighboutY[i], z + neighboutZ[i]);
+                                if (b == 0)
+                                {
+                                    //TODO shoudl I be using posY or y
+                                    newVertices.Add(new Vector3(x + x_points[faces[i, 0]],y + y_points[faces[i, 0]],z + z_points[faces[i, 0]]));
+                                    newVertices.Add(new Vector3(x + x_points[faces[i, 1]],y + y_points[faces[i, 1]],z + z_points[faces[i, 1]]));
+                                    newVertices.Add(new Vector3(x + x_points[faces[i, 2]],y + y_points[faces[i, 2]],z + z_points[faces[i, 2]]));
+                                    newVertices.Add(new Vector3(x + x_points[faces[i, 3]],y + y_points[faces[i, 3]],z + z_points[faces[i, 3]]));
+                                
+                                    Vector2 texturePos = block.Texture;
+                                    Cube(texturePos);
+                                
+
+
+                                    this.GetDaylightValue(x + x_points[faces[i, 0]] - 1,
+                                                          y + y_points[faces[i, 0]] - 1 ,
+                                                          z + z_points[faces[i, 0]] - 1);
+
+                                    this.GetDaylightValue(x + x_points[faces[i, 0]] - 1,
+                                                          y + y_points[faces[i, 0]] - 1 ,
+                                                          z + z_points[faces[i, 0]] - 1);
+
+
+
+                                    
+                                    byte block0 = this.GetDaylightValue(x, posy + neighboutY[i], z);
+
+
+                                    int xmin = -1;
+                                    int xmax = 1;
+                                    int ymin = 1;
+                                    int ymax = 1;
+                                    int zmin = -1;
+                                    int zmax = 1;
+
+
+                                    if (neighboutY[i] != 0)
+                                    {
+                                        int block1 = this.GetDaylightValue(x, posy + neighboutY[i], z + 1);
+                                        int block2 = this.GetDaylightValue(x + 1, posy + neighboutY[i], z + 1);
+                                        int block3 = this.GetDaylightValue(x + 1, posy + neighboutY[i], z);
+                                        int block4 = this.GetDaylightValue(x + 1, posy + neighboutY[i], z - 1);
+                                        int block5 = this.GetDaylightValue(x, posy + neighboutY[i], z - 1);
+                                        int block6 = this.GetDaylightValue(x - 1, posy + neighboutY[i], z - 1);
+                                        int block7 = this.GetDaylightValue(x - 1, posy + neighboutY[i], z);
+                                        int block8 = this.GetDaylightValue(x - 1, posy + neighboutY[i], z + 1);
+
+                                    }
+
+
+
+                                    byte blockNE = this.GetDaylightValue(x + 1, y + 1, z + 1);
+                                    byte blockE = this.GetDaylightValue(x + 1, y + 1, z);
+                                    byte blockSE = this.GetDaylightValue(x + 1, y + 1, z - 1);
+                                    byte blockS = this.GetDaylightValue(x, y + 1, z - 1);
+                                    byte blockSW = this.GetDaylightValue(x - 1, y + 1, z - 1);
+                                    byte blockW = this.GetDaylightValue(x - 1, y + 1, z);
+                                    byte blockNW = this.GetDaylightValue(x - 1, y + 1, z + 1);
+                                    byte blockC = this.GetDaylightValue(x, y + 1, z);
+                                    float c1 = GetAverageLight(blockN, blockW, blockNW, blockC);
+                                    float c2 = GetAverageLight(blockS, blockW, blockSW, blockC);
+                                    float c3 = GetAverageLight(blockS, blockE, blockSE, blockC);
+                                    float c4 = GetAverageLight(blockN, blockE, blockNE, blockC);
+                                    
+                                    CubeLight(c1, c4, c3, c2);
+                                }
+
+                            }
+
+
+                            /*for (int i = 4; i < 6; i++)
                             {
                                 Block b = this.GetBlock(x + neighboutX[i], posy + neighboutY[i], z + neighboutZ[i]);
                                 if (b.BlkType == BlockType.Air)
@@ -292,40 +400,40 @@ namespace AssemblyCSharp
                                     if (i == 4) CubeSouthLight(x, posy, z, block);
                                     if (i == 5) CubeWestLight(x, posy, z, block);
                                 }
-                            }
-
-
-                            if (blockT.BlkType == BlockType.Air) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
+                            }*/
+                            if (blockT == 0) // || (blockT.LightOpacity < 16 && blockT.BlockType != block.BlockType)) 
                             {
-                                CubeTop(x, y, z, block);
+                                //CubeTop(x, y, z, block);
                                 CubeTopLight(x, posy, z, block);
                             }
-                            if (blockB.BlkType == BlockType.Air)
+
+                            if (blockN == 0)
                             {
-                                CubeBot(x, y, z, block);
-                                CubeBottomLight(x, posy, z, block);
-                            }
-                            if (blockN.BlkType == BlockType.Air)
-                            {
-                                CubeNorth(x, y, z, block);
+                                //CubeNorth(x, y, z, block);
                                 CubeNorthLight(x, posy, z, block);
                             }
-                            if (blockE.BlkType == BlockType.Air)
+                            if (blockE == 0)
                             {
-                                CubeEast(x, y, z, block);
+                                //CubeEast(x, y, z, block);
                                 CubeEastLight(x, posy, z, block);
                             }
-                            if (blockS.BlkType == BlockType.Air)
+                            if (blockS == 0)
                             {
                                 //CubeSouth(x, y, z, block);
-                                //CubeSouthLight(x, posy, z, block);
+                                CubeSouthLight(x, posy, z, block);
                             }
-                            if (blockW.BlkType == BlockType.Air)
+                            if (blockW == 0)
                             {
                                 //CubeWest(x, y, z, block);
-                                //CubeWestLight(x, posy, z, block);
+                                CubeWestLight(x, posy, z, block);
                             }
-
+                            
+                           
+                            if (blockB == 0)
+                            {
+                                //CubeBot(x, y, z, block);
+                                CubeBottomLight(x, posy, z, block);
+                            }
                             StatsEngine.SectionSmoothLighting += (float)currentlighting;
                         }
                     }
@@ -352,6 +460,11 @@ namespace AssemblyCSharp
 
         private void CubeNorth (int x, int y, int z, Block block)
         {
+
+
+
+
+
             newVertices.Add(new Vector3(x + 1, y - 1, z + 1));
             newVertices.Add(new Vector3(x + 1, y, z + 1));
             newVertices.Add(new Vector3(x, y, z + 1));

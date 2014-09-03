@@ -625,16 +625,16 @@ namespace AssemblyCSharp
 
         }
 
-        private Block GetBlock(int chunkX, int y, int chunkZ)
+        /*private int GetBlockId(int chunkX, int y, int chunkZ)
         {
             int blockId = GetBlockId(chunkX, y, chunkZ);
-            return BlockManager.GetBlock(blockId);
-        }
+            return blockId;
+        }*/
 
-        private Block PosGetBlock(int posx, int y, int posz)
+        private int PosGetBlockId(int posx, int y, int posz)
         {
             if (y >= 256 || y <= 0)
-                return null;
+                return 0;
 
             int chunkX = posx >> 4;
             int chunkZ = posz >> 4;
@@ -643,7 +643,7 @@ namespace AssemblyCSharp
 
             Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
 
-            return chunk.GetBlock(x, y, z);
+            return chunk.GetBlockId(x, y, z);
         }
 
         public void UpdateLightBlock(int x, int y, int z, byte level)
@@ -749,8 +749,18 @@ namespace AssemblyCSharp
         private int CalcLightValue(int x, int y, int z, int n, int s, int e, int w, int t, int b)
         {
             int level = 0;
-            
-            int opacity = PosGetBlock(x + xPosition * 16, y, z + zPosition * 16).LightOpacity;
+            int blockId = PosGetBlockId(x + xPosition * 16, y, z + zPosition * 16);
+            int opacity = 0;
+
+
+            if (blockId == 0)
+            {
+                opacity = 0;
+            } else
+            {
+                opacity = BlockManager.blockOpacity [blockId];
+            }
+
 
             if (xPosition == 9 && zPosition == 8 && x == 0  && z == 0 && y >= 192 && y <= 194)
             {

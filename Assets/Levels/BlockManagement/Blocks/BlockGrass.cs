@@ -8,28 +8,14 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
-using UnityEngine;
-
 namespace AssemblyCSharp
 {
-    public class BlockRenderer
+    public class BlockGrass: Block
     {
-        public BlockRenderer()
+        public BlockGrass(int id, string name, string textureName)
+            :base(id, name, textureName)
         {
         }
-
-
-        public void RenderFace(Vector3[] newVertices, int x, int y, int z, int face)
-        {
-
-            /*switch (face)
-            {
-                case 
-            }*/
-
-
-        }
-
     }
 }
 

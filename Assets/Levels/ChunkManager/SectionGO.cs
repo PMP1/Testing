@@ -20,19 +20,6 @@ public class SectionGO: MonoBehaviour
     public World world; //ref to worldgameobject
     public Section2 section; //ref to parent section
 
-
-    //private bool updateDaylightLevel = false;
-
-
-    //private List<Vector3> newVertices = new List<Vector3> ();
-    //private List<int> newTriangles = new List<int> ();
-    //private List<Vector2> newUV = new List<Vector2> ();
-    //private List<Vector3> newColliderVertices = new List<Vector3> ();
-    //private List<int> newColliderTriangles = new List<int> ();
-        
-
-
-    //private List<Color> newColor = new List<Color> ();
     private float dayLightLevel = 16;
     private float tUnit = 0.25f;
 

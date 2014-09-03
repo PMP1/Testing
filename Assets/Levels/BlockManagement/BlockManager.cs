@@ -15,34 +15,21 @@ using UnityEngine;
 namespace AssemblyCSharp
 {
 
-	public enum BlockType:int 
-	{
-		Air = 0,
-		Dirt = 1,
-		Grass = 2,
-		Stone = 3,
-		Sand = 4,
-		Snow = 5,
-		Water = 6
-	}
-
 	public static class BlockManager
 	{
-		private static Block[] blockList = new Block[] {
-				
-			new Block (BlockType.Air, 3, 3, 0),
-			new Block (BlockType.Dirt,	0, 3, 16),
-			new Block (BlockType.Grass,0, 2, 16),
-			new Block (BlockType.Stone,0, 1, 16),
-			new Block (BlockType.Sand, 1, 2, 16),
-			new Block (BlockType.Snow, 0, 3, 16),
-			new Block (BlockType.Water, 0, 0, 16)
-			//new Block (BlockType.Snow, 1, 2, 16),
-			//new Block (BlockType.Snow, 1, 3, 16),
-			//new Block (BlockType.Snow, 2, 0, 16),
-			//new Block (BlockType.Snow, 2, 1, 16)
-		};
+        public static Block[] blockList = new Block[256];
+        public static int[] blockOpacity = new int[256];
 
+        public static readonly Block stone = new BlockStone(1, "stone", "stone");
+        public static readonly Block dirt = new Block(2, "dirt", "dirt");
+        public static readonly Block grass = new BlockGrass(3, "grass", "grass");
+        public static readonly Block sand = new Block(4, "sand", "sand");
+        public static readonly Block snow = new Block(5, "snow", "snow");
+        public static readonly Block water = new Block(6, "water", "water");
+
+
+
+		
         public static Block GetBlock(byte id) 
         {
             if (id == null)
@@ -66,7 +53,7 @@ namespace AssemblyCSharp
         {
             if (id == null)
                 id = 0;
-            return blockList [id].LightOpacity;
+            return blockOpacity [id];
         }
 	}
 }

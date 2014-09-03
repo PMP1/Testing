@@ -115,7 +115,7 @@ namespace AssemblyCSharp
                     //chunk.SetBiomeMap(x, z, (byte)type);
 
                     int firstBlockHeight = -1;
-                    BlockType previousBlock = BlockType.Air;
+                    int previousBlock = 0;
 
                     for (int y = heightY - 1; y >= 0; y--)
                     {
@@ -123,7 +123,7 @@ namespace AssemblyCSharp
 
 
                         if (y <= 1) {
-                            SetData(data, x, y, z, BlockType.Stone);
+                            SetData(data, x, y, z, BlockManager.stone.Id);
                             geometryData[x + 16 * (z + 16 * y)] = (byte)BlockShape.Cube;
                             if (firstBlockHeight == -1)
                             {
@@ -140,10 +140,10 @@ namespace AssemblyCSharp
                             //x + 16 * (z * 16 + y)
                             //16 + 16 *(256 + 16)
                             //16 + 16 * (512)
-                            SetData(data, x, y, z, BlockType.Water);
+                            SetData(data, x, y, z, BlockManager.water.Id);
                             geometryData[x + 16 * (z + 16 * y)] = (byte)BlockShape.Cube;
                             chunk.containsWater = true;
-                            previousBlock = BlockType.Water;
+                            previousBlock = BlockManager.water.Id;
                             //temp - removewhen we do water better
                            /* if (firstBlockHeight == -1)
                             {
@@ -171,9 +171,9 @@ namespace AssemblyCSharp
                                 SetBlock(x, y, z, firstBlockHeight, bio, data, previousBlock);
                             } else
                             {
-                                SetData(data, x, y, z, BlockType.Air);
+                                SetData(data, x, y, z, 0);
                                 //data [x + 16 * (z + 16 * y)] = (byte)BlockType.Air;
-                                previousBlock = BlockType.Air;
+                                previousBlock = 0;
                             }
                             
                             continue;
@@ -192,8 +192,8 @@ namespace AssemblyCSharp
                                 SetBlock(x, y, z, firstBlockHeight, bio, data, previousBlock);
                             } else
                             {
-                                SetData(data, x, y, z, BlockType.Air);
-                                previousBlock = BlockType.Air;
+                                SetData(data, x, y, z, 0);
+                                previousBlock = 0;
                             }
                             
                             continue;
@@ -206,9 +206,9 @@ namespace AssemblyCSharp
         }
 
 
-        private BlockShape CalculateGeometry(int firstBlockHeight, BlockType previousYBlock, float density)
+        private BlockShape CalculateGeometry(int firstBlockHeight, int previousYBlock, float density)
         {
-            if ((firstBlockHeight == -1 || previousYBlock == BlockType.Air) &&  density < 16)
+            if ((firstBlockHeight == -1 || previousYBlock == 0) &&  density < 16)
             {
                 return BlockShape.Slab;
             }
@@ -306,66 +306,66 @@ namespace AssemblyCSharp
             }
         }
 
-		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data, BlockType previousBlock) {
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data, int previousBlock) {
 			
             int depth = y - firstBlock;
 			
-            BlockType block = BlockType.Air;
+            int block = 0;
 
             switch (biome)
             {	
                 case BiomeType.Biome.Desert:
-                    block = BlockType.Sand;
+                    block = BlockManager.sand.Id;
                     break;
                 case BiomeType.Biome.GrassLand:
                     if (depth == 1)
-                        block = BlockType.Grass;
+                        block = BlockManager.grass.Id;
                     else if (depth < 3)
-                        block = BlockType.Dirt;
+                        block = BlockManager.dirt.Id;
                     else 
-                        block = BlockType.Stone;
+                        block = BlockManager.stone.Id;
                     break;
                 case BiomeType.Biome.Ice:
                     if (depth > 3)
-                        block = BlockType.Stone;
+                        block = BlockManager.stone.Id;
                     else 
-                        block = BlockType.Snow; //TODO NEED ICE
+                        block = BlockManager.snow.Id; //TODO NEED ICE
                     break;
                 case BiomeType.Biome.Ocean:
-                    block = BlockType.Sand;
+                    block = BlockManager.sand.Id;
                     break;
                 case BiomeType.Biome.RainForest:
-                    block = BlockType.Dirt; //TODO 
+                    block = BlockManager.dirt.Id; //TODO 
                     break;
                 case BiomeType.Biome.Savana:
-                    block = BlockType.Sand; //TODO
+                    block = BlockManager.sand.Id; //TODO
                     break;
                 case BiomeType.Biome.SeasonalForest:
-                    block = BlockType.Dirt; //TODO
+                    block = BlockManager.dirt.Id; //TODO
                     break;
                 case BiomeType.Biome.ShrubLand:
-                    block = BlockType.Sand; //TODO
+                    block = BlockManager.sand.Id; //TODO
                     break;
                 case BiomeType.Biome.Swamp:
-                    block = BlockType.Dirt; //TODO
+                    block = BlockManager.dirt.Id; //TODO
                     break;
                 case BiomeType.Biome.TemperateForest:
-                    block = BlockType.Grass;
+                    block = BlockManager.grass.Id;
                     break;
                 case BiomeType.Biome.Tiaga:
-                    block = BlockType.Snow;
+                    block = BlockManager.snow.Id;
                     break;
                 case BiomeType.Biome.TropicalForest:
-                    block = BlockType.Grass; //TODO
+                    block = BlockManager.grass.Id; //TODO
                     break;
                 case BiomeType.Biome.Tundra:
-                    block = BlockType.Snow;
+                    block = BlockManager.snow.Id;
                     break;
                 case BiomeType.Biome.Woodland:
-                    block = BlockType.Grass;
+                    block = BlockManager.grass.Id;
                     break;
                 default: 
-                    block = BlockType.Snow;
+                    block = BlockManager.snow.Id;
                     break;
             }
 
@@ -373,10 +373,10 @@ namespace AssemblyCSharp
             SetData(data, x, y, z, block);
         }
 
-        private void SetData(byte [] data, int x, int y, int z, BlockType block)
+        private void SetData(byte [] data, int x, int y, int z, int blockId)
         {
             //y << 8 | z<< 4 | x
-            data [y << 8 | z << 4 | x] = (byte)block;//* (z + 16 * y)] = (byte)block;
+            data [y << 8 | z << 4 | x] = (byte)blockId;//* (z + 16 * y)] = (byte)block;
             //data [x + 16 * (z + 16 * y)] = (byte)block;
         }
     }

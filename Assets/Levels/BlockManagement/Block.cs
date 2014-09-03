@@ -14,26 +14,45 @@ namespace AssemblyCSharp
 {
 	public class Block
 	{
-		public BlockType BlkType { get; set; }
+        //public static Block[] blockList = new Block[256];
+        //public static int[] blockOpacity = new int[256];
+
+
+		//public BlockType BlkType { get; set; }
 		public Vector2 Texture {get; set; }
-		public Vector2 TextureTop {get; set; }
-        public int LightOpacity { get; set; }
+
+        public int Id { get; private set; }
+        private readonly string name;
+
+
+        //x1, y1, z1, x2, y2, z2
+        //public readonly float[] bounds = new float[6] { 0, 0, 0, 1, 1, 1};
+        
+        
+        //private bool[]
+
+
+        public Block(int id, string name, string textureName) {
+            this.Id = id;
+            this.name = name;
+
+            this.Texture = TextureManager.GetTexture(textureName);
+           
+            if (BlockManager.blockList [id] != null)
+            {
+                throw new Exception("Block ID " + id.ToString() + " already exists for" + name);
+            }
+            BlockManager.blockList [id] = this;
+            BlockManager.blockOpacity [id] = this.GetBlockOpacity();
+
+        }
+
+        private int GetBlockOpacity()
+        {
+            return 16;
+        }
          
 
-		public Block(BlockType type, int texX, int texY, int opacity)
-		{
-            BlkType = type;
-			Texture = new Vector2 (texX, texY);
-            LightOpacity = opacity;
-		}
-
-		public Block(BlockType type, int texX, int texY, int texXTop, int texYTop, int opacity)
-		{
-            BlkType = type;
-			Texture = new Vector2 (texX, texY);
-			Texture = new Vector2 (texXTop, texYTop);
-            LightOpacity = opacity;
-		}
 	}
 }
 
