@@ -21,7 +21,7 @@ namespace AssemblyCSharp
             {"stone", new Vector2(0, 1)},
             {"dirt", new Vector2(0, 3)},
             {"grass", new Vector2(0, 2)},
-            {"sand", new Vector2(1, 2)},
+            {"sand", new Vector2(2, 2)},
             {"water", new Vector2(0, 0)},
             {"snow", new Vector2(0, 0)},
             {"default", new Vector2(0, 0)}
