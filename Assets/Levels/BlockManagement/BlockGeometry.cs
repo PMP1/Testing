@@ -8,9 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using UnityEngine;
+
 namespace AssemblyCSharp
 {
-	public enum BlockShape {
+	/*public enum BlockShape {
 		Cube = 0,
 		Slab = 1,
 		CubeSlope = 3,
@@ -34,6 +36,36 @@ namespace AssemblyCSharp
 		East,
 		South,
 		West
-	}
+	}*/
+
+    public class BlockGeo 
+    {
+        public int Id { get; private set; }
+        private readonly string name;
+        private ChunkRenderer cr;
+
+
+        public BlockGeo(int id, string name)
+        {
+            this.Id = id;
+            this.name = name;
+
+            if (BlockGeoManager.geoList [id] != null)
+            {
+                throw new Exception("Block Geo ID " + id.ToString() + " already exists for" + name);
+            }
+            BlockGeoManager.geoList [id] = this;
+        }
+
+
+        public virtual void Render(Block block, ChunkRenderer cr, int x, int y, int posy, int z)
+        {
+
+        }
+
+    }
+
+
+
 }
 

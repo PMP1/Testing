@@ -47,9 +47,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Levels\BlockManagement\Block.cs" />
+     <Compile Include="Assets\Levels\BlockManagement\BlockGeoManager.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockGeometry.cs" />
      <Compile Include="Assets\Levels\BlockManagement\BlockManager.cs" />
-     <Compile Include="Assets\Levels\BlockManagement\BlockRenderer.cs" />
      <Compile Include="Assets\Levels\BlockManagement\Blocks\BlockGrass.cs" />
      <Compile Include="Assets\Levels\BlockManagement\Blocks\BlockStone.cs" />
      <Compile Include="Assets\Levels\BlockManagement\GeoCube.cs" />

@@ -124,7 +124,8 @@ namespace AssemblyCSharp
 
                         if (y <= 1) {
                             SetData(data, x, y, z, BlockManager.stone.Id);
-                            geometryData[x + 16 * (z + 16 * y)] = (byte)BlockShape.Cube;
+                            SetData(geometryData, x, y, z, BlockGeoManager.cube.Id);
+                            //geometryData[x + 16 * (z + 16 * y)] = BlockGeoManager.cube.Id;
                             if (firstBlockHeight == -1)
                             {
                                 firstBlockHeight = y;
@@ -141,7 +142,9 @@ namespace AssemblyCSharp
                             //16 + 16 *(256 + 16)
                             //16 + 16 * (512)
                             SetData(data, x, y, z, BlockManager.water.Id);
-                            geometryData[x + 16 * (z + 16 * y)] = (byte)BlockShape.Cube;
+                            SetData(geometryData, x, y, z, BlockGeoManager.cube.Id);
+
+                            //geometryData[x + 16 * (z + 16 * y)] = (byte)BlockShape.Cube;
                             chunk.containsWater = true;
                             previousBlock = BlockManager.water.Id;
                             //temp - removewhen we do water better
@@ -161,7 +164,8 @@ namespace AssemblyCSharp
                             // Some block was set...                       
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.7)
                             {
-                                geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                //geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                SetData(geometryData, x, y, z, CalculateGeometry(firstBlockHeight, previousBlock, dens));
 
                                 if (firstBlockHeight == -1)
                                 {
@@ -182,7 +186,8 @@ namespace AssemblyCSharp
                             // Some block was set...
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.4)
                             {
-                                geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                //geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                SetData(geometryData, x, y, z, CalculateGeometry(firstBlockHeight, previousBlock, dens));
 
                                 if (firstBlockHeight == -1)
                                 {
@@ -206,13 +211,13 @@ namespace AssemblyCSharp
         }
 
 
-        private BlockShape CalculateGeometry(int firstBlockHeight, int previousYBlock, float density)
+        private int CalculateGeometry(int firstBlockHeight, int previousYBlock, float density)
         {
             if ((firstBlockHeight == -1 || previousYBlock == 0) &&  density < 16)
             {
-                return BlockShape.Slab;
+                return BlockGeoManager.slab.Id;
             }
-            return BlockShape.Cube;
+            return BlockGeoManager.cube.Id;
         }
 
 		private float CalculateDensity(int x, int y, int z, float temp, float humidity, float sea, float height) {

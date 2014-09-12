@@ -8,28 +8,20 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AssemblyCSharp
 {
 	public class Block
 	{
-        //public static Block[] blockList = new Block[256];
-        //public static int[] blockOpacity = new int[256];
 
+        private float tUnit = 0.25f;
 
-		//public BlockType BlkType { get; set; }
 		public Vector2 Texture {get; set; }
-
         public int Id { get; private set; }
         private readonly string name;
 
-
-        //x1, y1, z1, x2, y2, z2
-        //public readonly float[] bounds = new float[6] { 0, 0, 0, 1, 1, 1};
-        
-        
-        //private bool[]
 
 
         public Block(int id, string name, string textureName) {
@@ -51,7 +43,8 @@ namespace AssemblyCSharp
         {
             return 16;
         }
-         
+
+
 
 	}
 }

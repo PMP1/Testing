@@ -113,7 +113,7 @@ namespace AssemblyCSharp
                         }
 
                         sections[section].SetBlockId(x, y & 15, z, block);
-                        sections[section].SetGeoBlockId(x, y & 15, z, block);
+                        sections[section].SetGeoBlockId(x, y & 15, z, geo);
                     }
                 }
             }

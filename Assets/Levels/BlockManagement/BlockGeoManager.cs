@@ -8,27 +8,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
-using UnityEngine;
-
 namespace AssemblyCSharp
 {
-    public class BlockRenderer
+    public static class BlockGeoManager
     {
-        public BlockRenderer()
-        {
-        }
 
+        public static BlockGeo[] geoList = new BlockGeo[16];
+        
+        public static BlockGeo cube = new GeoCube(0, "Cube");
+        public static BlockGeo slab = new GeoCube(1, "Slab");
 
-        public void RenderFace(Vector3[] newVertices, int x, int y, int z, int face)
-        {
-
-            /*switch (face)
-            {
-                case 
-            }*/
-
-
-        }
 
     }
 }

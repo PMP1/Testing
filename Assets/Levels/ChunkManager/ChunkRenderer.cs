@@ -20,15 +20,15 @@ namespace AssemblyCSharp
         private World world;
         private ChunkManager chunkManager;
 
-        private List<Vector3> newVertices = new List<Vector3> ();
-        private List<int> newTriangles = new List<int> ();
-        private List<Vector2> newUV = new List<Vector2> ();
-        private List<Vector3> newColliderVertices = new List<Vector3> ();
-        private List<int> newColliderTriangles = new List<int> ();
-        private List<Color> newColor = new List<Color> ();
+        public List<Vector3> newVertices = new List<Vector3> ();
+        public List<int> newTriangles = new List<int> ();
+        public List<Vector2> newUV = new List<Vector2> ();
+        public List<Vector3> newColliderVertices = new List<Vector3> ();
+        public List<int> newColliderTriangles = new List<int> ();
+        public List<Color> newColor = new List<Color> ();
         private float tUnit = 0.25f;
 
-        private int faceCount = 0;
+        public int faceCount = 0;
 
         private SectionColliderGenerator colliderGenerator;
         private bool smoothLighting = true;
@@ -227,8 +227,6 @@ namespace AssemblyCSharp
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
             int posy;
-            GeoCube cube = new GeoCube();
-
 
             for (int x = 0; x < 16; x++)
             {
@@ -236,77 +234,26 @@ namespace AssemblyCSharp
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        //posx = x + (chunkx * 16);
                         posy = y + (section.posY * 16);
-                        //posz = z + (chunkz * 16);
 
                         byte id = section.GetBlockId(x, y, z);
-                        byte geo = section.GetGeoBlockId(x, y, z);
+                       
+
 
 
                         if (id != (byte)0)//|| block.LightOpacity < 16)
                         {
+                            byte geo = section.GetGeoBlockId(x, y, z);
+
+
+                            BlockGeo geoBlock = BlockGeoManager.geoList[geo];
                             Block block = BlockManager.GetBlock((byte)id);
 
-                            /*int blockT = this.GetBlockId(x, posy + 1, z);
-                            int blockB = this.GetBlockId(x, posy - 1, z);
-                            int blockN = this.GetBlockId(x, posy, z + 1);
-                            int blockE = this.GetBlockId(x + 1, posy, z);
-                            int blockS = this.GetBlockId(x, posy, z - 1);
-                            int blockW = this.GetBlockId(x - 1, posy, z);
-*/
+
                             System.DateTime startCreateSmoothLight;
                             double currentlighting = 0;
-                           
-                            //  7 - 6 
-                            //  | 4 + 5
-                            //  3 + 2 |
-                            //    0 - 1
-                            //  
 
-                            int t = this.GetBlockId(x, posy + 1, z);
-                            if (t == 0)
-                            {
-                                Cube(block, x, y, z, 4, 7, 6, 5);
-                                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
-                                
-                            }
-
-                            int b = this.GetBlockId(x, posy - 1, z);
-                            if (b == 0)
-                            {
-                                Cube(block, x, y, z, 2, 1, 0, 3);
-                                CubeLight(x, posy, z, 1, -1, -1, -1, 1, -1);
-                                
-                            }
-
-                            int s = this.GetBlockId(x, posy, z - 1);
-                            if (s == 0)
-                            {
-                                Cube(block, x, y, z, 0, 4, 5, 1);
-                                CubeLight(x, posy, z, -1, 1, -1, 1, -1, -1);
-                            }
-
-                            int w = this.GetBlockId(x - 1, posy, z);
-                            if (w == 0)
-                            {
-                                Cube(block, x, y, z, 3, 7, 4, 0);
-                                CubeLight(x, posy, z, -1, -1, -1, 1, 1, -1);
-                            }
-
-                            int n = this.GetBlockId(x, posy, z + 1);
-                            if (n == 0)
-                            {
-                                Cube(block, x, y, z, 2, 6, 7, 3);
-                                CubeLight(x, posy, z, 1, -1, -1, 1, 1, 1);
-                            }
-
-                            int e = this.GetBlockId(x + 1, posy, z);
-                            if (e == 0)
-                            {
-                                Cube(block, x, y, z, 1, 5, 6, 2);
-                                CubeLight(x, posy, z, 1, 1, -1, 1, -1, 1);
-                            }
+                            geoBlock.Render(block, this, x, y, posy, z);
 
                             StatsEngine.SectionSmoothLighting += (float)currentlighting;
                         }
@@ -314,123 +261,6 @@ namespace AssemblyCSharp
                 }
             }
         }
-
-        private void Cube (Block block, int x, int y, int z, int vert1, int vert2, int vert3, int vert4 )
-        {
-            //  7 - 6 
-            //  | 4 + 5
-            //  3 + 2 |
-            //    0 - 1
-            //                0, 1, 2, 3, 4, 5, 6, 7
-            int[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-            int[] y_points = {0, 0, 0, 0, 1, 1, 1, 1};
-            int[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                        
-            //addVerts(x, y, z, 4, 7, 6, 5);
-            newVertices.Add(new Vector3(x + x_points[vert1],y + y_points[vert1],z + z_points[vert1]));
-            newVertices.Add(new Vector3(x + x_points[vert2],y + y_points[vert2],z + z_points[vert2]));
-            newVertices.Add(new Vector3(x + x_points[vert3],y + y_points[vert3],z + z_points[vert3]));
-            newVertices.Add(new Vector3(x + x_points[vert4],y + y_points[vert4],z + z_points[vert4]));
-            Vector2 texturePos = block.Texture;
-            Cube(texturePos);
-        }
-
-        private void CubeLight(int x, int y, int z, int xmin, int xmax, int ymin, int ymax, int zmin, int zmax)
-        {
-            int[] blocks1 = new int[9];
-
-            if (ymin == ymax)
-            {
-                blocks1 [0] = this.GetDaylightValue(x + xmin, y + ymin, z + zmin);
-                blocks1 [1] = this.GetDaylightValue(x       , y + ymin, z + zmin);
-                blocks1 [2] = this.GetDaylightValue(x + xmax, y + ymin, z + zmin);
-                blocks1 [3] = this.GetDaylightValue(x + xmin, y + ymin, z       );
-                blocks1 [4] = this.GetDaylightValue(x,        y + ymin, z       );
-                blocks1 [5] = this.GetDaylightValue(x + xmax, y + ymin, z       );
-                blocks1 [6] = this.GetDaylightValue(x + xmin, y + ymin, z + zmax);
-                blocks1 [7] = this.GetDaylightValue(x,        y + ymin, z + zmax);
-                blocks1 [8] = this.GetDaylightValue(x + xmax, y + ymin, z + zmax);
-            
-            } else if (xmin == xmax)
-            {
-                blocks1 [0] = this.GetDaylightValue(x + xmin, y + ymin, z + zmin);
-                blocks1 [1] = this.GetDaylightValue(x + xmin, y + ymin, z       );
-                blocks1 [2] = this.GetDaylightValue(x + xmin, y + ymin, z + zmax);
-                blocks1 [3] = this.GetDaylightValue(x + xmin, y,        z + zmin);
-                blocks1 [4] = this.GetDaylightValue(x + xmin, y,        z       );
-                blocks1 [5] = this.GetDaylightValue(x + xmin, y,        z + zmax);
-                blocks1 [6] = this.GetDaylightValue(x + xmin, y + ymax, z + zmin);
-                blocks1 [7] = this.GetDaylightValue(x + xmin, y + ymax, z       );
-                blocks1 [8] = this.GetDaylightValue(x + xmin, y + ymax, z + zmax);
-            
-            } else if (zmin == zmax)
-            {
-                blocks1 [0] = this.GetDaylightValue(x + xmin, y + ymin, z + zmin); // -1-1-1  1 1 1
-                blocks1 [1] = this.GetDaylightValue(x,        y + ymin, z + zmin); // 0 -1-1  0 1 1
-                blocks1 [2] = this.GetDaylightValue(x + xmax, y + ymin, z + zmin); // 1 -1-1 -1 1 1
-                blocks1 [3] = this.GetDaylightValue(x + xmin, y,        z + zmin); // -1 0-1  1 0 1
-                blocks1 [4] = this.GetDaylightValue(x,        y,        z + zmin); //  0 0-1  0 0 1
-                blocks1 [5] = this.GetDaylightValue(x + xmax, y,        z + zmin);
-                blocks1 [6] = this.GetDaylightValue(x + xmin, y + ymax, z + zmin);
-                blocks1 [7] = this.GetDaylightValue(x,        y + ymax, z + zmin);
-                blocks1 [8] = this.GetDaylightValue(x + xmax, y + ymax, z + zmin);
-            }
-           
-            float c1 = GetAverageLight(blocks1[0], blocks1[1], blocks1[3], blocks1[4]);
-            float c2 = GetAverageLight(blocks1[3], blocks1[4], blocks1[6], blocks1[7]);
-            float c3 = GetAverageLight(blocks1[7], blocks1[8], blocks1[4], blocks1[5]);
-            float c4 = GetAverageLight(blocks1[1], blocks1[2], blocks1[4], blocks1[5]);
-            
-            CubeLight(c1, c2, c3, c4);
-        }
-
-
-        private float GetAverageLight(byte side1, byte side2, byte side3, byte side4)
-        {
-            return ((float)(side1 + side2 + side3 + side4)) / 64f;//(16f * 4f);
-        }
-
-        private float GetAverageLight(int side1, int side2, int side3, int side4)
-        {
-            return ((float)(side1 + side2 + side3 + side4)) / 64f;//(16f * 4f);
-        }
-
-
-        void CubeLight(int defaultLevel) {
-
-            float level = defaultLevel / 15f;
-
-            newColor.Add(new Color(0f,0f,0f,level));
-            newColor.Add(new Color(0f,0f,0f,level));
-            newColor.Add(new Color(0f,0f,0f,level));
-            newColor.Add(new Color(0f,0f,0f,level));
-        }
-
-        void CubeLight(float c1, float c2, float c3, float c4) {
-            
-            newColor.Add(new Color(0f,0f,0f,c1));
-            newColor.Add(new Color(0f,0f,0f,c2));
-            newColor.Add(new Color(0f,0f,0f,c3));
-            newColor.Add(new Color(0f,0f,0f,c4));
-        }
-
-        void Cube (Vector2 texturePos)
-        {
-            newTriangles.Add (faceCount * 4); //1
-            newTriangles.Add (faceCount * 4 + 1); //2
-            newTriangles.Add (faceCount * 4 + 2); //3
-            newTriangles.Add (faceCount * 4); //1
-            newTriangles.Add (faceCount * 4 + 2); //3
-            newTriangles.Add (faceCount * 4 + 3); //4
-            
-            newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
-            newUV.Add (new Vector2 (tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
-            newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
-            newUV.Add (new Vector2 (tUnit * texturePos.x, tUnit * texturePos.y));
-                        
-            faceCount++; // Add this line
-        }
-
 
 
     }
