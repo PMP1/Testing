@@ -312,6 +312,43 @@ namespace AssemblyCSharp
             return manager.DoChunksExist(x, y, z, blockDist);
         }
 
+        #region geo 
+
+        public byte GetGeoBlockId(int x, int y, int z)
+        {
+            int secY = y / 16;
+            if (sections.Length < secY)
+                return 0;
+            
+            Section2 sec = this.sections [secY];
+            
+            if (sec == null)
+            {
+                return 0;
+            } else
+            {
+                int secYPos = y - (secY * 16); //TODO check this for speed issues
+                return sec.GetGeoBlockId(x, secYPos, z);
+            }
+        }
+
+        private int PosGetGeoBlockId(int posx, int y, int posz)
+        {
+            if (y >= 256 || y <= 0)
+                return 0;
+            
+            int chunkX = posx >> 4;
+            int chunkZ = posz >> 4;
+            int x = posx - chunkX * 16;
+            int z = posz - chunkZ * 16;
+            
+            Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
+            
+            return chunk.GetGeoBlockId(x, y, z);
+        }
+
+        #endregion
+
         #region light operators
 
         public byte GetDaylightValue(int x, int y, int z)
@@ -761,24 +798,31 @@ namespace AssemblyCSharp
                 opacity = BlockManager.blockOpacity [blockId];
             }
 
-
-            if (xPosition == 9 && zPosition == 8 && x == 0  && z == 0 && y >= 192 && y <= 194)
-            {
-                var i = 0;
-            }
+            int blockGeoId = PosGetGeoBlockId(x + xPosition * 16, y, z + zPosition * 16);
+            float val = BlockGeoManager.fillList[blockGeoId];
 
 
-            if (opacity >= 15)
+
+
+
+
+            if (opacity >= 15 && val == 1)
             {
                 return 0;
             }
+
+            opacity = (int)(opacity * val);
+
+
+            if (opacity < 0)
+                opacity = 2;
             
-            n-=2;
-            s-=2;
-            e-=2;
-            w-=2;
-            t-=2;
-            b-=2;
+            n-=opacity;
+            s-=opacity;
+            e-=opacity;
+            w-=opacity;
+            t-=opacity;
+            b-=opacity;
             
             if (n > level)
                 level = n;

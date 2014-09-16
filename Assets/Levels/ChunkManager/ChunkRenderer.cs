@@ -224,6 +224,59 @@ namespace AssemblyCSharp
             }
         }
 
+        //local values
+        public byte GetGeoBlockId(int x, int y, int z)
+        {
+            byte value = 0;
+            
+            if (y >= 256 || y < 0)
+            {
+                return (byte)0;
+            } else
+            {
+                if (x < 0)
+                {
+                    if (z < 0)
+                    {
+                        value = chunk.ChunkSouthWest.GetGeoBlockId(x + 16, y, z + 16);
+                    } else if (z >= 16)
+                    {
+                        value = chunk.ChunkNorthWest.GetGeoBlockId(x + 16, y, z - 16);
+                    } else
+                    {
+                        value = chunk.ChunkWest.GetGeoBlockId(x + 16, y, z);
+                    }
+                } else if (x >= 16)
+                {
+                    if (z < 0)
+                    {
+                        value = chunk.ChunkSouthEast.GetGeoBlockId(x - 16, y, z + 16);
+                    } else if (z >= 16)
+                    {
+                        value = chunk.ChunkNorthEast.GetGeoBlockId(x - 16, y, z - 16);
+                    } else
+                    {
+                        value = chunk.ChunkEast.GetGeoBlockId(x - 16, y, z);
+                    }
+                } else
+                {
+                    //center
+                    if (z < 0)
+                    {
+                        value = chunk.ChunkSouth.GetGeoBlockId(x, y, z + 16);
+                    } else if (z >= 16)
+                    {
+                        value = chunk.ChunkNorth.GetGeoBlockId(x, y, z - 16);
+                    } else
+                    {
+                        value = chunk.GetGeoBlockId(x, y, z);
+                    }
+                }
+                return value;
+            }
+        }
+
+
         private void GenerateMesh(Section2 section, Chunk2 chunk) 
         {
             int posy;
@@ -244,7 +297,6 @@ namespace AssemblyCSharp
                         if (id != (byte)0)//|| block.LightOpacity < 16)
                         {
                             byte geo = section.GetGeoBlockId(x, y, z);
-
 
                             BlockGeo geoBlock = BlockGeoManager.geoList[geo];
                             Block block = BlockManager.GetBlock((byte)id);

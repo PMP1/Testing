@@ -14,9 +14,10 @@ namespace AssemblyCSharp
     {
 
         public static BlockGeo[] geoList = new BlockGeo[16];
+        public static float[] fillList = new float[16];
         
         public static BlockGeo cube = new GeoCube(0, "Cube");
-        public static BlockGeo slab = new GeoCube(1, "Slab");
+        public static BlockGeo slab = new GeoSlab(1, "Slab");
 
 
     }

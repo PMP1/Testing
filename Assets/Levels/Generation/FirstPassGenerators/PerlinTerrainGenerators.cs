@@ -172,7 +172,7 @@ namespace AssemblyCSharp
                                     firstBlockHeight = y;
                                     chunk.SetHeightMap(x, z, (byte)(y + 1));
                                 } 
-                                SetBlock(x, y, z, firstBlockHeight, bio, data, previousBlock);
+                                SetBlock(x, y, z, firstBlockHeight, bio, data, ref previousBlock);
                             } else
                             {
                                 SetData(data, x, y, z, 0);
@@ -186,7 +186,6 @@ namespace AssemblyCSharp
                             // Some block was set...
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.4)
                             {
-                                //geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
                                 SetData(geometryData, x, y, z, CalculateGeometry(firstBlockHeight, previousBlock, dens));
 
                                 if (firstBlockHeight == -1)
@@ -194,7 +193,7 @@ namespace AssemblyCSharp
                                     firstBlockHeight = y;
                                     chunk.SetHeightMap(x, z, (byte)(y + 1));
                                 }
-                                SetBlock(x, y, z, firstBlockHeight, bio, data, previousBlock);
+                                SetBlock(x, y, z, firstBlockHeight, bio, data, ref previousBlock);
                             } else
                             {
                                 SetData(data, x, y, z, 0);
@@ -213,7 +212,7 @@ namespace AssemblyCSharp
 
         private int CalculateGeometry(int firstBlockHeight, int previousYBlock, float density)
         {
-            if ((firstBlockHeight == -1 || previousYBlock == 0) &&  density < 16)
+            if ((firstBlockHeight == -1 || previousYBlock == 0) &&  density < 0.5f)
             {
                 return BlockGeoManager.slab.Id;
             }
@@ -311,7 +310,7 @@ namespace AssemblyCSharp
             }
         }
 
-		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data, int previousBlock) {
+		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data, ref int previousBlock) {
 			
             int depth = y - firstBlock;
 			

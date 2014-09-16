@@ -38,12 +38,12 @@ namespace AssemblyCSharp
 		West
 	}*/
 
-    public class BlockGeo 
+    public abstract class BlockGeo 
     {
         public int Id { get; private set; }
         private readonly string name;
         private ChunkRenderer cr;
-
+        public float[] completeFace = {1, 1, 1, 1, 1, 1};
 
         public BlockGeo(int id, string name)
         {
@@ -55,7 +55,10 @@ namespace AssemblyCSharp
                 throw new Exception("Block Geo ID " + id.ToString() + " already exists for" + name);
             }
             BlockGeoManager.geoList [id] = this;
+            BlockGeoManager.fillList [id] = this.GetFillValue();
         }
+
+        public abstract float GetFillValue();
 
 
         public virtual void Render(Block block, ChunkRenderer cr, int x, int y, int posy, int z)

@@ -22,7 +22,12 @@ namespace AssemblyCSharp
         public GeoCube(int id, string name)
             : base(id, name)
         {
+            completeFace = new float[] {1, 1, 1, 1, 1, 1};
+        }
 
+        public override float GetFillValue()
+        {
+            return 1;
         }
 
         public override void Render(Block block, ChunkRenderer cr, int x, int y, int posy, int z)
@@ -34,46 +39,53 @@ namespace AssemblyCSharp
             int w = cr.GetBlockId(x - 1, posy, z);
             int n = cr.GetBlockId(x, posy, z + 1);
             int e = cr.GetBlockId(x + 1, posy, z);
+
+            int gt = cr.GetGeoBlockId(x, posy + 1, z);
+            int gb = cr.GetGeoBlockId(x, posy - 1, z);
+            int gs = cr.GetGeoBlockId(x, posy, z - 1);
+            int gw = cr.GetGeoBlockId(x - 1, posy, z);
+            int gn = cr.GetGeoBlockId(x, posy, z + 1);
+            int ge = cr.GetGeoBlockId(x + 1, posy, z);
             
             
-            if (t == 0)
+            if (t == 0 || BlockGeoManager.geoList[gt].completeFace[5] != 1)
             {
                 Cube(block, x, y, z, 4, 7, 6, 5);
                 CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
             }
             
-            if (b == 0)
-            {
-                Cube(block, x, y, z, 2, 1, 0, 3);
-                CubeLight(x, posy, z, 1, -1, -1, -1, 1, -1);
-            }
-            
-            
-            if (s == 0)
-            {
-                Cube(block, x, y, z, 0, 4, 5, 1);
-                CubeLight(x, posy, z, -1, 1, -1, 1, -1, -1);
-            }
-            
-            
-            if (w == 0)
-            {
-                Cube(block, x, y, z, 3, 7, 4, 0);
-                CubeLight(x, posy, z, -1, -1, -1, 1, 1, -1);
-            }
-            
-            if (n == 0)
+                      
+            if (n == 0 || BlockGeoManager.geoList[gn].completeFace[3] != 1)
             {
                 Cube(block, x, y, z, 2, 6, 7, 3);
                 CubeLight(x, posy, z, 1, -1, -1, 1, 1, 1);
             }
             
-            if (e == 0)
+            if (e == 0 || BlockGeoManager.geoList[ge].completeFace[4] != 1)
             {
                 Cube(block, x, y, z, 1, 5, 6, 2);
                 CubeLight(x, posy, z, 1, 1, -1, 1, -1, 1);
             }
+
+            if (s == 0 || BlockGeoManager.geoList[gs].completeFace[1] != 1)
+            {
+                Cube(block, x, y, z, 0, 4, 5, 1);
+                CubeLight(x, posy, z, -1, 1, -1, 1, -1, -1);
+            }
+                        
+            if (w == 0 || BlockGeoManager.geoList[gw].completeFace[2] != 1)
+            {
+                Cube(block, x, y, z, 3, 7, 4, 0);
+                CubeLight(x, posy, z, -1, -1, -1, 1, 1, -1);
+            }
+
+            if (b == 0 || BlockGeoManager.geoList[gb].completeFace[0] != 1)
+            {
+                Cube(block, x, y, z, 2, 1, 0, 3);
+                CubeLight(x, posy, z, 1, -1, -1, -1, 1, -1);
+            }
             
+
             this.cr = null;
         }
         
