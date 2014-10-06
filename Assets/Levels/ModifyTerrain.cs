@@ -84,7 +84,7 @@ public class ModifyTerrain : MonoBehaviour {
                 }
             }
         }
-        //world.chunkManager.GetChunk(8, 11).SetBlockId(0, 203, 4, (byte)5);
+        world.chunkManager.GetChunk(-60, -24).SetBlockId(0, 34, 0, (byte)5);
         
         //world.chunkManager.GetChunk(9, 8).SetBlockId(0, 192, 0, (byte)5);
         //world.chunkManager.GetChunk(9, 8).SetBlockId(0, 188, 0, (byte)5);

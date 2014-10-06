@@ -160,23 +160,30 @@ namespace AssemblyCSharp
                         
                         if ((dens >= 0 && dens < 32))
                         {
-                            
                             // Some block was set...                       
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.7)
                             {
-                                //geometryData[x + 16 * (z + 16 * y)] = (byte)CalculateGeometry(firstBlockHeight, previousBlock, dens);
-                                SetData(geometryData, x, y, z, CalculateGeometry(firstBlockHeight, previousBlock, dens));
+                                //TODO move this to Setblock
+                                //int geo = CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                //SetData(geometryData, x, y, z, geo);
 
-                                if (firstBlockHeight == -1)
+                                //TODO needs to only happen at the end of loop!!!
+                                /*if (firstBlockHeight == -1)
+                                    *
                                 {
                                     firstBlockHeight = y;
-                                    chunk.SetHeightMap(x, z, (byte)(y + 1));
-                                } 
-                                SetBlock(x, y, z, firstBlockHeight, bio, data, ref previousBlock);
+                                    if (geo == BlockGeoManager.cube.Id)
+                                    {
+                                        chunk.SetHeightMap(x, z, (byte)(y + 1));
+                                    } else 
+                                    {
+                                        chunk.SetHeightMap(x, z, (byte)(y));
+                                    }
+                                } */
+                                SetBlock(x, y, z, ref firstBlockHeight, bio, data, ref previousBlock, dens, geometryData);
                             } else
                             {
                                 SetData(data, x, y, z, 0);
-                                //data [x + 16 * (z + 16 * y)] = (byte)BlockType.Air;
                                 previousBlock = 0;
                             }
                             
@@ -186,14 +193,26 @@ namespace AssemblyCSharp
                             // Some block was set...
                             if (calcCaveDensity(posX + x, y, posZ + z) > -0.4)
                             {
-                                SetData(geometryData, x, y, z, CalculateGeometry(firstBlockHeight, previousBlock, dens));
+
+                                /*int geo = CalculateGeometry(firstBlockHeight, previousBlock, dens);
+                                SetData(geometryData, x, y, z, geo);
 
                                 if (firstBlockHeight == -1)
                                 {
                                     firstBlockHeight = y;
-                                    chunk.SetHeightMap(x, z, (byte)(y + 1));
+                                    if (geo == BlockGeoManager.cube.Id)
+                                    {
+                                        chunk.SetHeightMap(x, z, (byte)(y + 1));
+                                    } else 
+                                    {
+                                        chunk.SetHeightMap(x, z, (byte)(y));
+                                    }
+
                                 }
                                 SetBlock(x, y, z, firstBlockHeight, bio, data, ref previousBlock);
+                                */
+                                SetBlock(x, y, z, ref firstBlockHeight, bio, data, 
+                                         ref previousBlock, dens, geometryData);
                             } else
                             {
                                 SetData(data, x, y, z, 0);
@@ -310,12 +329,34 @@ namespace AssemblyCSharp
             }
         }
 
-		private void SetBlock(int x, int y, int z, int firstBlock, BiomeType.Biome biome, byte[] data, ref int previousBlock) {
+		private void SetBlock(int x, int y, int z, ref int firstBlock, BiomeType.Biome biome, byte[] data, 
+                              ref int previousBlock, float density, byte[] geometryData) {
 			
-            int depth = y - firstBlock;
-			
-            int block = 0;
+            bool slab = false;
 
+            if ((firstBlock == -1 || previousBlock == 0) &&  density < 0.5f)
+            {
+                slab = true;
+            }
+            
+            if (firstBlock == -1)
+            {
+                firstBlock = y;
+                if (!slab)
+                {
+                    firstBlock = y + 1;
+                } else 
+                {
+                    firstBlock = y;
+                }
+            } 
+            
+            
+            
+            
+            int depth = y - firstBlock;
+            int block = 0;
+            
             switch (biome)
             {	
                 case BiomeType.Biome.Desert:
@@ -373,6 +414,19 @@ namespace AssemblyCSharp
                     break;
             }
 
+            if (slab == true && block == BlockManager.sand.Id)
+            {
+                SetData(geometryData, x, y, z, BlockGeoManager.autoSlab.Id);
+            } 
+            else if (slab)
+            {
+                SetData(geometryData, x, y, z, BlockGeoManager.slab.Id);
+            } 
+            else
+            {
+                SetData(geometryData, x, y, z, BlockGeoManager.cube.Id);
+            }
+
             previousBlock = block;
             SetData(data, x, y, z, block);
         }
@@ -382,6 +436,11 @@ namespace AssemblyCSharp
             //y << 8 | z<< 4 | x
             data [y << 8 | z << 4 | x] = (byte)blockId;//* (z + 16 * y)] = (byte)block;
             //data [x + 16 * (z + 16 * y)] = (byte)block;
+        }
+
+        private void SetHeight()
+        {
+//            chunk.SetHeightMap(x, z, (byte)(y + 1));
         }
     }
 

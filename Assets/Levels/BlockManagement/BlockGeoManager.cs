@@ -18,6 +18,7 @@ namespace AssemblyCSharp
         
         public static BlockGeo cube = new GeoCube(0, "Cube");
         public static BlockGeo slab = new GeoSlab(1, "Slab");
+        public static BlockGeo autoSlab = new GeoAutoSlopeSlab(2, "AutoSlab");
 
 
     }

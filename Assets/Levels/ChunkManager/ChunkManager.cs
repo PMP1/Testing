@@ -409,7 +409,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SetLightValue(int x, int y, int z, int level)
+        /*public void SetLightValue(int x, int y, int z, int level)
         {
             if (y >= 256 || y < 0)
             {
@@ -429,7 +429,7 @@ namespace AssemblyCSharp
                 }
                 chunk.SetDaylightValue(xSectionPos, y, zSectionPos, (byte)level);
             }
-        }
+        }*/
 
         public void UpdateDaylight(byte light)
         {

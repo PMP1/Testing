@@ -117,10 +117,7 @@ namespace AssemblyCSharp
                     }
                 }
             }
-            if (xPosition == 7 && zPosition == 7)
-            {
-                int ii = 0;
-            }
+
             SetFirstSection();
             GenerateDaylight();
         }
@@ -369,10 +366,10 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SetDaylightValue(int x, int y, int z, byte level)
+        /*public void SetDaylightValue(int x, int y, int z, byte level)
         {
             int secY = y / 16;
-            if (sections.Length < secY)
+         *   if (sections.Length < secY)
                 return;
             
             Section2 sec = this.sections [secY];
@@ -385,7 +382,7 @@ namespace AssemblyCSharp
                 int secYPos = y - (secY * 16); //TODO check this for speed issues
                 sec.SetDatlightData(x, secYPos, z, level);
             }
-        }
+        }*/
 
         public int GetLightOpacity(int x, int y, int z) 
         {
@@ -468,10 +465,6 @@ namespace AssemblyCSharp
 
                         for (int y = c; y < n; y++)
                         {
-                            if (xPosition == 9 && zPosition == 8 && x == 0  && z == 0 && y == 208)
-                            {
-                                var i = 0;
-                            }
 
                             UpdateLightBlock(x, y, z, 15);
                             UpdateLightBlock(x, y, z + 1, 15);
@@ -607,7 +600,12 @@ namespace AssemblyCSharp
             int chunkZ = posz >> 4;
             int x = posx - chunkX * 16;
             int z = posz - chunkZ * 16;
-            
+
+            if (chunkX == -60 && chunkZ == -24 && x == 0 && z == 0 && y == 34)
+            {
+                var i = 0;
+            }
+
             Chunk2 chunk = GetChunk(chunkX - xPosition, chunkZ - zPosition);
 
             return chunk.GetChunkLight(x, y, z);
@@ -636,9 +634,23 @@ namespace AssemblyCSharp
         private bool FacesTheSky(int x, int y, int z)
         {
             int height = GetHeightMap(x, z);
+            int geo = GetGeoBlockId(x, y, z);
+
+            if (this.xPosition == -60 && this.zPosition == -24 && x == 0 && z == 0 && y == 35)
+            {
+                var i = 0;
+            }
+
+            if (this.xPosition == -60 && this.zPosition == -24 && x == 0 && z == 0 && y == 34)
+            {
+                var i = 0;
+            }
+
 
             if (y >= height)
                 return true;
+            //else if (geo == BlockGeoManager.slab.Id && y >= height - 1)
+            //    return true;
             else 
                 return false;
         }
@@ -701,10 +713,19 @@ namespace AssemblyCSharp
                 bool neightboursLoaded = false;
                 
                 BlockLightUpdate block = collection [current++];
+
+
                 
+
+
                 int posX = block.posX;
                 int posY = block.posY;
                 int posZ = block.posZ;
+
+                if (xPosition == -60 && zPosition == -24 && posX == 0 && posZ == 0 )//&& (posY >= 32 || posY <= 26) )
+                {
+                    var i = 0;
+                }
 
                 int savedValue = PosGetLight(posX + (xPosition * 16), posY, posZ + (zPosition * 16));
 
@@ -815,7 +836,7 @@ namespace AssemblyCSharp
 
 
             if (opacity < 0)
-                opacity = 2;
+                opacity = 1;
             
             n-=opacity;
             s-=opacity;
