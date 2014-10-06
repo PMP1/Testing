@@ -71,35 +71,9 @@ namespace AssemblyCSharp
                 west = false;
 
 
-                       
-            /*if (s == 0)
-            {
-
-                Cube(block, x, y, z, 0, 4, 5, 1);
-                CubeLight(x, posy, z, -1, 1, -1, 1, -1, -1);
-
-
-            }
-            
-            
-            if (w == 0)
-            {
-                Cube(block, x, y, z, 3, 7, 4, 0);
-                CubeLight(x, posy, z, -1, -1, -1, 1, 1, -1);
-            }
-            
-            if (n == 0)
-            {
-                Cube(block, x, y, z, 2, 6, 7, 3);
-                CubeLight(x, posy, z, 1, -1, -1, 1, 1, 1);
-            }
-            
-            if (e == 0)
-            {
-                Cube(block, x, y, z, 1, 5, 6, 2);
-                CubeLight(x, posy, z, 1, 1, -1, 1, -1, 1);
-            }*/
-
+            float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
+            float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
+            float[] y_points = {};
             //  7 - 6 
             //  | 4 + 5
             //  3 + 2 |
@@ -107,78 +81,71 @@ namespace AssemblyCSharp
             //    
             if (!north && south && east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0.5f, 0.5f, 0, 0};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0, 0};
             } else if (north && !south && east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0, 0, 0.5f, 0.5f};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0, 0, 0.5f, 0.5f};
             } else if (north && south && !east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0.5f, 0, 0, 0.5f};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0.5f, 0, 0, 0.5f};
             } else if (north && south && east && !west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0, 0.5f, 0.5f, 0};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0.5f, 0};
             } else if (!north && south && !east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0.5f, 0, 0, 0};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0.5f, 0, 0, 0};
             } else if (north && !south && !east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0, 0, 0, 0.5f};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0, 0, 0, 0.5f};
             } else if (north && !south && east && !west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0, 0, 0.5f, 0};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0, 0, 0.5f, 0};
             } else if (!north && south && east && !west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0, 0.5f, 0, 0};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
-                Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
-                CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
+                y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0, 0};
             } else if (north && south && east && west)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0.5f};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
-                
+                int se = cr.GetBlockId(x + 1, posy, z - 1);
+                int sw = cr.GetBlockId(x - 1, posy, z - 1);
+                int ne = cr.GetBlockId(x + 1, posy, z + 1);
+                int nw = cr.GetBlockId(x - 1, posy, z + 1);
+
+                bool southEast = true;
+                bool northEast = true;
+                bool southWest = true;
+                bool northWest = true;
+
+                if (se == 0)
+                    southEast = false;
+
+                if (sw == 0)
+                    southWest = false;
+
+                if (ne == 0)
+                    northEast = false;
+
+                if (nw == 0)
+                    northWest = false;
+
+                if (northEast && northWest && southEast && southWest)
+                {
+                    y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0.5f};
+                } else if (!northEast && northWest && southEast && southWest) {
+                    y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0, 0.5f};
+                } else if (northEast && !northWest && southEast && southWest) {
+                    y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0};
+                } else if (northEast && northWest && !southEast && southWest) {
+                    y_points = new float[] {0, 0, 0, 0, 0.5f, 0, 0.5f, 0.5f};
+                } else if (northEast && northWest && southEast && !southWest) {
+                    y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0.5f, 0.5f};
+                }
+            }
+
+            if (y_points.Length != 0)
+            {
                 Cube(block, x, y, z, 4, 7, 6, 5, x_points, y_points, z_points);
                 CubeLight(x, posy, z, -1, 1, 1, 1, -1, 1);
             }
-
             /*if (t == 0)
             {
                 Cube(block, x, y, z, 4, 7, 6, 5);
@@ -187,9 +154,9 @@ namespace AssemblyCSharp
             
             if (b == 0)
             {
-                float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
-                float[] y_points = {0, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0.5f};
-                float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
+                x_points = new float[] {0, 1, 1, 0, 0, 1, 1, 0};
+                y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0.5f, 0.5f};
+                z_points = new float[] {0, 0, 1, 1, 0, 0, 1, 1};
 
                 Cube(block, x, y, z, 2, 1, 0, 3, x_points, y_points, z_points);
                 CubeLight(x, posy, z, 1, -1, -1, -1, 1, -1);
