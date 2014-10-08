@@ -70,18 +70,62 @@ namespace AssemblyCSharp
             if (w == 0)
                 west = false;
 
+            int se = cr.GetBlockId(x + 1, posy, z - 1);
+            int sw = cr.GetBlockId(x - 1, posy, z - 1);
+            int ne = cr.GetBlockId(x + 1, posy, z + 1);
+            int nw = cr.GetBlockId(x - 1, posy, z + 1);
+            
+            bool southEast = true;
+            bool northEast = true;
+            bool southWest = true;
+            bool northWest = true;
+            
+            if (se == 0)
+                southEast = false;
+            
+            if (sw == 0)
+                southWest = false;
+            
+            if (ne == 0)
+                northEast = false;
+            
+            if (nw == 0)
+                northWest = false;
 
             float[] x_points = {0, 1, 1, 0, 0, 1, 1, 0};
             float[] z_points = {0, 0, 1, 1, 0, 0, 1, 1};
             float[] y_points = {};
+
             //  7 - 6 
             //  | 4 + 5
             //  3 + 2 |
             //    0 - 1
-            //    
+
+
+       /*       + - + - + - +
+                |   |   |   |
+                + - + - + - +
+                |   |   |   |
+                + - + - + - +
+                |   |   |   |
+                + - + - + - +     */
+
             if (!north && south && east && west)
             {
-                y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0, 0};
+                if(southEast && southWest) 
+                {
+                    y_points = new float[] {0, 0, 0, 0, 0.5f, 0.5f, 0, 0};
+                } else if (!northWest && !southWest)
+                {
+                    y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0, 0.5f};
+                    x_points = new float[] {0, 1, 1, 0, 0, 1, 1, 0};
+                    z_points = new float[] {0, 0, 1, 1, 0, 0, 1, 0.5f};
+
+                } else if (!northEast || !southEast)
+                {
+                    
+                }
+
             } else if (north && !south && east && west)
             {
                 y_points = new float[] {0, 0, 0, 0, 0, 0, 0.5f, 0.5f};
@@ -90,7 +134,16 @@ namespace AssemblyCSharp
                 y_points = new float[] {0, 0, 0, 0, 0.5f, 0, 0, 0.5f};
             } else if (north && south && east && !west)
             {
-                y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0.5f, 0};
+                if(southEast && northEast) 
+                {
+                    y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0.5f, 0};
+                } else if (!southEast || !southWest)
+                {
+
+                } else if (!northEast || !northWest)
+                {
+
+                }
             } else if (!north && south && !east && west)
             {
                 y_points = new float[] {0, 0, 0, 0, 0.5f, 0, 0, 0};
@@ -105,27 +158,7 @@ namespace AssemblyCSharp
                 y_points = new float[] {0, 0, 0, 0, 0, 0.5f, 0, 0};
             } else if (north && south && east && west)
             {
-                int se = cr.GetBlockId(x + 1, posy, z - 1);
-                int sw = cr.GetBlockId(x - 1, posy, z - 1);
-                int ne = cr.GetBlockId(x + 1, posy, z + 1);
-                int nw = cr.GetBlockId(x - 1, posy, z + 1);
-
-                bool southEast = true;
-                bool northEast = true;
-                bool southWest = true;
-                bool northWest = true;
-
-                if (se == 0)
-                    southEast = false;
-
-                if (sw == 0)
-                    southWest = false;
-
-                if (ne == 0)
-                    northEast = false;
-
-                if (nw == 0)
-                    northWest = false;
+               
 
                 if (northEast && northWest && southEast && southWest)
                 {
